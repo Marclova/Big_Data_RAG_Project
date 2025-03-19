@@ -1,0 +1,10 @@
+fitz
+tf_keras
+pymongo
+pymupdf
+transformers
+sentence-transformers
+torch
+
+pre-commit
+nbstripout
