@@ -5,6 +5,3 @@ pymupdf
 transformers
 sentence-transformers
 torch
-
-pre-commit
-nbstripout
