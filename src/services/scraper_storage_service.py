@@ -2,7 +2,7 @@ import os
 from urllib import request
 
 
-DEFAULT_PATH = "BIG_DATA_RAG_PROJECT/downloadedFiles/"
+DEFAULT_PATH = "downloadedFiles/"
 
 def download_file(file_url: str, file_extension: str, file_name: str = "appendFile", folder_path: str = DEFAULT_PATH) -> str:
     """
@@ -18,6 +18,9 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
         str: The file path, which is the concatenation of folder_path + file_name + file_extension
     """
     try:
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
         file_path = folder_path + file_name + file_extension
 
         request.urlretrieve(file_url, file_path)
@@ -44,4 +47,4 @@ def delete_file(file_path: str) -> int:
     except Exception as e:
         print(f"Error occurred while deleting file: {e}")
         return -1
-    return 1 if os.path.exists(file_path) else -1
+    return 1 if not(os.path.exists(file_path)) else -1

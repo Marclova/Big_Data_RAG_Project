@@ -1,4 +1,5 @@
-temp.pdf
 .vscode/settings.json
+**/__pycache__/
 
+temp.pdf
 downloadedFiles/
