@@ -2,7 +2,9 @@ import re
 from pymongo import MongoClient, results
 
 class MongoDB_manager:
-    """Solution for MongoDB with collections having records with the columns 'title' and 'url'."""
+    """
+    Class to manage the MongoDB connection and operations.
+    """
 
     def __init__(self, DB_connection_url: str, DB_name: str):
         self.connection = MongoClient(DB_connection_url)
@@ -14,10 +16,12 @@ class MongoDB_manager:
 
     def get_all_titleURL_couples(self, input_collection_name: str, title_normalization: bool = True) -> dict[str,str]:
         """
-        Retrieves all the records in the Mongo collection.
+        Retrieves all the records in the given Mongo collection.
 
         Parameters:
             input_collection_name (str): The name of the collection to retrieve the files from.
+            title_normalization (bool, default=True): 
+                If True, the title will be normalized to prevent issues with special characters.
 
         Returns:
             dict[str,str]: The list of couples title-url to download the PDF files from.
@@ -36,10 +40,14 @@ class MongoDB_manager:
         
         return result
     
-    
+    #TODO consider to implement (it must include url, title, pages and authors) [it will use "insert_record_using_JSON"]
+    # def insert_record_using_params(...):
+    #     ...
+
+
     def insert_record_using_JSON(self, output_collection_name: str, json: dict[any]) -> results.InsertOneResult:
         """
-        Insert a new record into the DB using a custom JSON.
+        Insert a new record into the DB using a custom JSON to describe the record's content.
 
         Parameters:
             output_collection_name (str): The name of the existing DB collection where to insert the record into.
@@ -89,10 +97,11 @@ class MongoDB_manager:
 
 def _title_normalization(title: str) -> str:
     """
-    Simple string normalization to prevent string issues on queries with titles.
-    
+    Normalizes the title to prevent issues with special characters.
+    Parameters:
+        title (str): The title to normalize.
     Returns:
-        str: Normalized title
+        str: The normalized title.
     """
     return re.sub(r'[^a-zA-Z0-9 ]', '', title).replace(' ', '_')
 

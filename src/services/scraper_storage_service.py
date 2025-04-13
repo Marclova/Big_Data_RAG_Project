@@ -9,13 +9,14 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
     Downloads a file from the url into a determined folder.
 
     Parameters:
-        url (str): The url used to download the file.
+        file_url (str): The url used to download the file.
         file_extension (str): The expected extension of the file to download.
         file_name (str, default="appendFile"): The name to assign to the file once downloaded.
         folder_path (str, default=DEFAULT_PATH): The local path wherein to put the downloaded file.
     
     Returns:
-        str: The file path, which is the concatenation of folder_path + file_name + file_extension
+        str: The file path, which is the concatenation of folder_path + file_name + file_extension. 
+            None if the file has not been downloaded correctly.
     """
     try:
         if not os.path.exists(folder_path):
@@ -34,11 +35,12 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
 def delete_file(file_path: str) -> int:
     """
     Deletes the given file.
-
+    Parameters:
+        file_path (str): The path of the file to delete.
     Returns:
         int: '1' if the file has been eliminated correctly\n
-                '0' if the file didn't exist in first place\n
-                '-1' if an error occurred
+            '0' if the file didn't exist in first place\n
+            '-1' if an error occurred
     """
     if not(os.path.exists):
         return 0

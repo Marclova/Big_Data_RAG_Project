@@ -1,6 +1,6 @@
 from interfaces.embedder_interface import Embedder
 import services.DB_operator as DB_operator
-from together_RAG_system import Together_Embedder
+from embedders.together_RAG_system import Together_Embedder
 
 class RAG_Mongo:
     """Solution for RAG system on MongoDB"""
@@ -13,9 +13,12 @@ class RAG_Mongo:
 
     def get_all_PDF_URLs_from_MongoDB(self) -> dict[str,str]:
         """
-        Makes a query to retrieve all PDF from the DB collection set by the __init__ function.
-        The used collection is supposed to be a MongoDB collection containing
-        
+        Makes a query to retrieve all PDF from the input DB collection set by the __init__ function.
+        The used collection is supposed to be a MongoDB collection containing records with the following fields:\n
+        url: str \n
+        title: str \n
+        pages: str \n
+        authors: [str]
         Returns:
             Dict[str,str]: The list of couples title-URL to download the PDF files from
         """
@@ -28,9 +31,8 @@ class RAG_Mongo:
         Uses the embedder to embed each of the files listed as URLs.
 
         Parameters:
-            text_embedder (any): An embedder able to embed text files
+            text_embedder (Embedder): An embedder able to embed text files
             titleURL_couples (dict[str,str]): The list of couples title-URL to download the PDF files from.
-
         Returns:
             bool: True if the embedding has been done correctly, False if at least one error occurred.
         """

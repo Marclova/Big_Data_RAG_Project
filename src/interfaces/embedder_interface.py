@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
 class Embedder(ABC):
+    """
+    This is an abstract class that defines the interface for embedding text files into vector representations.
+    """
     #TODO turn the output into a dict[str, list[float]] to not have data loss
     @abstractmethod
     def generate_vectorList_as_floatLists_from_URL(self, file_URL: str) -> list[list[float]]:
@@ -10,8 +13,8 @@ class Embedder(ABC):
         Parameters:
             file_URL (Any): The url of the file to convert.
         Returns:
-            list[list[float]]: The list of converted vectors, which may be interpreted as a list[Vectors];\n
-            One vector corresponds to a cluster text and the whole vector list should correspond to a document.
+            list[list[float]]: The list of converted vectors, which may be interpreted as a list[Vectors];
+                One vector corresponds to a cluster text and the whole vector list should correspond to a document.
         """
         pass
     
