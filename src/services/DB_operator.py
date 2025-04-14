@@ -40,7 +40,7 @@ class MongoDB_manager:
         
         return result
     
-    #TODO consider to implement (it must include url, title, pages and authors) [it will use "insert_record_using_JSON"]
+    #TODO(unscheduled) consider to implement (it must include url, title, pages and authors) [it will use "insert_record_using_JSON"]
     # def insert_record_using_params(...):
     #     ...
 

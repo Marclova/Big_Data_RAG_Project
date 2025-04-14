@@ -18,7 +18,7 @@ class Embedder(ABC):
         """
         pass
     
-    #TODO consider to implement
+    #TODO(unscheduled) consider to implement
     # @abstractmethod
     # def convert_floatLists_into_vectorStore(self, vectorList: list[list[float]]) -> any:
     #     """

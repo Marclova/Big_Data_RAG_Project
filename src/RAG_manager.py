@@ -44,7 +44,7 @@ class RAG_Mongo:
                 "embedding" : vectorList
                 }
             if self.embedding_DBManager.insert_record_using_JSON(self.output_dbCollection_name, record) == None:
-                print("ERROR: '" + title + "' has not been inserted into the DB") #TODO consider another logging method
+                print("ERROR: '" + title + "' has not been inserted into the DB") #TODO(unscheduled) consider another logging method
                 result = False
         return result
 

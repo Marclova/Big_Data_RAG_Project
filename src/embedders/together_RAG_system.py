@@ -34,7 +34,7 @@ class Together_Embedder(Embedder):
     return vectorList
   
   # #interface method
-  # def convert_floatLists_into_vectorStore(self, vectorList: list[list[float]]) -> any: #TODO consider to implement
+  # def convert_floatLists_into_vectorStore(self, vectorList: list[list[float]]) -> any:
   #   empty_vectorStore = InMemoryVectorStore.from_texts(None, self.embeddings)
   
   def generate_vectorStore_from_URL(self, file_url: str, file_extension: str = ".") -> InMemoryVectorStore:
@@ -96,9 +96,9 @@ class Together_Embedder(Embedder):
     retriever = vectorStore.as_retriever()
     return self.elaborate_most_suitable_sentences_from_retriever(query, retriever)
   
-  #TODO consider to add an output limit option (for now seems to be 4 by default) [copilot suggested to do something about top_k]
-  #TODO consider to collapse this method into "elaborate_most_suitable_sentences_from_vectorStore"
-  #TODO consider to use a InMemoryVectorStore's method for this functionality instead of creating a VectorStoreRetriever
+  #TODO(unscheduled) add an output limit option (for now seems to be 4 by default) [copilot suggested to do something about top_k]
+  #TODO(unscheduled) consider to collapse this method into "elaborate_most_suitable_sentences_from_vectorStore"
+  #TODO(unscheduled) consider to use a InMemoryVectorStore's method for this functionality instead of creating a VectorStoreRetriever
   def elaborate_most_suitable_sentences_from_retriever(self, query: str, retriever: VectorStoreRetriever) -> list[str]:
     """
     Uses the given VectorStoreRetriever to return a List[str] of sentences,
@@ -143,7 +143,7 @@ def _extract_clusteredText_from_file(filePath: str) -> list[str]:
   
   return textList
 
-def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO consider a more effective solution
+def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
   return text.split("\n")
 
 

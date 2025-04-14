@@ -28,7 +28,7 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
         if not( os.path.exists(file_path) ):
             raise FileNotFoundError
     except Exception as e:
-        print("ERROR: " + file_name+file_extension +" has not been downloaded.\n error log: " + str(e)) #TODO consider another logging method
+        print("ERROR: " + file_name+file_extension +" has not been downloaded.\n error log: " + str(e)) #TODO(unscheduled) implement proper logging method
         return None
     return file_path
 
