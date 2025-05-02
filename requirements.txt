@@ -4,3 +4,6 @@ pymupdf
 transformers
 sentence-transformers
 torch
+
+langchain_together
+sentence_transformers
