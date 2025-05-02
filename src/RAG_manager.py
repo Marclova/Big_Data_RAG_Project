@@ -2,6 +2,7 @@ from interfaces.embedder_interface import Embedder
 import services.DB_operator as DB_operator
 from embedders.together_RAG_system import Together_Embedder
 
+
 class RAG_Mongo:
     """Solution for RAG system on MongoDB"""
 
@@ -57,7 +58,7 @@ class RAG_Mongo:
 
 
 if __name__ == "__main__":
-    # Example usage
+    """ Example usage """
     DB_connection_url = "mongodb://localhost:27017/"
     DB_name = "testDB"
     input_dbCollection_name = "records"

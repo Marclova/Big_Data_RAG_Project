@@ -1,5 +1,5 @@
 import os
-from urllib import request
+import requests
 
 
 DEFAULT_PATH = "downloadedFiles/"
@@ -22,13 +22,19 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        file_path = folder_path + file_name + file_extension
+        file_path = os.path.join(folder_path, file_name + file_extension)
 
-        request.urlretrieve(file_url, file_path)
-        if not( os.path.exists(file_path) ):
+        response = requests.get(file_url, stream=True)
+        response.raise_for_status()
+
+        with open(file_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+
+        if not os.path.exists(file_path):
             raise FileNotFoundError
     except Exception as e:
-        print("ERROR: " + file_name+file_extension +" has not been downloaded.\n error log: " + str(e)) #TODO(unscheduled) implement proper logging method
+        print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")  # TODO: Implement proper logging method
         return None
     return file_path
 
