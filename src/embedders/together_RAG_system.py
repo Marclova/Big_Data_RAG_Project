@@ -1,3 +1,4 @@
+from typing import override
 import pymupdf
 from langchain_together import TogetherEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStoreRetriever
@@ -14,40 +15,36 @@ class Together_Embedder(Embedder):
   def __init__(self, default_handled_file_extension: str, together_model_name: str, together_API_key: str):
     self.default_extension = _normalize_extension(default_handled_file_extension)
     self.embeddings = TogetherEmbeddings(model= together_model_name, api_key= together_API_key)
+    self.together_model_name = together_model_name
 
-  #interface method
-  #TODO turn the output into a dict[str, list[float]] to not have data loss
-  def generate_vectorList_as_floatLists_from_URL(self, file_url: str) -> list[list[float]]:
-    """
-    Embeds the text file (ex. txt or PDF) downloaded from the url into a list of float lists,
-    where a float list is the vector representation of a text.
-    Parameters:
-      file_url (str): The url used to download the file to embed.
-    Returns:
-      list[list[float]]: The generated vectorList, containing the list of vectors.
-    """
+
+  @override
+  def get_embedder_name(self) -> str:
+    return self.together_model_name
+
+
+  @override
+  def generate_vectorDict_from_URL(self, file_url: str) -> dict[str, list[float]]:
     vectorStore = self.generate_vectorStore_from_URL(file_url)
-    vectorList: list[list[float]] = list()
+    vectorDict: dict[str, list[float]] = dict()
 
     for (_, doc) in vectorStore.store.items():
-      vectorList.insert(vectorList.__len__(), doc["vector"]) #force the new collection to be added as a new element
-    return vectorList
-  
-  # #interface method
-  # def convert_floatLists_into_vectorStore(self, vectorList: list[list[float]]) -> any:
-  #   empty_vectorStore = InMemoryVectorStore.from_texts(None, self.embeddings)
-  
-  def generate_vectorStore_from_URL(self, file_url: str, file_extension: str = ".") -> InMemoryVectorStore:
+      vectorDict.update({doc["text"] : doc["vector"]})
+    return vectorDict
+
+
+  def generate_vectorStore_from_URL(self, file_url: str, file_extension: str = None) -> InMemoryVectorStore:
     """
     Embeds the text file (ex. txt or PDF) downloaded from the url into a InMemoryVectorStore, 
     which may be used for semantic retrieval after conversion into a VectorStoreRetriever.
     Parameters:
       file_url (str): The url used to download the file to embed.
-      file_extension (str): The expected extension of the file to download. If not specified, the default one is used.
+      file_extension (str, default=self.default_extension):
+        The expected extension of the file to download. If not specified, the default one is picked from the class instance.
     Returns:
       InMemoryVectorStore: The generated vectorStore, containing the list of vectors.
     """
-    if file_extension == ".":
+    if file_extension == None:
       file_extension = self.default_extension
     else:
       file_extension = _normalize_extension(file_extension)
@@ -71,6 +68,7 @@ class Together_Embedder(Embedder):
     clusteredText = _extract_clusteredText_from_file(filePath)
     
     return self.generate_vectorStore_from_clusteredText(clusteredText)
+
 
   def generate_vectorStore_from_clusteredText(self, stringList: list[str]) -> InMemoryVectorStore:
     """
@@ -96,6 +94,7 @@ class Together_Embedder(Embedder):
     retriever = vectorStore.as_retriever()
     return self.elaborate_most_suitable_sentences_from_retriever(query, retriever)
   
+
   #TODO(unscheduled) add an output limit option (for now seems to be 4 by default) [copilot suggested to do something about top_k]
   #TODO(unscheduled) consider to collapse this method into "elaborate_most_suitable_sentences_from_vectorStore"
   #TODO(unscheduled) consider to use a InMemoryVectorStore's method for this functionality instead of creating a VectorStoreRetriever
@@ -145,6 +144,8 @@ def _extract_clusteredText_from_file(filePath: str) -> list[str]:
 
 def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
   return text.split("\n")
+
+
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ class MongoDB_manager:
     """
     Class to manage the MongoDB connection and operations.
     """
-
+    #TODO add connection checking
     def __init__(self, DB_connection_url: str, DB_name: str):
         self.connection = MongoClient(DB_connection_url)
         self.database = self.connection[DB_name]
@@ -14,31 +14,43 @@ class MongoDB_manager:
         # self.collection.create_index("title", unique=True)
 
 
-    def get_all_titleURL_couples(self, input_collection_name: str, title_normalization: bool = True) -> dict[str,str]:
+    # def get_all_titleURL_couples(self, input_collection_name: str, title_normalization: bool = True) -> dict[str,str]:
+    #     """
+    #     Retrieves all the records in the given Mongo collection.
+
+    #     Parameters:
+    #         input_collection_name (str): The name of the collection to retrieve the files from.
+    #         title_normalization (bool, default=True): 
+    #             If True, the title will be normalized to prevent issues with special characters.
+
+    #     Returns:
+    #         dict[str,str]: The list of couples title-url to download the PDF files from.
+    #     """
+    #     query_result = self.database[input_collection_name].find()
+    #     result: dict[str,str] = dict()
+
+    #     for record in query_result:
+    #         pdf_URL: str = record["url"]
+    #         pdf_title :str = record["title"]
+
+    #         if title_normalization:
+    #             pdf_title = _title_normalization(pdf_title)
+            
+    #         result.update({pdf_title : pdf_URL})
+        
+    #     return result
+
+    def get_all_records(self, input_collection_name: str) -> list[dict[any]]:
         """
         Retrieves all the records in the given Mongo collection.
 
         Parameters:
             input_collection_name (str): The name of the collection to retrieve the files from.
-            title_normalization (bool, default=True): 
-                If True, the title will be normalized to prevent issues with special characters.
 
         Returns:
-            dict[str,str]: The list of couples title-url to download the PDF files from.
+            list[dict[any]]: The list of records in the collection.
         """
-        query_result = self.database[input_collection_name].find()
-        result: dict[str,str] = dict()
-
-        for record in query_result:
-            pdf_URL: str = record["url"]
-            pdf_title :str = record["title"]
-
-            if title_normalization:
-                pdf_title = _title_normalization(pdf_title)
-            
-            result.update({pdf_title : pdf_URL})
-        
-        return result
+        return list(self.database[input_collection_name].find())
     
     #TODO(unscheduled) consider to implement (it must include url, title, pages and authors) [it will use "insert_record_using_JSON"]
     # def insert_record_using_params(...):
