@@ -5,13 +5,15 @@ from models.dataTransfer_model import DT_model
 
 
 class RAG_Mongo:
-    """Solution for RAG system on MongoDB"""
-
+    """
+    Solution for RAG system on MongoDB
+    """
     def __init__(self, DB_connection_url: str, DB_name: str, input_dbCollection_name: str, output_dbCollection_name: str):
         self.inputFiles_DBManager = DB_operator.MongoDB_manager(DB_connection_url, DB_name)
         self.embedding_DBManager = DB_operator.MongoDB_manager(DB_connection_url, DB_name)
         self.input_dbCollection_name = input_dbCollection_name
         self.output_dbCollection_name = output_dbCollection_name
+
 
     def get_all_records_from_DB(self) -> list[DT_model]:
         """
@@ -32,6 +34,7 @@ class RAG_Mongo:
             # model_list.append(DT_model(None, None, None, record["url"], record["title"], record["authors"]))
             model_list.append(DT_model(record["url"], record["title"], record["author"]))
         return model_list
+
 
     #TODO consider to make this method return a list of models instead of a boolean value
     def embed_all_PDF_from_URLs(self, text_embedder: Embedder, 

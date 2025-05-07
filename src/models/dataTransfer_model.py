@@ -4,7 +4,9 @@ class DT_model:
     """
     def __init__(self, url: str, title: str = "untitled", authors: list[str] = ["unknown"], 
                  id: str = None, vector: list[float] = list(), text: str = None, embedder_name: str = None):
-        """Initializes a data transfer model for storing and retrieving data from a vectorial database."""
+        """
+        Initializes a data transfer model for storing and retrieving data from a vectorial database.
+        """
         if (url == None or title == None):
             raise ValueError("URL and title cannot be None")
         if (title == ""):
@@ -26,9 +28,10 @@ class DT_model:
         self.embedder_name = embedder_name
 
 
-
     def update_vector(self, vector: list[float], text: str, embedder_name: str) -> None:
-        """Updates the vector, text and embedder of the object."""
+        """
+        Updates the vector, text and embedder of the object.
+        """
         if (vector == None or vector.__len__() == 0):
             raise ValueError("Vector cannot be None or empty")
         if (text == None):
@@ -42,7 +45,9 @@ class DT_model:
 
     
     def generate_JSON_data(self) -> dict[str, any]:
-        """Returns a dictionary representation of the object for vectorial database storage."""
+        """
+        Returns a dictionary representation of the object for vectorial database storage.
+        """
         return {
             "id": self.id,
             "vector": self.vector,

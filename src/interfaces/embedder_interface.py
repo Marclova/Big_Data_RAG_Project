@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Embedder(ABC):
     """
     This is an abstract class that defines the interface for embedding text files into vector representations.
@@ -12,6 +13,7 @@ class Embedder(ABC):
             str: The name of the embedder.
         """
         pass
+
 
     @abstractmethod
     def generate_vectorDict_from_URL(self, file_URL: str) -> dict[str, list[float]]:

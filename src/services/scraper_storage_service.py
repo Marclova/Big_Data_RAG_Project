@@ -4,6 +4,7 @@ import requests
 
 DEFAULT_PATH = "downloadedFiles/"
 
+
 def download_file(file_url: str, file_extension: str, file_name: str = "appendFile", folder_path: str = DEFAULT_PATH) -> str:
     """
     Downloads a file from the url into a determined folder.
@@ -34,9 +35,10 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
         if not os.path.exists(file_path):
             raise FileNotFoundError
     except Exception as e:
-        print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")  # TODO: Implement proper logging method
+        print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")  # TODO(unscheduled) Implement proper logging method
         return None
     return file_path
+
 
 def delete_file(file_path: str) -> int:
     """
