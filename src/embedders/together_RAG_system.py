@@ -31,6 +31,19 @@ class Together_Embedder(Embedder):
     for (_, doc) in vectorStore.store.items():
       vectorDict.update({doc["text"] : doc["vector"]})
     return vectorDict
+  
+
+  #TODO(testing)
+  @override
+  def convert_vectorDict_into_vectorStore(self, vectorList: dict[str, list[float]]) -> any:
+    vector_store_to_return = InMemoryVectorStore(self.embeddings)
+
+    #insert manually the vectors into the vector store
+    for i, (text, vector) in enumerate(vectorList.items()):
+      # vector_store_to_return.store.update({i: {"id": i, "vector": vector, "text": text, "metadata": {}}})
+      vector_store_to_return = self.add_vector_to_vectorStore(vector_store_to_return, str(i), vector, text, {})
+    
+    return vector_store_to_return
 
 
   def generate_vectorStore_from_URL(self, file_url: str, file_extension: str = None) -> InMemoryVectorStore:
@@ -79,6 +92,28 @@ class Together_Embedder(Embedder):
       InMemoryVectorStore: The generated vectorStore.
     """
     return InMemoryVectorStore.from_texts(stringList, embedding= self.embeddings)
+  
+
+  #TODO(testing)
+  #TODO(unscheduled) consider a more efficient solution
+  def add_vector_to_vectorStore(self, vector_store: InMemoryVectorStore, 
+                                id: str, vector: list[float], text: str, metadata: dict[str, any]) -> InMemoryVectorStore:
+    """
+    Add a raw vector to the given InMemoryVectorStore.\n
+    This method is **not efficient**, as it requires to check if the id is already present in the vector store.
+    If the id is already present, it will be increased and checked again until a free id is found.
+    Parameters:
+      vectorStore (InMemoryVectorStore): The vector store to add the vector to.
+      id (str): The id of the vector to add.
+      vector (list[float]): The vector to add.
+      text (str): The text associated with the vector.
+    Returns:
+      InMemoryVectorStore: The updated vectorStore.
+    """
+    while (id in vector_store.store):
+      id = _increase_09az_id_with_carry(id)
+
+    return vector_store.store.update({id: {"id": id, "vector": vector, "text": text, "metadata": {}}})
 
 
   def elaborate_most_suitable_sentences_from_vectorStore(self, query: str, vectorStore: InMemoryVectorStore) -> list[str]:
@@ -145,6 +180,37 @@ def _extract_clusteredText_from_file(filePath: str) -> list[str]:
 def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
   return text.split("\n")
 
+
+#TODO(testing)
+def _increase_09az_id_with_carry(id: str) -> str:
+  """
+  Increases the given id, which is supposed to be a string of digits and lowercase letters, by one.\n
+  The applied increment includes a carry operation, so that the id is always a string of digits and lowercase letters.\n
+  The returned id may be longer than the original one by one character, which in that case will be completely filled with '0's.\n
+  This method may also work with ids containing characters that are not digits nor lowercase letters,
+  but in that case only the last character will have more probability to be normalized into the expected range.
+  Parameters:
+    id (str): The id to increase.
+  Returns:
+    str: The increased id.
+  """
+  index = len(id) - 1
+  carry = True
+
+  while not(carry) or index >= 0:
+    #increase the current character
+    id[index] = chr(ord(id[index]) + 1)
+
+    #check if carry is needed
+    if (id[index] > '9' and id[index] < 'a') or id[index] > 'z':
+      id[index] = '0'
+      index -= 1
+    else:
+      carry = False
+  
+  if carry: #if carry is True, we need to add a new character to apply the carry
+    id = '0' + id
+  return id    
 
 
 
