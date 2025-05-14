@@ -76,7 +76,8 @@ class Together_Embedder(Embedder):
     Returns:
       InMemoryVectorStore: The generated vectorStore, containing the list of vectors.
     """
-    clusteredText = raw_data_operator.extract_clusteredText_from_file(filePath)
+    text_to_cluster = scraper_storage_service.get_file_content(filePath)
+    clusteredText = raw_data_operator.cluster_text(text_to_cluster)
     
     return self.generate_vectorStore_from_clusteredText(clusteredText)
 

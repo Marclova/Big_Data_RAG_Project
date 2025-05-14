@@ -1,6 +1,3 @@
-import scraper_storage_service
-
-
 def normalize_extension(given_string: str) -> str:
     """
     Normalizes the given string to have a leading dot (.) if it doesn't already have one.
@@ -15,7 +12,7 @@ def normalize_extension(given_string: str) -> str:
         return given_string
 
 
-def extract_clusteredText_from_file(filePath: str) -> list[str]:
+def cluster_text(text_to_cluster: str) -> list[str]:
     """
     Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
     Parameters:
@@ -25,14 +22,14 @@ def extract_clusteredText_from_file(filePath: str) -> list[str]:
     """
     # doc = pymupdf.open(filePath)    
     # text = "\n".join([page.get_textbox("text") for page in doc])
-    text = scraper_storage_service.extract_text_from_file(filePath)
+    # text = scraper_storage_service.get_file_content(filePath)
 
-    textList = cluster_text_for_embeddings(text)
-  
-    return textList
+    # return cluster_text_for_embeddings(text_to_cluster)
+    return text_to_cluster.split("\n") #TODO(unscheduled) consider a more effective solution
 
-def cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
-    return text.split("\n")
+
+# def cluster_text_for_embeddings(text: str) -> list[str]:
+#     return text.split("\n")
 
 
 #TODO(testing)
