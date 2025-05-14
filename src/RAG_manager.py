@@ -37,8 +37,8 @@ class RAG_Mongo:
 
 
     #TODO consider to make this method return a list of models instead of a boolean value
-    def embed_all_PDF_from_URLs(self, text_embedder: Embedder, 
-                                data_models: list[DT_model]) -> bool:
+    def embed_all_PDF_from_DTModel_URL(self, text_embedder: Embedder, 
+                                        data_models: list[DT_model]) -> bool:
         """
         Uses the embedder to embed each PDF file from the given models list.
         The embedding is done using the URL of the PDF file to retrieve the file's content.
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     text_embedder = Together_Embedder(".pdf", "togethercomputer/m2-bert-80M-8k-retrieval", "9247636f968300e75c8ed9f7540734db51991313c7798264da83ee877260f2c0")
 
     titleURL_couples = rag_mongo.get_all_records_from_DB()
-    all_right = rag_mongo.embed_all_PDF_from_URLs(text_embedder, titleURL_couples)
+    all_right = rag_mongo.embed_all_PDF_from_DTModel_URL(text_embedder, titleURL_couples)
 
     if all_right:
         print("Everything went fine")

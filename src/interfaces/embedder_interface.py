@@ -31,11 +31,11 @@ class Embedder(ABC):
 
 
     @abstractmethod
-    def convert_vectorDict_into_vectorStore(self, vectorList: dict[str, list[float]]) -> any:
+    def convert_vectorJSON_into_vectorStore(self, vectorJSON: dict[str, any]) -> any:
         """
         Embedder interface function to convert the given vector list into a vectorStore.
         Parameters:
-            dict[str,list[float]]: The dict of clustered texts associated with their respective vectors, 
+            vectorList: (dict[str,any]): The JSON of clustered texts associated with their respective vectors, 
                 expressed as a list of floats.
                 The whole dict represents the given document's vector set.
         Returns:

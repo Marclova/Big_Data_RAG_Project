@@ -1,11 +1,11 @@
 from typing import override
-import pymupdf
 from langchain_together import TogetherEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStoreRetriever
 
 from interfaces.embedder_interface import Embedder
 
-from services import scraper_storage_service
+from services import scraper_storage_service, raw_data_operator
+
 
 
 class Together_Embedder(Embedder):
@@ -13,7 +13,7 @@ class Together_Embedder(Embedder):
   This class implements the Embedder interface using the Together API for embedding text files.
   """
   def __init__(self, default_handled_file_extension: str, together_model_name: str, together_API_key: str):
-    self.default_extension = _normalize_extension(default_handled_file_extension)
+    self.default_extension = raw_data_operator.normalize_extension(default_handled_file_extension)
     self.embeddings = TogetherEmbeddings(model= together_model_name, api_key= together_API_key)
     self.together_model_name = together_model_name
 
@@ -35,15 +35,13 @@ class Together_Embedder(Embedder):
 
   #TODO(testing)
   @override
-  def convert_vectorDict_into_vectorStore(self, vectorList: dict[str, list[float]]) -> any:
+  def convert_vectorJSON_into_vectorStore(self, vectorJSON: dict[str, any]) -> any:
     vector_store_to_return = InMemoryVectorStore(self.embeddings)
 
     #insert manually the vectors into the vector store
-    for i, (text, vector) in enumerate(vectorList.items()):
-      # vector_store_to_return.store.update({i: {"id": i, "vector": vector, "text": text, "metadata": {}}})
-      vector_store_to_return = self.add_vector_to_vectorStore(vector_store_to_return, str(i), vector, text, {})
-    
-    return vector_store_to_return
+    new_vectorStore = InMemoryVectorStore(self.embeddings)
+    return self.add_vector_to_vectorStore(new_vectorStore, vectorJSON["id"], vectorJSON["vector"], 
+                                          vectorJSON["text"], vectorJSON["metadata"])
 
 
   def generate_vectorStore_from_URL(self, file_url: str, file_extension: str = None) -> InMemoryVectorStore:
@@ -60,7 +58,7 @@ class Together_Embedder(Embedder):
     if file_extension == None:
       file_extension = self.default_extension
     else:
-      file_extension = _normalize_extension(file_extension)
+      file_extension = raw_data_operator.normalize_extension(file_extension)
 
     downloaded_file_path = scraper_storage_service.download_file(file_url, file_extension)
     vectorStore = self.generate_vectorStore_from_file(downloaded_file_path)
@@ -78,7 +76,7 @@ class Together_Embedder(Embedder):
     Returns:
       InMemoryVectorStore: The generated vectorStore, containing the list of vectors.
     """
-    clusteredText = _extract_clusteredText_from_file(filePath)
+    clusteredText = raw_data_operator.extract_clusteredText_from_file(filePath)
     
     return self.generate_vectorStore_from_clusteredText(clusteredText)
 
@@ -111,11 +109,14 @@ class Together_Embedder(Embedder):
       InMemoryVectorStore: The updated vectorStore.
     """
     while (id in vector_store.store):
-      id = _increase_09az_id_with_carry(id)
+      id = raw_data_operator.increase_09az_id_with_carry(id)
 
     return vector_store.store.update({id: {"id": id, "vector": vector, "text": text, "metadata": {}}})
 
 
+  #TODO(testing)
+  #TODO(unscheduled) add an output limit option (for now seems to be 4 by default) [copilot suggested to do something about top_k]
+  #TODO(unscheduled) consider to use a InMemoryVectorStore's method for this functionality instead of creating a VectorStoreRetriever
   def elaborate_most_suitable_sentences_from_vectorStore(self, query: str, vectorStore: InMemoryVectorStore) -> list[str]:
     """
     Converts the given InMemoryVectorStore into a VectorStoreRetriever and returns a List[str] of sentences,
@@ -127,90 +128,91 @@ class Together_Embedder(Embedder):
       list[str]: The result of the retriever's invoke function converted as a List[str] from a List[Document].
     """
     retriever = vectorStore.as_retriever()
-    return self.elaborate_most_suitable_sentences_from_retriever(query, retriever)
-  
-
-  #TODO(unscheduled) add an output limit option (for now seems to be 4 by default) [copilot suggested to do something about top_k]
-  #TODO(unscheduled) consider to collapse this method into "elaborate_most_suitable_sentences_from_vectorStore"
-  #TODO(unscheduled) consider to use a InMemoryVectorStore's method for this functionality instead of creating a VectorStoreRetriever
-  def elaborate_most_suitable_sentences_from_retriever(self, query: str, retriever: VectorStoreRetriever) -> list[str]:
-    """
-    Uses the given VectorStoreRetriever to return a List[str] of sentences,
-    sorted from the most to the less suitable sentence for semantic similitude.
-    Parameters:
-      query (str): The natural language query used to retrieve an as much suitable sentence as possible.
-      retriever (VectorStoreRetriever): The retriever which effectively executes the functionality.
-    Returns:
-      list[str]: The result of the retriever's invoke function converted as a List[str] from a List[Document].
-    """
+    # return self.elaborate_most_suitable_sentences_from_retriever(query, retriever)
     retrieved_documents = retriever.invoke(query)
+
     return [document.page_content for document in retrieved_documents]
-
-
-
-def _normalize_extension(given_string: str) -> str:
-  """
-  Normalizes the given string to have a leading dot (.) if it doesn't already have one.
-  Parameters:
-    given_string (str): The string to normalize.
-  Returns:
-    str: The normalized string with a leading dot.
-  """
-  if given_string[0] != ".":
-    return ("." + given_string)
-  else:
-    return given_string
-
-
-def _extract_clusteredText_from_file(filePath: str) -> list[str]:
-  """
-  Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
-  Parameters:
-    filePath (str): The path to the file.
-  Returns:
-    list[str]: The clustered text extracted from the file.
-  """
-  doc = pymupdf.open(filePath)    
-  text = "\n".join([page.get_textbox("text") for page in doc])
-
-  textList = _cluster_text_for_embeddings(text)
   
-  return textList
 
-def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
-  return text.split("\n")
-
-
-#TODO(testing)
-def _increase_09az_id_with_carry(id: str) -> str:
-  """
-  Increases the given id, which is supposed to be a string of digits and lowercase letters, by one.\n
-  The applied increment includes a carry operation, so that the id is always a string of digits and lowercase letters.\n
-  The returned id may be longer than the original one by one character, which in that case will be completely filled with '0's.\n
-  This method may also work with ids containing characters that are not digits nor lowercase letters,
-  but in that case only the last character will have more probability to be normalized into the expected range.
-  Parameters:
-    id (str): The id to increase.
-  Returns:
-    str: The increased id.
-  """
-  index = len(id) - 1
-  carry = True
-
-  while not(carry) or index >= 0:
-    #increase the current character
-    id[index] = chr(ord(id[index]) + 1)
-
-    #check if carry is needed
-    if (id[index] > '9' and id[index] < 'a') or id[index] > 'z':
-      id[index] = '0'
-      index -= 1
-    else:
-      carry = False
   
-  if carry: #if carry is True, we need to add a new character to apply the carry
-    id = '0' + id
-  return id    
+  # def elaborate_most_suitable_sentences_from_retriever(self, query: str, retriever: VectorStoreRetriever) -> list[str]:
+  #   """
+  #   Uses the given VectorStoreRetriever to return a List[str] of sentences,
+  #   sorted from the most to the less suitable sentence for semantic similitude.
+  #   Parameters:
+  #     query (str): The natural language query used to retrieve an as much suitable sentence as possible.
+  #     retriever (VectorStoreRetriever): The retriever which effectively executes the functionality.
+  #   Returns:
+  #     list[str]: The result of the retriever's invoke function converted as a List[str] from a List[Document].
+  #   """
+  #   retrieved_documents = retriever.invoke(query)
+  #   return [document.page_content for document in retrieved_documents]
+
+
+
+# def _normalize_extension(given_string: str) -> str:
+#   """
+#   Normalizes the given string to have a leading dot (.) if it doesn't already have one.
+#   Parameters:
+#     given_string (str): The string to normalize.
+#   Returns:
+#     str: The normalized string with a leading dot.
+#   """
+#   if given_string[0] != ".":
+#     return ("." + given_string)
+#   else:
+#     return given_string
+
+
+# def _extract_clusteredText_from_file(filePath: str) -> list[str]:
+#   """
+#   Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
+#   Parameters:
+#     filePath (str): The path to the file.
+#   Returns:
+#     list[str]: The clustered text extracted from the file.
+#   """
+#   doc = pymupdf.open(filePath)    
+#   text = "\n".join([page.get_textbox("text") for page in doc])
+
+#   textList = _cluster_text_for_embeddings(text)
+  
+#   return textList
+
+# def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
+#   return text.split("\n")
+
+
+# #TODO(testing)
+# def _increase_09az_id_with_carry(id: str) -> str:
+#   """
+#   Increases the given id, which is supposed to be a string of digits and lowercase letters, by one.\n
+#   The applied increment includes a carry operation, so that the id is always a string of digits and lowercase letters.\n
+#   The returned id may be longer than the original one by one character, which in that case will be completely filled with '0's.\n
+#   This method may also work with ids containing characters that are not digits nor lowercase letters,
+#   but in that case only the last character will have more probability to be normalized into the expected range.
+#   Parameters:
+#     id (str): The id to increase.
+#   Returns:
+#     str: The increased id.
+#   """
+#   index = len(id) - 1
+#   carry = True
+
+#   while not(carry) or index >= 0:
+#     #increase the current character
+#     id[index] = chr(ord(id[index]) + 1)
+
+#     #check if carry is needed
+#     if (id[index] > '9' and id[index] < 'a') or id[index] > 'z':
+#       id[index] = '0'
+#       index -= 1
+#     else:
+#       carry = False
+  
+#   if carry: #if carry is True, we need to add a new character to apply the carry
+#     id = '0' + id
+#   return id    
 
 
 

@@ -58,3 +58,14 @@ def delete_file(file_path: str) -> int:
         print(f"Error occurred while deleting file: {e}")
         return -1
     return 1 if not(os.path.exists(file_path)) else -1
+
+def get_file_content(file_path: str) -> str:
+    """
+    Retrieves the content of the given file.
+    Parameters:
+        file_path (str): The path of the file to read.
+    Returns:
+        str: The content of the file.
+    """
+    with open(file_path, 'r') as file:
+        return file.read()
