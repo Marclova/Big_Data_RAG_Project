@@ -68,7 +68,7 @@ def get_file_content(file_path: str) -> str:
     Returns:
         str: The content of the file.
     """
-    # with open(file_path, 'r', encoding='utf-8') as file:
+    # with open(file_path, 'r', encoding='utf-8') as doc:
     #     return file.read()
     doc = pymupdf.open(file_path)
     text = "\n".join([page.get_textbox("text") for page in doc])

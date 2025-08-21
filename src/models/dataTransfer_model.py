@@ -1,15 +1,17 @@
 class DT_model:
     """
     Data Transfer model for storing and retrieving data from a vectorial database.
+    Each model represents a text chunk and its associated vector.
+    Initially the vector and text are empty, they will be filled after the embedding process.
     """
     def __init__(self, url: str, title: str = "untitled", authors: list[str] = ["unknown"], 
                  id: str = None, vector: list[float] = list(), text: str = None, embedder_name: str = None):
         """
         Initializes a data transfer model for storing and retrieving data from a vectorial database.
         """
-        if (url == None or title == None):
-            raise ValueError("URL and title cannot be None")
-        if (title == ""):
+        if (url == None):
+            raise ValueError("URL cannot be None")
+        if (title == None or title == ""):
             title = "untitled"
         if (authors.__len__() == 0):
             authors = ["unknown"]

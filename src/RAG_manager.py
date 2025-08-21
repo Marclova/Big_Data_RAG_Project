@@ -52,14 +52,14 @@ class RAG_Mongo:
             bool: True if the embedding has been done correctly, False if at least one error occurred.
         """
         global_result = True
-        #create a set of vector for each document (contained in the model)
+        #create a set of vectors for each document (contained in the model)
         for model in data_models:
             local_result = True
             vectorDict = text_embedder.generate_vectorDict_from_URL(model.url) #onerous operation
 
             #create and insert a record in the DB for each cluster-vector couple
             for cluster_index, (text, vector) in enumerate(vectorDict.items()):
-                model.update_vector(vector, text, text_embedder.get_embedder_name())        
+                model.update_vector(vector, text, text_embedder.get_embedder_name())
                 if self.embedding_DBManager.insert_record_using_JSON(self.output_dbCollection_name, model.generate_JSON_data()) == None:
                     print(f"ERROR: cluster text [{cluster_index}] of '{model.title}' has not been inserted into the DB") #TODO(unscheduled) consider another logging method
                     global_result = False
@@ -68,7 +68,7 @@ class RAG_Mongo:
             if local_result:
                 print("INFO: All vectors from '" + model.title + "' have been inserted correctly into the DB") #TODO(unscheduled) consider another logging method
             else:
-                print("INFO: At least one vector from '" + model.title + "' have not been inserted into the DB") #TODO(unscheduled) consider another logging method
+                print("WARNING: At least one vector from '" + model.title + "' have not been inserted into the DB") #TODO(unscheduled) consider another logging method
 
         print(f"INFO: All {data_models.__len__()} documents have been processed") #TODO(unscheduled) consider another logging method   
         return global_result
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     rag_mongo = RAG_Mongo(DB_connection_url, DB_name, input_dbCollection_name, output_dbCollection_name)
     
-    text_embedder = Together_Embedder(".pdf", "togethercomputer/m2-bert-80M-8k-retrieval", "9247636f968300e75c8ed9f7540734db51991313c7798264da83ee877260f2c0")
+    text_embedder = Together_Embedder(".pdf", "togethercomputer/m2-bert-80M-32k-retrieval", "9247636f968300e75c8ed9f7540734db51991313c7798264da83ee877260f2c0")
 
     titleURL_couples = rag_mongo.get_all_records_from_DB()
     all_right = rag_mongo.embed_all_PDF_from_DTModel_URL(text_embedder, titleURL_couples)

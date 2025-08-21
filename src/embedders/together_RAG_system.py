@@ -90,11 +90,14 @@ class Together_Embedder(Embedder):
     Returns:
       InMemoryVectorStore: The generated vectorStore.
     """
-    return InMemoryVectorStore.from_texts(stringList, embedding= self.embeddings)
+    print(f"INFO: Generating vectorStore from clustered text. {stringList.__len__()} strings to embed...") #TODO(unscheduled) consider another logging method
+    result = InMemoryVectorStore.from_texts(stringList, embedding=self.embeddings)
+    print("INFO: VectorStore generated.") #TODO(unscheduled) consider another logging method
+    return result
   
 
   #TODO(testing)
-  #TODO(unscheduled) consider a more efficient solution
+  #TODO(unscheduled) consider a more efficient solution (like generating the new id by increasing the greater one)
   def add_vector_to_vectorStore(self, vector_store: InMemoryVectorStore, 
                                 id: str, vector: list[float], text: str, metadata: dict[str, any]) -> InMemoryVectorStore:
     """
