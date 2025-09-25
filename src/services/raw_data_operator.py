@@ -10,9 +10,23 @@ def normalize_extension(given_string: str) -> str:
         return ("." + given_string)
     else:
         return given_string
+    
+
+def normalize_folder_path(given_string: str) -> str:
+    """
+    Normalizes the given folder path to have a trailing slash (/) if it doesn't already have one.
+    Parameters:
+        given_string (str): The folder path to normalize.
+    Returns:
+        str: The normalized folder path with a trailing slash.
+    """
+    if given_string[-1] != "/":
+        return (given_string + "/")
+    else:
+        return given_string
 
 
-def cluster_text(text_to_cluster: str) -> list[str]:
+def cluster_text(text_to_cluster: str) -> list[str]: #TODO implement a more advanced clustering algorithm
     """
     Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
     Parameters:
@@ -20,19 +34,9 @@ def cluster_text(text_to_cluster: str) -> list[str]:
     Returns:
         list[str]: The clustered text extracted from the file.
     """
-    # doc = pymupdf.open(filePath)    
-    # text = "\n".join([page.get_textbox("text") for page in doc])
-    # text = scraper_storage_service.get_file_content(filePath)
-
-    # return cluster_text_for_embeddings(text_to_cluster)
-    return text_to_cluster.split("\n") #TODO(unscheduled) consider a more effective solution
+    return text_to_cluster.split("\n")
 
 
-# def cluster_text_for_embeddings(text: str) -> list[str]:
-#     return text.split("\n")
-
-
-#TODO(testing)
 def increase_09az_id_with_carry(id: str) -> str:
     """
     Increases the given id, which is supposed to be a string of digits and lowercase letters, by one.\n
@@ -45,22 +49,41 @@ def increase_09az_id_with_carry(id: str) -> str:
     Returns:
         str: The increased id.
     """
-    #0 = 48     9 = 57     a = 97     z = 122
+    if (id == None or len(id) == 0):
+        raise ValueError("The given id is None or empty.")
+
+    CHAR_0 = ord('0') #48
+    CHAR_9 = ord('9') #57
+    CHAR_a = ord('a') #97
+    CHAR_z = ord('z') #122
     
-    index = len(id) - 1
+    bytearray_id = bytearray(id, 'utf-8')
+    index = len(bytearray_id) - 1
     carry = True
 
-    while not(carry) or index >= 0:
-        #increase the current character
-        id[index] = chr(ord(id[index]) + 1)
-
-        #check if carry is needed
-    if (id[index] > '9' and id[index] < 'a') or id[index] > 'z':
-        id[index] = '0'
-        index -= 1
-    else:
+    #increase the character at the current index by one ASCII value and move to the previous index as long as carry is needed
+    while carry and index >= 0:
         carry = False
+        append_val = bytearray_id[index]
+        
+        #carry case, recursively increase the previous character
+        if append_val >= CHAR_z:
+            bytearray_id[index] = CHAR_0
+            carry = True
+            index -= 1
+        #skip to 'a' case
+        elif append_val >= CHAR_9 and append_val < CHAR_a:
+            bytearray_id[index] = CHAR_a
+        #skip to '0' case
+        elif append_val < CHAR_0:
+            bytearray_id[index] = CHAR_0
+        #normal case
+        else:
+            bytearray_id[index] += 1
     
-    if carry: #if carry is True, we need to add a new character to apply the carry
+    id = bytearray_id.decode('utf-8')
+    #add a new '0' at the beginning if carry is still needed
+    if carry:
         id = '0' + id
+
     return id
