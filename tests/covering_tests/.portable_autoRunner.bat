@@ -6,6 +6,7 @@
 @REM .\.venv\Scripts\pip install pyyaml
 @REM .\.venv\Scripts\pip install pymupdf
 @REM .\.venv\Scripts\pip install requests
+@REM .\.venv\Scripts\pip install pymongo
 
 call .\.venv\Scripts\activate
 @echo off

@@ -2,10 +2,6 @@ import os
 import yaml
 import unittest
 import src.services.raw_data_operator as RD_operator
-# from yaml import loader
-
-# with open("tests/covering_tests/test_samples.yaml", "r") as f:
-#     test_samples = yaml.safe_load(f)
 
 
 class Raw_data_operator_tester(unittest.TestCase):
