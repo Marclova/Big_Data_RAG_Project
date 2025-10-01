@@ -1,0 +1,6 @@
+DB_connection_url : "mongodb://localhost:27017/"
+DB_name : "testDB"
+input_dbCollection_name : "records"
+output_dbCollection_name : "embedding_files"
+embedder_model_name : "togethercomputer/m2-bert-80M-32k-retrieval"
+embedder_API_key : "9247636f968300e75c8ed9f7540734db51991313c7798264da83ee877260f2c0"
