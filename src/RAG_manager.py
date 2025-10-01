@@ -72,25 +72,3 @@ class RAG_Mongo:
 
         print(f"INFO: All {data_models.__len__()} documents have been processed") #TODO(unscheduled) consider another logging method   
         return global_result
-
-
-
-
-if __name__ == "__main__":
-    """ Example usage """
-    DB_connection_url = "mongodb://localhost:27017/"
-    DB_name = "testDB"
-    input_dbCollection_name = "records"
-    output_dbCollection_name = "embedding_files"
-
-    rag_mongo = RAG_Mongo(DB_connection_url, DB_name, input_dbCollection_name, output_dbCollection_name)
-    
-    text_embedder = Together_Embedder(".pdf", "togethercomputer/m2-bert-80M-32k-retrieval", "9247636f968300e75c8ed9f7540734db51991313c7798264da83ee877260f2c0")
-
-    titleURL_couples = rag_mongo.get_all_records_from_DB()
-    all_right = rag_mongo.embed_all_PDF_from_DTModel_URL(text_embedder, titleURL_couples)
-
-    if all_right:
-        print("Everything went fine")
-    else:
-        print("Something went wrong")
