@@ -2,9 +2,9 @@ from typing import override
 from langchain_together import TogetherEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStoreRetriever
 
-from interfaces.embedder_interface import Embedder
+from src.interfaces.embedder_interface import Embedder
 
-from services import scraper_storage_service, raw_data_operator
+from src.services import scraper_storage_service, raw_data_operator
 
 
 
@@ -91,7 +91,7 @@ class Together_Embedder(Embedder):
       InMemoryVectorStore: The generated vectorStore.
     """
     print(f"INFO: Generating vectorStore from clustered text. {stringList.__len__()} strings to embed...") #TODO(unscheduled) consider another logging method
-    result = InMemoryVectorStore.from_texts(stringList, embedding=self.embeddings)
+    result = InMemoryVectorStore.from_texts(stringList, embedding=self.embeddings) #Onerous operation with external API call
     print("INFO: VectorStore generated.") #TODO(unscheduled) consider another logging method
     return result
   
@@ -136,87 +136,6 @@ class Together_Embedder(Embedder):
     retrieved_documents = retriever.invoke(query)
 
     return [document.page_content for document in retrieved_documents]
-  
-
-  
-  # def elaborate_most_suitable_sentences_from_retriever(self, query: str, retriever: VectorStoreRetriever) -> list[str]:
-  #   """
-  #   Uses the given VectorStoreRetriever to return a List[str] of sentences,
-  #   sorted from the most to the less suitable sentence for semantic similitude.
-  #   Parameters:
-  #     query (str): The natural language query used to retrieve an as much suitable sentence as possible.
-  #     retriever (VectorStoreRetriever): The retriever which effectively executes the functionality.
-  #   Returns:
-  #     list[str]: The result of the retriever's invoke function converted as a List[str] from a List[Document].
-  #   """
-  #   retrieved_documents = retriever.invoke(query)
-  #   return [document.page_content for document in retrieved_documents]
-
-
-
-# def _normalize_extension(given_string: str) -> str:
-#   """
-#   Normalizes the given string to have a leading dot (.) if it doesn't already have one.
-#   Parameters:
-#     given_string (str): The string to normalize.
-#   Returns:
-#     str: The normalized string with a leading dot.
-#   """
-#   if given_string[0] != ".":
-#     return ("." + given_string)
-#   else:
-#     return given_string
-
-
-# def _extract_clusteredText_from_file(filePath: str) -> list[str]:
-#   """
-#   Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
-#   Parameters:
-#     filePath (str): The path to the file.
-#   Returns:
-#     list[str]: The clustered text extracted from the file.
-#   """
-#   doc = pymupdf.open(filePath)    
-#   text = "\n".join([page.get_textbox("text") for page in doc])
-
-#   textList = _cluster_text_for_embeddings(text)
-  
-#   return textList
-
-# def _cluster_text_for_embeddings(text: str) -> list[str]: #TODO(unscheduled) consider a more effective solution
-#   return text.split("\n")
-
-
-# #TODO(testing)
-# def _increase_09az_id_with_carry(id: str) -> str:
-#   """
-#   Increases the given id, which is supposed to be a string of digits and lowercase letters, by one.\n
-#   The applied increment includes a carry operation, so that the id is always a string of digits and lowercase letters.\n
-#   The returned id may be longer than the original one by one character, which in that case will be completely filled with '0's.\n
-#   This method may also work with ids containing characters that are not digits nor lowercase letters,
-#   but in that case only the last character will have more probability to be normalized into the expected range.
-#   Parameters:
-#     id (str): The id to increase.
-#   Returns:
-#     str: The increased id.
-#   """
-#   index = len(id) - 1
-#   carry = True
-
-#   while not(carry) or index >= 0:
-#     #increase the current character
-#     id[index] = chr(ord(id[index]) + 1)
-
-#     #check if carry is needed
-#     if (id[index] > '9' and id[index] < 'a') or id[index] > 'z':
-#       id[index] = '0'
-#       index -= 1
-#     else:
-#       carry = False
-  
-#   if carry: #if carry is True, we need to add a new character to apply the carry
-#     id = '0' + id
-#   return id    
 
 
 

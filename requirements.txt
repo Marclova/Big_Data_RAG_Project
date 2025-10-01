@@ -7,3 +7,5 @@ torch
 
 langchain_together
 sentence_transformers
+
+pyyaml
