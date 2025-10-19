@@ -1,6 +1,6 @@
 import os
 import yaml
-from RAG_manager import RAG_Mongo
+from managers.RAG_manager import RAG_Mongo
 from embedders.together_RAG_system import Together_Embedder
 
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     text_embedder = Together_Embedder(".pdf", embedder_model_name, embedder_API_key)
 
-    titleURL_couples = rag_mongo.get_all_records_from_DB()
+    titleURL_couples = rag_mongo._get_all_records_from_DB()
     all_right = rag_mongo.embed_all_PDF_from_DTModel_URL(text_embedder, titleURL_couples)
 
     if all_right: #TODO consider another logging method

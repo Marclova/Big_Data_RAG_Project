@@ -2,7 +2,7 @@ import os
 import yaml
 import unittest
 from pymongo import results
-from src.services.DB_operator import MongoDB_manager
+from services.storage_DB_operator import MongoDB_manager
 
 class DB_operator_tester(unittest.TestCase):
 

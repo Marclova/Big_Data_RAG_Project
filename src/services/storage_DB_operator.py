@@ -1,6 +1,10 @@
 import re
 from pymongo import MongoClient, results
 
+"""
+Service module to manage the connection and operations on a database meant to store raw data before embedding.
+Embedding and storage of vectors are handled elsewhere.
+"""
 
 class MongoDB_manager:
     """
@@ -118,13 +122,9 @@ class MongoDB_manager:
         return None
 
 
-
-# def _title_normalization(title: str) -> str:
-#     """
-#     Normalizes the title to prevent issues with special characters.
-#     Parameters:
-#         title (str): The title to normalize.
-#     Returns:
-#         str: The normalized title.
-#     """
-#     return re.sub(r'[^a-zA-Z0-9 ]', '', title).replace(' ', '_')
+    
+class PostgreSQL_manager:
+    """
+    Class to manage the PostgreSQL connection and operations.
+    """
+    #TODO(before push) implement the class
