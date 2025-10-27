@@ -1,14 +1,17 @@
-import re
+from typing import override
 from pymongo import MongoClient, results
+from services.interfaces.DB_operator_interfaces import Storage_DB_operator
+from src.models.storage_data_model import Storage_DTModel
 
 """
 Service module to manage the connection and operations on a database meant to store raw data before embedding.
 Embedding and storage of vectors are handled elsewhere.
+Selected DBs are MongoDB and PostgreSQL
 """
 
-class MongoDB_manager:
+class Storage_MongoDB_service(Storage_DB_operator):
     """
-    Class to manage the MongoDB connection and operations.
+    Class to manage the MongoDB connection and operations for raw data storage.
     """
     def __init__(self, DB_connection_url: str, DB_name: str):
         self.connection = MongoClient(DB_connection_url)
@@ -17,92 +20,82 @@ class MongoDB_manager:
         # # set title as a unique value
         # self.collection.create_index("title", unique=True)
 
-    def get_record_using_title(self, input_collection_name: str, title: str) -> dict[any]:
-        """
-        Retrieves a record in the given Mongo collection using its title.
 
-        Parameters:
-            input_collection_name (str): The name of the collection to retrieve the file from.
-            title (str): The title of the record to retrieve.
-        Returns:
-            dict[any]: The record with the given title. None if no record is found.
-        """
+    @override
+    def get_record_using_title(self, input_collection_name: str, title: str) -> dict[any]:
         return self.database[input_collection_name].find_one({"title": title})
 
+
+    @override
     def get_all_records(self, input_collection_name: str) -> list[dict[any]]:
-        """
-        Retrieves all the records in the given Mongo collection.
-
-        Parameters:
-            input_collection_name (str): The name of the collection to retrieve the files from.
-
-        Returns:
-            list[dict[any]]: The list of records in the collection.
-        """
         return list(self.database[input_collection_name].find())
 
 
-    def insert_record_using_JSON(self, target_collection_name: str, json: dict[any]) -> results.InsertOneResult:
-        """
-        Insert a new record into the DB using a custom JSON to describe the record's content.
+    @override
+    def insert_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
+        if self.get_record_using_title(target_collection_name, data_model.title) is None:
+            try:
+                return (self.database[target_collection_name].insert_one({
+                    "url": data_model.url,
+                    "title": data_model.title,
+                    "pages": data_model.pages,
+                    "author": data_model.authors
+                }) is not None)
+            except Exception as e:
+                print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO consider another logging method}
+        else:
+            print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': record already exists.") #TODO consider another logging method
+        return None
+    
 
-        Parameters:
-            output_collection_name (str): The name of the existing DB collection where to insert the record into.
-            json (dict[any]): The JSON script describing the record to insert.
-         
-        Returns:
-           InsertOneResult: The inserted value's representation. Null if no value has been inserted.
-        """
-
-        try:
-            return self.database[target_collection_name].insert_one(json)
-        except Exception as e:
-            # print(f"Error while inserting the record: {e}") #TODO consider another logging method
-            return None
+    @override
+    def update_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
+        if self.get_record_using_title(target_collection_name, data_model.title) is not None:
+            try:
+                return (self.database[target_collection_name].update_one({
+                    "url": data_model.url,
+                    "title": data_model.title,
+                    "pages": data_model.pages,
+                    "author": data_model.authors
+                }) is not None)
+            except Exception as e:
+                print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO consider another logging method}
+        else:
+            print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': record does not exist.") #TODO consider another logging method
+        return None
         
     
-    def update_record_using_JSON(self, target_collection_name: str, json: dict[any]) -> results.UpdateResult:
-        """
-        Updates a record in the Mongo DB having the corresponding title
+    # def update_record_using_JSON(self, target_collection_name: str, json: dict[any]) -> results.UpdateResult:
+    #     """
+    #     Updates a record in the Mongo DB having the corresponding title
 
-        Parameters:
-            target_collection_name (str): The name of the existing DB collection where to insert the record into.
-            title (str): The name of the article to update.
-            new_values (dict[any]): The JSON script describing the new values to set in the record.
+    #     Parameters:
+    #         target_collection_name (str): The name of the existing DB collection where to insert the record into.
+    #         title (str): The name of the article to update.
+    #         new_values (dict[any]): The JSON script describing the new values to set in the record.
         
-        Returns:
-            UpdateResult: Pymongo's result type for record updates.
-        """
-        title = json.get("title", None)
-        if title is None:
-            raise ValueError("The input JSON must contain a 'title' field to identify the record to update.")
+    #     Returns:
+    #         UpdateResult: Pymongo's result type for record updates.
+    #     """
+    #     title = json.get("title", None)
+    #     if title is None:
+    #         raise ValueError("The input JSON must contain a 'title' field to identify the record to update.")
         
-        params_to_update: dict[str,dict[str,any]] = dict()
-        params_to_update.update({"$set": dict()})
+    #     params_to_update: dict[str,dict[str,any]] = dict()
+    #     params_to_update.update({"$set": dict()})
 
-        # create the update JSON only with the parameters that are present in the input JSON
-        for param in ["url", "pages", "author"]:
-            param_value = json.get(param, None)
-            if param_value is not None:
-                 params_to_update["$set"].update({param: param_value})
+    #     # create the update JSON only with the parameters that are present in the input JSON
+    #     for param in ["url", "pages", "author"]:
+    #         param_value = json.get(param, None)
+    #         if param_value is not None:
+    #              params_to_update["$set"].update({param: param_value})
 
-        return self.database[target_collection_name].update_one({"title": title}, params_to_update)
+    #     return self.database[target_collection_name].update_one({"title": title}, params_to_update)
         
         
-
-    def remove_record_using_title(self, target_collection_name: str, title: str) -> results.DeleteResult:
-        """
-        Retrieves and delete from the Mongo DB a record having the corresponding title
-
-        Parameters:
-            target_collection_name (str): The name of the existing DB collection where to insert the record into.
-            title (str): The name of the article to remove.
-        
-        Returns:
-            DeleteResult: Pymongo's result type for record deletion.
-        """
-        
-        return self.remove_records_using_manualFilter(target_collection_name, {"title": title})
+    @override
+    def remove_record_using_title(self, target_collection_name: str, title: str) -> bool:
+        return (self.remove_records_using_manualFilter(target_collection_name, {"title": title}) is not None)
     
 
     def remove_records_using_manualFilter(self, target_collection_name: str, filter: dict[any]) -> results.DeleteResult:
@@ -120,11 +113,16 @@ class MongoDB_manager:
         if result.deleted_count > 0:
             return result
         return None
-
-
     
-class PostgreSQL_manager:
+
+    @override
+    def close_connection(self):
+        self.connection.close()
+
+
+
+#TODO(before push): implement the class
+class PostgreSQL_manager: #implements DB_operator
     """
     Class to manage the PostgreSQL connection and operations.
     """
-    #TODO(before push) implement the class
