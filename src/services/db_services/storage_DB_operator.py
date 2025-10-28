@@ -95,24 +95,25 @@ class Storage_MongoDB_service(Storage_DB_operator):
         
     @override
     def remove_record_using_title(self, target_collection_name: str, title: str) -> bool:
-        return (self.remove_records_using_manualFilter(target_collection_name, {"title": title}) is not None)
+        # return (self.remove_records_using_manualFilter(target_collection_name, {"title": title}) is not None)
+        return (self.database[target_collection_name].delete_one({"title": title}).deleted_count > 0)
     
 
-    def remove_records_using_manualFilter(self, target_collection_name: str, filter: dict[any]) -> results.DeleteResult:
-        """
-        Removal function permitting to insert a custom JSON as filter.
+    # def remove_records_using_manualFilter(self, target_collection_name: str, filter: dict[any]) -> results.DeleteResult:
+    #     """
+    #     Removal function permitting to insert a custom JSON as filter.
 
-        Parameters:
-        target_collection_name (str): The name of the existing DB collection where to insert the record into.
-        filter (dict[any]): JSON script to use to make the filtered query in the DB.
+    #     Parameters:
+    #     target_collection_name (str): The name of the existing DB collection where to insert the record into.
+    #     filter (dict[any]): JSON script to use to make the filtered query in the DB.
         
-        Returns:
-        DeleteResult: Pymongo's result type for record deletion.
-        """
-        result: results.DeleteResult = self.database[target_collection_name].delete_many(filter)
-        if result.deleted_count > 0:
-            return result
-        return None
+    #     Returns:
+    #     DeleteResult: Pymongo's result type for record deletion.
+    #     """
+    #     result: results.DeleteResult = self.database[target_collection_name].delete_many(filter)
+    #     if result.deleted_count > 0:
+    #         return result
+    #     return None
     
 
     @override

@@ -2,7 +2,7 @@ from typing import override
 from langchain_together import TogetherEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore, VectorStoreRetriever
 
-from src.interfaces.embedder_interface import Embedder
+from src.embedders.interfaces.embedder_interface import Embedder
 
 from src.services import scraper_storage_service, raw_data_operator
 

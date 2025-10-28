@@ -5,6 +5,7 @@ class Embedder(ABC):
     """
     This is an abstract class that defines the interface for embedding text files into vector representations.
     """
+    
     @abstractmethod
     def get_embedder_name(self) -> str:
         """
