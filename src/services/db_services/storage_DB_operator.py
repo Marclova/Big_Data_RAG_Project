@@ -1,7 +1,10 @@
 from typing import override
 from pymongo import MongoClient, results
-from services.interfaces.DB_operator_interfaces import Storage_DB_operator
+from pymongo.database import Database
+from src.services.db_services.interfaces.DB_operator_interfaces import Storage_DB_operator_I
 from src.models.storage_data_model import Storage_DTModel
+
+#TODO(before push): rename file into "storage_DB_operators.py"
 
 """
 Service module to manage the connection and operations on a database meant to store raw data before embedding.
@@ -9,16 +12,15 @@ Embedding and storage of vectors are handled elsewhere.
 Selected DBs are MongoDB and PostgreSQL
 """
 
-class Storage_MongoDB_service(Storage_DB_operator):
+class Storage_MongoDB_operator(Storage_DB_operator_I):
     """
-    Class to manage the MongoDB connection and operations for raw data storage.
+    Class to manage the MongoDB connection and operations for storage.
     """
     def __init__(self, DB_connection_url: str, DB_name: str):
-        self.connection = MongoClient(DB_connection_url)
-        self.database = self.connection[DB_name]
-        
-        # # set title as a unique value
-        # self.collection.create_index("title", unique=True)
+        self.connection: MongoClient = None
+        self.database: Database = None
+
+        self.open_connection(DB_connection_url, DB_name)
 
 
     @override
@@ -117,13 +119,27 @@ class Storage_MongoDB_service(Storage_DB_operator):
     
 
     @override
+    def open_connection(self, DB_connection_url: str, DB_name: str):
+        self.connection = MongoClient(DB_connection_url)
+        self.database = self.connection[DB_name]
+        
+        # # set title as a unique value
+        # self.collection.create_index("title", unique=True)        
+
+
+    @override
     def close_connection(self):
         self.connection.close()
+
+    @override
+    def get_engine_name(self) -> str:
+        return "MongoDB"
 
 
 
 #TODO(before push): implement the class
-class PostgreSQL_manager: #implements DB_operator
+class storage_PostgreSQL_operator(Storage_DB_operator_I):
     """
-    Class to manage the PostgreSQL connection and operations.
+    Class to manage the PostgreSQL connection and operations for storage.
     """
+    pass

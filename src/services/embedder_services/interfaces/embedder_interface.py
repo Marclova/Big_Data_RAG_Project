@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Embedder(ABC):
+class Embedder_I(ABC):
     """
     This is an abstract class that defines the interface for embedding text files into vector representations.
     """

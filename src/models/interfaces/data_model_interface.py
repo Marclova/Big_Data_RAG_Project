@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class DTModel(ABC):
+class DTModel_I(ABC):
     """
     Data Transfer model for storing and retrieving data from a DB
     """

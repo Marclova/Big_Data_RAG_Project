@@ -1,16 +1,15 @@
 from typing import override
-from abc import ABC
-from services.interfaces.DB_operator_interfaces import RAG_DB_operator
+from src.services.db_services.interfaces.DB_operator_interfaces import RAG_DB_operator_I
 from src.models.RAG_data_model import RAG_DTModel
 
-#TODO(before push): define at least two empty classes: one for Pinecone and one for MongoDB
+#TODO(before push): rename file into "RAG_DB_operators.py"
 
 """
  Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.
  Selected DBs are Pinecone and MongoDB
 """
 #TODO(before push): implement
-class RAG_PineconeDB_service(RAG_DB_operator):
+class RAG_PineconeDB_operator(RAG_DB_operator_I):
     """
     Class to manage the Pinecone connection and operations for RAG vector storage.
     """
@@ -19,7 +18,7 @@ class RAG_PineconeDB_service(RAG_DB_operator):
         pass
 
     @override
-    def get_record_using_title(self, input_collection_name: str, title: str) -> RAG_DTModel:
+    def get_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> RAG_DTModel:
         pass
 
     @override
@@ -39,10 +38,18 @@ class RAG_PineconeDB_service(RAG_DB_operator):
         pass
 
     @override
+    def open_connection(self, *args, **kwargs):
+        pass
+
+    @override
     def close_connection(self):
         pass
 
+    @override
+    def get_engine_name(self) -> str:
+        return "Pinecone"
+
 
 #TODO(before push): implement
-class RAG_MongoDB_service(RAG_DB_operator):
+class RAG_MongoDB_operator(RAG_DB_operator_I):
     pass

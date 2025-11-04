@@ -1,11 +1,11 @@
 from typing import override
 
 import requests
-from src.models.interfaces.data_model_interface import DTModel
+from src.models.interfaces.data_model_interface import DTModel_I
 
 
 
-class Storage_DTModel(DTModel):
+class Storage_DTModel(DTModel_I):
     """
     Data Transfer model for storing and retrieving data from a vectorial database.
     Each model represents a text chunk and its associated vector.
