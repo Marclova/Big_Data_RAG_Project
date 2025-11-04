@@ -4,6 +4,7 @@ from langchain_core.vectorstores import InMemoryVectorStore
 from src.services.embedder_services.interfaces import embedder_interface
 from src.services.other_services import scraper_storage_service, raw_data_operator
 
+#TODO(before commit): prepare for new-branch commit
 
 class Together_Embedder(embedder_interface):
   """
@@ -31,10 +32,8 @@ class Together_Embedder(embedder_interface):
   
 
   #TODO(testing)
-  @override
+  # @override
   def convert_vectorJSON_into_vectorStore(self, vectorJSON: dict[str, any]) -> any:
-    vector_store_to_return = InMemoryVectorStore(self.embeddings)
-
     #insert manually the vectors into the vector store
     new_vectorStore = InMemoryVectorStore(self.embeddings)
     return self.add_vector_to_vectorStore(new_vectorStore, vectorJSON["id"], vectorJSON["vector"], 
