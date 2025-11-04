@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from src.models.interfaces.data_model_interface import DTModel_I
 from src.models.storage_data_model import Storage_DTModel
 from src.models.RAG_data_model import RAG_DTModel
-from src.models.DB_config_model import DB_config
 
 
 class DB_operator_I(ABC):

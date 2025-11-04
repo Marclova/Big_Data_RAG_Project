@@ -1,10 +1,9 @@
 from typing import override
-from pymongo import MongoClient, results
+from pymongo import MongoClient
 from pymongo.database import Database
 from src.services.db_services.interfaces.DB_operator_interfaces import Storage_DB_operator_I
 from src.models.storage_data_model import Storage_DTModel
 
-#TODO(before push): rename file into "storage_DB_operators.py"
 
 """
 Service module to manage the connection and operations on a database meant to store raw data before embedding.

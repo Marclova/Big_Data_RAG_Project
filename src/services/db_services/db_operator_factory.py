@@ -1,5 +1,5 @@
+from services.db_services import storage_DB_operators
 from src.services.db_services.interfaces.DB_operator_interfaces import Storage_DB_operator_I, RAG_DB_operator_I
-from src.services.db_services import storage_DB_operator, RAG_DB_operator
 from src.models.DB_config_model import DB_config
 
 """
@@ -40,7 +40,7 @@ def initialize_storage_db_operator(db_config: DB_config) -> Storage_DB_operator_
         
         # Define the factory cases; one per supported DB engine.
         if db_config.db_engine == MONGODB:
-            return storage_DB_operator.Storage_MongoDB_operator(DB_connection_url=db_config.DB_connection_url, DB_name=db_config.DB_name)
+            return storage_DB_operators.Storage_MongoDB_operator(DB_connection_url=db_config.DB_connection_url, DB_name=db_config.DB_name)
         elif db_config.db_engine == POSTGRESQL:
             #TODO(before push): implement PostgreSQL storage DB operator class and return its instance here
             pass

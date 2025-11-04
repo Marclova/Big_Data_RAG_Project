@@ -2,7 +2,7 @@ import os
 import pymupdf
 import requests
 
-import src.services.raw_data_operator as RD_operator
+import src.services.other_services.raw_data_operator as RD_operator
 
 
 DEFAULT_PATH = "downloadedFiles"

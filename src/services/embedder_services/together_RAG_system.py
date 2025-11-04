@@ -1,14 +1,11 @@
 from typing import override
 from langchain_together import TogetherEmbeddings
-from langchain_core.vectorstores import InMemoryVectorStore, VectorStoreRetriever
-
-from src.embedders.interfaces.embedder_interface import Embedder
-
-from src.services import scraper_storage_service, raw_data_operator
+from langchain_core.vectorstores import InMemoryVectorStore
+from src.services.embedder_services.interfaces import embedder_interface
+from src.services.other_services import scraper_storage_service, raw_data_operator
 
 
-
-class Together_Embedder(Embedder):
+class Together_Embedder(embedder_interface):
   """
   This class implements the Embedder interface using the Together API for embedding text files.
   """
