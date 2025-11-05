@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-
 from src.models.RAG_data_model import RAG_DTModel
 
 
@@ -8,6 +7,7 @@ class Embedder_I(ABC):
     Interface for embedders API services which embed text files (ex. TXT, PDF) into vector representations, 
     returning them as RAG_DTModels for DB interactions.
     """
+
     @abstractmethod
     def __init__(self, embedder_model_name: str, embedder_api_key: str):
         pass
@@ -20,7 +20,6 @@ class Embedder_I(ABC):
             str: The name of the embedder.
         """
         pass
-
 
     @abstractmethod
     def generate_vector_from_URL(self, file_URL: str) -> list[RAG_DTModel]:
@@ -43,6 +42,7 @@ class Embedder_with_retrieval_I(Embedder_I):
     and also implement argument retrieval for DBs that don't have such functionality natively.
     This interface is supposed to be implemented/extended only by sub-classes of 'RAG_DB_operator_I'.
     """
+
     @abstractmethod
     def retrieve_vectors_using_query(self, target_collection_name: str, query: str, top_k: int) -> list[RAG_DTModel]:
         """

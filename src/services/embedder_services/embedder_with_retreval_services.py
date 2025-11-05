@@ -6,6 +6,7 @@ from services.embedder_services.interfaces.embedder_interfaces import Embedder_w
 from src.services.other_services import scraper_storage_service, raw_data_operator
 
 
+
 #TODO(before merge): implement class
 class HuggingFace_embedder(Embedder_with_retrieval_I):
   """
@@ -14,6 +15,8 @@ class HuggingFace_embedder(Embedder_with_retrieval_I):
   """
   pass
 
+
+
 #TODO(testing): Impossible to test without paying fees
 class Together_embedder(Embedder_with_retrieval_I):
   """
@@ -21,6 +24,7 @@ class Together_embedder(Embedder_with_retrieval_I):
   This embedder is also used to support argument retrieval for DBs without such native functionality.
   This embedder requires fees to perform services.
   """
+
   @override
   def __init__(self, embedder_model_name: str, embedder_api_key: str):
     self.embedder = TogetherEmbeddings(model= embedder_model_name, api_key= embedder_api_key)

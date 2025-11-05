@@ -4,7 +4,6 @@ from pymongo.database import Database
 from src.services.db_services.interfaces.DB_operator_interfaces import Storage_DB_operator_I
 from src.models.storage_data_model import Storage_DTModel
 
-
 """
 Service module to manage the connection and operations on a database meant to store raw data before embedding.
 Embedding and storage of vectors are handled elsewhere.
@@ -43,9 +42,9 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
                     "author": data_model.authors
                 }) is not None)
             except Exception as e:
-                print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO consider another logging method}
+                print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO(polishing): consider another logging method}
         else:
-            print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': record already exists.") #TODO consider another logging method
+            print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': record already exists.") #TODO(polishing): consider another logging method
         return None
     
 
@@ -60,9 +59,9 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
                     "author": data_model.authors
                 }) is not None)
             except Exception as e:
-                print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO consider another logging method}
+                print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO(polishing): consider another logging method}
         else:
-            print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': record does not exist.") #TODO consider another logging method
+            print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': record does not exist.") #TODO(polishing): consider another logging method
         return None
         
     
@@ -117,18 +116,17 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
     #     return None
     
 
+    #TODO(improving): Try to configure the DB so that it has the 'title' parameter set as 'unique'
     @override
     def open_connection(self, DB_connection_url: str, DB_name: str):
         self.connection = MongoClient(DB_connection_url)
         self.database = self.connection[DB_name]
-        
-        # # set title as a unique value
-        # self.collection.create_index("title", unique=True)        
 
 
     @override
     def close_connection(self):
         self.connection.close()
+
 
     @override
     def get_engine_name(self) -> str:
@@ -136,7 +134,7 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
 
 
-#TODO(before push): implement the class
+#TODO(before merge): implement the class
 class storage_PostgreSQL_operator(Storage_DB_operator_I):
     """
     Class to manage the PostgreSQL connection and operations for storage.

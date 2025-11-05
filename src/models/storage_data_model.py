@@ -1,5 +1,4 @@
 from typing import override
-
 import requests
 from src.models.interfaces.data_model_interface import DTModel_I
 
@@ -53,6 +52,7 @@ def _init_params_normalization(self, url: str, title: str, authors: list[str]) -
         
         return url, title, authors
 
+
 def _verify_url(url: str) -> None:
     """
     Verifies if a given URL is reachable.
@@ -62,7 +62,6 @@ def _verify_url(url: str) -> None:
         Returns:
             bool: True if the URL is reachable, False otherwise.
     """
-
     try:
         r = requests.head(url, allow_redirects=False, timeout=3)
 

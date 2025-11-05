@@ -6,8 +6,12 @@ from src.models.RAG_data_model import RAG_DTModel
 from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, Storage_DB_operator_I, RAG_DB_operator_I
 from src.services.db_services.db_operator_factory import initialize_storage_db_operator, initialize_RAG_db_operator
 
+
+
 STORAGE = "storage"
 RAG = "RAG"
+
+
 
 class DB_manager:
     """
@@ -20,7 +24,6 @@ class DB_manager:
     def __init__(self, storage_db_config: DB_config, RAG_db_config: DB_config,
                  handled_storage_collections: list[str], handled_RAG_collections: list[str]) -> None:
         """
-        Class constructor.
         Parameters:
             storage_db_config (DB_config): The configuration to use to initialize the storage DB operator.
             RAG_db_config (DB_config): The configuration to use to initialize the RAG DB operator.

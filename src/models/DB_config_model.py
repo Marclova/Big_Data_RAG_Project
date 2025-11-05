@@ -1,3 +1,6 @@
+
+
+
 class DB_config:
     """
     Set of configurations for a database connection.

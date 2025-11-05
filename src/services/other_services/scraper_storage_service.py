@@ -7,6 +7,7 @@ from unstructured.partition.auto import partition
 # DEFAULT_PATH = "downloadedFiles"
 
 
+
 def extract_and_partition_text_from_url(url: str) -> list[str]:
     """
     Method to extract and partition text for any textual file (ex. TXT, PDF).
@@ -36,7 +37,6 @@ def extract_and_partition_text_from_url(url: str) -> list[str]:
             os.remove(tmp_path)
 
     return [el.text for el in elements if el.text]
-
 
 
 # def download_file(file_url: str, file_extension: str, file_name: str = "appendFile", folder_path: str = DEFAULT_PATH) -> str:
@@ -71,7 +71,7 @@ def extract_and_partition_text_from_url(url: str) -> list[str]:
 #         if not os.path.exists(file_path):
 #             raise FileNotFoundError
 #     except Exception as e:
-#         print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")  # TODO(polishing) Implement proper logging method
+#         print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")
 #         return None
 #     return file_path
 
@@ -94,6 +94,7 @@ def extract_and_partition_text_from_url(url: str) -> list[str]:
 #         print(f"Error occurred while deleting file: {e}")
 #         return -1
 #     return 1 if not(os.path.exists(file_path)) else -1
+
 
 # def get_file_content(file_path: str) -> str:
 #     """

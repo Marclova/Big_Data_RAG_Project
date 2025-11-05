@@ -53,6 +53,7 @@ def initialize_storage_db_operator(db_config: DB_config) -> Storage_DB_operator_
     except Exception as e:
         print(f"ERROR: Failed to initialize storage DB operator: {e}") #TODO(polishing): consider another logging method
         raise e
+    
 
 def initialize_RAG_db_operator(db_config: DB_config) -> RAG_DB_operator_I:
     """

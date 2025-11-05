@@ -1,3 +1,6 @@
+
+
+
 def normalize_extension(given_string: str) -> str:
     """
     Normalizes the given string to have a leading dot (.) if it doesn't already have one.
@@ -26,7 +29,7 @@ def normalize_folder_path(given_string: str) -> str:
         return given_string
 
 
-# def cluster_text(text_to_cluster: str) -> list[str]: #TODO implement a more advanced clustering algorithm
+# def cluster_text(text_to_cluster: str) -> list[str]:
 #     """
 #     Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
 #     Parameters:

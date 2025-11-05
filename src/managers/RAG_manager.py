@@ -2,10 +2,13 @@ from models.RAG_data_model import RAG_DTModel
 from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
+
+
 class RAG_manager:
     """
     Generalized RAG manager to handle text embeddings and chatbot interactions.
     """
+
     def __init__(self, embedder_model_name: str, embedder_api_key: str, chatBot_APIKey: str):
         self.embedder = Embedder_I(embedder_model_name, embedder_api_key)
         self.chatBot = ChatBot_I(chatBot_APIKey)

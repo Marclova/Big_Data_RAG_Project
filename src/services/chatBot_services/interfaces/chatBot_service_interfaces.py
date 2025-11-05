@@ -47,3 +47,4 @@ class ChatBot_I(ABC):
             bool: True if the chat has been deleted. False cache was already empty.
         """
         pass
+    

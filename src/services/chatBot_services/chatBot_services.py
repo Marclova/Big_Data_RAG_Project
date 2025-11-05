@@ -1,5 +1,7 @@
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
+
+
 #TODO(before merge): implement class
 class BotLibre_service(ChatBot_I):
     """
@@ -7,6 +9,8 @@ class BotLibre_service(ChatBot_I):
     The provider requires no subscription nor API Key.
     """
     pass
+
+
 
 #TODO(before merge): implement class
 class OpenAI_service(ChatBot_I):
