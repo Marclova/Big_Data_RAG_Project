@@ -14,15 +14,17 @@ class HuggingFace_embedder(Embedder_with_retrieval_I):
   """
   pass
 
-#TODO(testing): This class needs testing since due to fees I couldn't test it (it suddenly become at payment mid-implementation)
+#TODO(testing): Impossible to test without paying fees
 class Together_embedder(Embedder_with_retrieval_I):
   """
   This class implements the Embedder interface using the HuggingFace API for embedding text files (ex. TXT, PDF).
   This embedder is also used to support argument retrieval for DBs without such native functionality.
+  This embedder requires fees to perform services.
   """
-  def __init__(self, together_model_name: str, together_API_key: str):
-    self.embedder = TogetherEmbeddings(model= together_model_name, api_key= together_API_key)
-    self.together_model_name = together_model_name
+  @override
+  def __init__(self, embedder_model_name: str, embedder_api_key: str):
+    self.embedder = TogetherEmbeddings(model= embedder_model_name, api_key= embedder_api_key)
+    self.together_model_name = embedder_model_name
 
 
   @override

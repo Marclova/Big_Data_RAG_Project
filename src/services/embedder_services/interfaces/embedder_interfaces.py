@@ -5,9 +5,12 @@ from src.models.RAG_data_model import RAG_DTModel
 
 class Embedder_I(ABC):
     """
-    Interface for embedders which embed text files (ex. TXT, PDF) into vector representations, 
+    Interface for embedders API services which embed text files (ex. TXT, PDF) into vector representations, 
     returning them as RAG_DTModels for DB interactions.
     """
+    @abstractmethod
+    def __init__(self, embedder_model_name: str, embedder_api_key: str):
+        pass
     
     @abstractmethod
     def get_embedder_name(self) -> str:
@@ -27,15 +30,18 @@ class Embedder_I(ABC):
         Parameters:
             file_URL (str): The url of the file to convert.
         Returns:
-            list[RAG_DTModel]: The list of vectors, expressed as a list of RAG_DTModel.
-                                The whole list represents the given document's vector set.
+            list[RAG_DTModel]: The list of embeddings, expressed as a list of RAG_DTModel. 
+                                Each RAG_DTModel represents the embedding of a text chunk. 
+                                The whole list represents all the embeddings generated from the file.
         """
         pass
+
 
 class Embedder_with_retrieval_I(Embedder_I):
     """
     Extending another interface, this one is for embedders which embed text files (ex. TXT, PDF) 
     and also implement argument retrieval for DBs that don't have such functionality natively.
+    This interface is supposed to be implemented/extended only by sub-classes of 'RAG_DB_operator_I'.
     """
     @abstractmethod
     def retrieve_vectors_using_query(self, target_collection_name: str, query: str, top_k: int) -> list[RAG_DTModel]:
