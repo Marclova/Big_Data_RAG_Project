@@ -58,7 +58,7 @@ class DB_manager:
     #         return False
         
     #     used_DB_engine: DB_operator_I = self._get_DB_engine_handling_collection(target_collection_list[0])
-    #     print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(unscheduled): consider another logging method
+    #     print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.")
 
     #     output_flag: bool = True
     #     total_log_counter: int = 0
@@ -77,9 +77,9 @@ class DB_manager:
     #                 output_flag = False
 
     #         print(f"INFO: {single_collection_log_counter}/{dataModel_list.__len__()} "
-    #               f"papers have been inserted into the storage collection '{target_collection_name}'") #TODO(unscheduled): consider another logging method
+    #               f"papers have been inserted into the storage collection '{target_collection_name}'")
     #     print(f"INFO: Overall, {total_log_counter}/{dataModel_list.__len__()*target_collection_list.__len__()} "
-    #           f"papers have been inserted into the target collections.") #TODO(unscheduled): consider another logging method
+    #           f"papers have been inserted into the target collections.")
     #     return output_flag
     
 
@@ -97,7 +97,7 @@ class DB_manager:
     #         return False
         
     #     used_DB_engine: DB_operator_I = self._get_DB_engine_handling_collection(target_collection_list[0])
-    #     print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(unscheduled): consider another logging method
+    #     print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.")
 
     #     output_flag: bool = True
     #     total_log_counter: int = 0
@@ -116,9 +116,9 @@ class DB_manager:
     #                 output_flag = False
 
     #         print(f"INFO: {single_collection_log_counter}/{dataModel_list.__len__()} "
-    #               f"papers have been inserted into the storage collection '{target_collection_name}'") #TODO(unscheduled): consider another logging method
+    #               f"papers have been inserted into the storage collection '{target_collection_name}'")
     #     print(f"INFO: Overall, {total_log_counter}/{dataModel_list.__len__()*target_collection_list.__len__()} "
-    #           f"papers have been inserted into the target collections.") #TODO(unscheduled): consider another logging method
+    #           f"papers have been inserted into the target collections.")
     #     return output_flag
 
 
@@ -136,7 +136,7 @@ class DB_manager:
             return False
         
         used_DB_engine: DB_operator_I = self._get_DB_engine_handling_collection(target_collection_list[0])
-        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(unscheduled): consider another logging method
+        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(polishing): consider another logging method
         
         return self._apply_function_on_collections(used_DB_engine.insert_record, target_collection_list, 
                                                    dataModelList_input_type=dataModel_list, 
@@ -157,7 +157,7 @@ class DB_manager:
             return False
         
         used_DB_engine: DB_operator_I = self._get_DB_engine_handling_collection(target_collection_list[0])
-        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(unscheduled): consider another logging method
+        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(polishing): consider another logging method
         
         return self._apply_function_on_collections(used_DB_engine.update_record, target_collection_list, 
                                                    dataModelList_input_type=dataModel_list, 
@@ -221,7 +221,7 @@ class DB_manager:
         #         counter += 1
         #     output_flag = output_flag and remove_flag
 
-        # print(f"INFO: {counter}/{target_collection_list.__len__()} papers titled '{title_to_remove}' have been removed from the storage collections") #TODO(unscheduled): consider another logging method
+        # print(f"INFO: {counter}/{target_collection_list.__len__()} papers titled '{title_to_remove}' have been removed from the storage collections")
         # return output_flag
     
         if not self._check_collection_list_handling_and_DB_Engine_Usage_integrity(target_collection_list, STORAGE):
@@ -230,7 +230,7 @@ class DB_manager:
         used_DB_engine: Storage_DB_operator_I = cast(Storage_DB_operator_I, 
                                                      self._get_DB_engine_handling_collection(target_collection_list[0]))
 
-        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(unscheduled): consider another logging method
+        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(polishing): consider another logging method
         
         return self._apply_function_on_collections(used_DB_engine.remove_record_using_title, target_collection_list, 
                                                    string_input_type=title_to_remove, 
@@ -268,7 +268,7 @@ class DB_manager:
         
         used_DB_engine: RAG_DB_operator_I = cast(RAG_DB_operator_I, 
                                                  self._get_DB_engine_handling_collection(target_collection_list[0]))
-        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(unscheduled): consider another logging method
+        print(f"INFO: Using DB engine '{used_DB_engine.get_engine_name()}' for the insertion operation.") #TODO(polishing): consider another logging method
 
         return self._apply_function_on_collections(used_DB_engine.remove_record_using_embedded_text, target_collection_list, 
                                                    string_input_type=embedded_text_to_remove, 
@@ -289,7 +289,7 @@ class DB_manager:
         if not self._check_collection_list_handling_and_DB_Engine_Usage_integrity(target_collection_list, RAG):
             return dict()
         
-        print(f"INFO: Using DB engine '{self.RAG_db_operator.get_engine_name()}' for the vector retrieval operation.") #TODO(unscheduled): consider another logging method
+        print(f"INFO: Using DB engine '{self.RAG_db_operator.get_engine_name()}' for the vector retrieval operation.") #TODO(polishing): consider another logging method
         output_dict: dict[str, list[RAG_DTModel]] = dict()
 
         for target_collection_name in target_collection_list:
@@ -348,9 +348,9 @@ class DB_manager:
                 else:
                     output_flag = False
             print(f"INFO: {single_collection_log_counter}/{dataModelList_input_type.__len__()} "
-                    f"papers have been {operation_name} into the storage collection '{target_collection_name}'") #TODO(unscheduled): consider another logging method            
+                    f"papers have been {operation_name} into the storage collection '{target_collection_name}'") #TODO(polishing): consider another logging method            
         print(f"INFO: Overall, {total_log_counter}/{dataModelList_input_type.__len__()*target_collection_list.__len__()} "
-              f"papers have been {operation_name} into the target collections.") #TODO(unscheduled): consider another logging method
+              f"papers have been {operation_name} into the target collections.") #TODO(polishing): consider another logging method
         return output_flag
 
     #endregion generalized private methods

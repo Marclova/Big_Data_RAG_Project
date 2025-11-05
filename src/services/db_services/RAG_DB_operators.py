@@ -7,7 +7,7 @@ from src.models.RAG_data_model import RAG_DTModel
  Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.
  Selected DBs are Pinecone and MongoDB
 """
-#TODO(before push): implement
+#TODO(before merge): implement
 class RAG_PineconeDB_operator(RAG_DB_operator_I):
     """
     Class to manage the Pinecone connection and operations for RAG vector storage.
@@ -49,6 +49,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         return "Pinecone"
 
 
-#TODO(before push): implement
+#TODO(before merge): implement
 class RAG_MongoDB_operator(RAG_DB_operator_I):
     pass

@@ -7,6 +7,23 @@ import src.services.other_services.raw_data_operator as RD_operator
 
 DEFAULT_PATH = "downloadedFiles"
 
+#TODO(improvement): implement the following commented method instead of "download_file" and "get_file_content"
+#                   (also the folder "downloadedFiles" will be deleted)
+# def extract_text_from_url(url: str) -> str:
+#         # scarica il file
+#         r = requests.get(url)
+#         r.raise_for_status()
+
+#         # salva temporaneamente
+#         with NamedTemporaryFile(delete=False) as tmp:
+#             tmp.write(r.content)
+#             tmp_path = tmp.name
+
+#         # estrai il testo (auto-format detection)
+#         elements = partition(filename=tmp_path)
+#         return "\n".join([el.text for el in elements if el.text])
+
+
 
 def download_file(file_url: str, file_extension: str, file_name: str = "appendFile", folder_path: str = DEFAULT_PATH) -> str:
     """
@@ -40,7 +57,7 @@ def download_file(file_url: str, file_extension: str, file_name: str = "appendFi
         if not os.path.exists(file_path):
             raise FileNotFoundError
     except Exception as e:
-        print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")  # TODO(unscheduled) Implement proper logging method
+        print(f"ERROR: {file_name}{file_extension} has not been downloaded.\nError log: {e}")  # TODO(polishing) Implement proper logging method
         return None
     return file_path
 

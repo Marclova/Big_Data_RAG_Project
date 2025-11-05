@@ -42,7 +42,7 @@ def initialize_storage_db_operator(db_config: DB_config) -> Storage_DB_operator_
         if db_config.db_engine == MONGODB:
             return storage_DB_operators.Storage_MongoDB_operator(DB_connection_url=db_config.DB_connection_url, DB_name=db_config.DB_name)
         elif db_config.db_engine == POSTGRESQL:
-            #TODO(before push): implement PostgreSQL storage DB operator class and return its instance here
+            #TODO(before merge): implement PostgreSQL storage DB operator class and return its instance here
             pass
 
         raise NotImplementedError(
@@ -51,7 +51,7 @@ def initialize_storage_db_operator(db_config: DB_config) -> Storage_DB_operator_
         )
     
     except Exception as e:
-        print(f"ERROR: Failed to initialize storage DB operator: {e}") #TODO(unscheduled): consider another logging method
+        print(f"ERROR: Failed to initialize storage DB operator: {e}") #TODO(polishing): consider another logging method
         raise e
 
 def initialize_RAG_db_operator(db_config: DB_config) -> RAG_DB_operator_I:
@@ -68,10 +68,10 @@ def initialize_RAG_db_operator(db_config: DB_config) -> RAG_DB_operator_I:
         
         # Define the factory cases; one per supported DB engine.
         if db_config.db_engine == PINECONE:
-            #TODO(before push): implement Pinecone RAG DB operator class and return its instance here
+            #TODO(before merge): implement Pinecone RAG DB operator class and return its instance here
             pass
         elif db_config.db_engine == MONGODB:
-            #TODO(before push): implement MongoDB RAG DB operator class and return its instance here
+            #TODO(before merge): implement MongoDB RAG DB operator class and return its instance here
             pass
 
         raise NotImplementedError(
@@ -80,5 +80,5 @@ def initialize_RAG_db_operator(db_config: DB_config) -> RAG_DB_operator_I:
         )
     
     except Exception as e:
-        print(f"ERROR: Failed to initialize RAG DB operator: {e}") #TODO(unscheduled): consider another logging method
+        print(f"ERROR: Failed to initialize RAG DB operator: {e}") #TODO(polishing): consider another logging method
         raise e
