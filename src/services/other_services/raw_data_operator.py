@@ -26,15 +26,15 @@ def normalize_folder_path(given_string: str) -> str:
         return given_string
 
 
-def cluster_text(text_to_cluster: str) -> list[str]: #TODO implement a more advanced clustering algorithm
-    """
-    Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
-    Parameters:
-        filePath (str): The path to the file.
-    Returns:
-        list[str]: The clustered text extracted from the file.
-    """
-    return text_to_cluster.split("\n")
+# def cluster_text(text_to_cluster: str) -> list[str]: #TODO implement a more advanced clustering algorithm
+#     """
+#     Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
+#     Parameters:
+#         filePath (str): The path to the file.
+#     Returns:
+#         list[str]: The clustered text extracted from the file.
+#     """
+#     return text_to_cluster.split("\n")
 
 
 def increase_09az_id_with_carry(id: str) -> str:
