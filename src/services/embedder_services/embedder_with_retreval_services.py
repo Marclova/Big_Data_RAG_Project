@@ -1,7 +1,7 @@
 from typing import override
 from langchain_together import TogetherEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
-from models.RAG_data_model import RAG_DTModel
+from models.data_models import RAG_DTModel
 from services.embedder_services.interfaces.embedder_interfaces import Embedder_with_retrieval_I
 from src.services.other_services import scraper_storage_service, raw_data_operator
 

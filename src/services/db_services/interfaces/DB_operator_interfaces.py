@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from src.models.interfaces.data_model_interface import DTModel_I
-from src.models.storage_data_model import Storage_DTModel
-from src.models.RAG_data_model import RAG_DTModel
+from src.models.data_models import Storage_DTModel
+from models.data_models import RAG_DTModel
 
 
 class DB_operator_I(ABC):
@@ -11,7 +11,7 @@ class DB_operator_I(ABC):
     @abstractmethod
     def insert_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
-        Insert a new record into the DB using a custom JSON to describe the record's content.
+        Insert a new record into the given collection/table/index using a custom JSON to describe the record's content.
 
         Parameters:
             output_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
@@ -25,7 +25,7 @@ class DB_operator_I(ABC):
     @abstractmethod
     def update_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
-        Updates a record in the Mongo DB having the corresponding title.
+        Updates a record in the given collection/table/index having the corresponding title.
         The actual implementation is done by the update_record_using_JSON function.
         Parameters:
             target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
@@ -84,7 +84,7 @@ class Storage_DB_operator_I(DB_operator_I):
     @abstractmethod
     def get_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
         """
-        Retrieves a record in the given Mongo collection/table/index using its title.
+        Retrieves a record in the given collection/table/index using its title.
 
         Parameters:
             input_collection_name (str): The name of the collection/table/index to retrieve the file from.
@@ -97,7 +97,7 @@ class Storage_DB_operator_I(DB_operator_I):
     @abstractmethod
     def get_all_records(self, target_collection_name: str) -> list[Storage_DTModel]:
         """
-        Retrieves all the records in the given Mongo collection/table.
+        Retrieves all the records in the given collection/table.
 
         Parameters:
             target_collection_name (str): The name of the collection/table to retrieve the files from.

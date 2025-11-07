@@ -1,6 +1,6 @@
 from typing import override
 from src.services.db_services.interfaces.DB_operator_interfaces import RAG_DB_operator_I
-from src.models.RAG_data_model import RAG_DTModel
+from models.data_models import RAG_DTModel
 
 """
  Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.

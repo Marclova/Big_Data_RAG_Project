@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.models.RAG_data_model import RAG_DTModel
+from models.data_models import RAG_DTModel
 
 
 class Embedder_I(ABC):
