@@ -1,6 +1,6 @@
-# Import the Pinecone library
 from pinecone import EmbeddingsList
 from pinecone.grpc import PineconeGRPC as Pinecone
+
 from services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 
 
@@ -10,7 +10,6 @@ class Pinecone_embedder(Embedder_I):
     """
     This class uses the Pinecone API for embedding text files (ex. TXT, PDF).
     """
-
     pass
 
 
@@ -20,7 +19,6 @@ class HuggingFace_embedder(Embedder_I):
     """
     This class uses the HuggingFace API for embedding text files (ex. TXT, PDF).
     """
-
     pass
 
 

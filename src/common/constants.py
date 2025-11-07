@@ -1,7 +1,6 @@
 from enum import Enum
 
 
-
 class _Checks_enum_values_Mixin(Enum):
     """
     Interface extended by sub-types of Enum to ensure a value checking functionality.
@@ -23,12 +22,10 @@ class DB_use_types_enum(_Checks_enum_values_Mixin, Enum):
     RAG = "RAG"
 
 
-
 class Featured_storage_DB_engines_enum(_Checks_enum_values_Mixin, Enum):
     MONGODB = "MongoDB"
     POSTGRESQL = "PostgreSQL"
     
-
 
 class Featured_RAG_DB_engines_enum(_Checks_enum_values_Mixin, Enum):
     MONGODB = "MongoDB"

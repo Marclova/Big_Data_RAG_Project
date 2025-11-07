@@ -1,6 +1,7 @@
-from models.data_models import RAG_DTModel
-from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
+from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
+
+from models.data_models import RAG_DTModel
 
 
 

@@ -4,12 +4,14 @@ from abc import ABC, abstractmethod
 from src.common.constants import (DB_use_types_enum as DB_usage, 
                                   Featured_storage_DB_engines_enum as storage_DB_engine, 
                                   Featured_RAG_DB_engines_enum as RAG_DB_engine)
+
 from src.models.interfaces.DB_config_interface import DB_config_I
 from src.models.interfaces.data_model_interface import DTModel_I
 from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I
 
 from src.models.DB_config_models import Storage_DB_config, RAG_DB_config
 from src.models.data_models import Storage_DTModel, RAG_DTModel
+
 from src.services.db_services import storage_DB_operators, RAG_DB_operators
 
 
@@ -181,4 +183,3 @@ class _DB_operator_factory:
             f"Dead code activation: No factory case for operator named '{DB_config.usage_type}_{DB_config.db_engine}_operator'. "
             "Did you update featured_DB_types but forget to extend the factory method?"
         )
-

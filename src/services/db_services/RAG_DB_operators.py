@@ -1,18 +1,21 @@
 from typing import override
+
 from src.services.db_services.interfaces.DB_operator_interfaces import RAG_DB_operator_I
+
 from models.data_models import RAG_DTModel
+
 
 """
  Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.
  Selected DBs are Pinecone and MongoDB
 """
 
+
 #TODO(before merge): implement
 class RAG_PineconeDB_operator(RAG_DB_operator_I):
     """
     Class to manage the Pinecone connection and operations for RAG vector storage.
     """
-
     def __init__(self, api_key: str, environment: str, index_name: str):
         pass
 
