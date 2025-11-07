@@ -24,7 +24,7 @@ class DB_use_types_enum(_Checks_enum_values_Mixin, Enum):
 
 class Featured_storage_DB_engines_enum(_Checks_enum_values_Mixin, Enum):
     MONGODB = "MongoDB"
-    POSTGRESQL = "PostgreSQL"
+    PYGRESQL = "PyGreSQL"
     
 
 class Featured_RAG_DB_engines_enum(_Checks_enum_values_Mixin, Enum):

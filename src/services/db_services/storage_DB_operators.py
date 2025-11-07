@@ -1,6 +1,9 @@
 from typing import override
 from pymongo import MongoClient
 from pymongo.database import Database
+from pg import DB as PyGreSQLClient
+
+from src.common.constants import Featured_storage_DB_engines_enum as storage_DBs
 
 from src.services.db_services.interfaces.DB_operator_interfaces import Storage_DB_operator_I
 
@@ -19,15 +22,15 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
     Class to manage the MongoDB connection and operations for storage.
     """
     def __init__(self, DB_connection_url: str, DB_name: str):
-        self.connection: MongoClient = None
-        self.database: Database = None
+        # self.connection: MongoClient
+        self.database: Database
 
         self.open_connection(DB_connection_url, DB_name)
 
 
     @override
-    def get_record_using_title(self, input_collection_name: str, title: str) -> dict[any]:
-        return self.database[input_collection_name].find_one({"title": title})
+    def get_record_using_title(self, target_collection_name: str, title: str) -> dict[any]:
+        return self.database[target_collection_name].find_one({"title": title})
 
 
     @override
@@ -120,11 +123,16 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
     #     return None
     
 
-    #TODO(improving): Try to configure the DB so that it has the 'title' parameter set as 'unique'
+    @override
+    def check_collection_existence(self, collection_to_check: str) -> bool:
+        return (self.database.get_collection(collection_to_check) != None)
+
+
     @override
     def open_connection(self, DB_connection_url: str, DB_name: str):
-        self.connection = MongoClient(DB_connection_url)
-        self.database = self.connection[DB_name]
+        # self.connection = MongoClient(DB_connection_url)
+        # self.database = self.connection[DB_name]
+        self.database = MongoClient(DB_connection_url)[DB_name]
 
 
     @override
@@ -134,13 +142,93 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
     @override
     def get_engine_name(self) -> str:
-        return "MongoDB"
+        return storage_DBs.MONGODB
 
 
 
-#TODO(before merge): implement the class
-class storage_PostgreSQL_operator(Storage_DB_operator_I):
+class storage_PyGreSQL_operator(Storage_DB_operator_I):
     """
     Class to manage the PostgreSQL connection and operations for storage.
     """
-    pass
+    def __init__(self, dbname: str, host: str, port: int, user: str, passwd: str):
+        self.database: PyGreSQLClient
+        
+        self.open_connection(dbname, host, port, user, passwd)
+
+
+    @override
+    def get_record_using_title(self, target_table_name: str, title: str) -> Storage_DTModel:
+        query = f"SELECT * FROM {target_table_name} WHERE title = {title}"
+
+        record = self.database.query(query).getresult()[0] #only one element is supposed to be retrieved
+
+        return Storage_DTModel(url=record[0], title=record[1], pages=record[2], authors=record[3])
+
+
+    @override
+    def get_all_records(self, target_table_name: str) -> list[Storage_DTModel]:
+        query = f"SELECT * FROM {target_table_name}"
+
+        DTModel_list: list[Storage_DTModel] = list()
+        records_list = self.database.query(query).getresult()
+        for record in records_list:
+            DTModel_list.append(Storage_DTModel(url=record[0], title=record[1], pages=record[2], authors=record[3]))
+        
+        return DTModel_list
+
+    @override
+    def insert_record(self, target_table_name: str, data_model: Storage_DTModel) -> bool:
+        authors_list = self._generate_authors_string_for_query(data_model.authors)
+
+        query = (f"INSERT INTO {target_table_name}"
+                 f"VALUES('{data_model.url}', '{data_model.title}', '{data_model.pages}', '{authors_list}'")
+
+        return (self.database.query(query) != None)
+
+    
+    @override
+    def update_record(self, target_table_name: str, data_model: Storage_DTModel) -> bool:
+        authors_list = self._generate_authors_string_for_query(data_model.authors)
+        query = (f"UPDATE {target_table_name} "
+                 f"SET url = {data_model.url}, pages = {data_model.pages}, authors = {authors_list} "
+                 f"WHERE title = {data_model.title}")
+        
+        return (self.database.query(query) != None)
+
+
+    @override
+    def remove_record_using_title(self, target_table_name: str, title: str) -> bool:
+        query = f"DELETE FROM {target_table_name} WHERE title = {title}"
+
+
+    @override
+    def check_collection_existence(self, collection_to_check: list[str]) -> bool:
+        return (collection_to_check in self.database.get_tables())
+
+
+    @override
+    def open_connection(self, dbname: str, host: str, port: int, user: str, passwd: str):
+        self.database = PyGreSQLClient(dbname, host, port, user, passwd)
+
+
+    @override
+    def close_connection(self):
+        self.database.close()
+
+
+    @override
+    def get_engine_name(self) -> str:
+        return storage_DBs.PYGRESQL
+
+
+    def _generate_authors_string_for_query(authors: list[str]):
+        """
+        Generates the 'authors' substring of a PyGreSQL query to insert as a single array value.
+        """
+        authors_list = ""
+        for author in authors:
+            authors_list = f"\"{author}\", "
+        authors_list = authors_list.removesuffix(", ")
+        authors_list = "{" + authors_list + "}"
+
+        return authors_list

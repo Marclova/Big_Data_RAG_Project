@@ -13,7 +13,7 @@ class DB_operator_I(ABC):
     @abstractmethod
     def insert_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
-        Insert a new record into the given collection/table/index using a custom JSON to describe the record's content.
+        Insert a new record into the given collection/table/index.
 
         Parameters:
             output_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
@@ -27,7 +27,8 @@ class DB_operator_I(ABC):
     @abstractmethod
     def update_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
-        Updates a record in the given collection/table/index having the corresponding title.
+        Updates a record in the given collection/table/index having the corresponding key value 
+            ('title' for storage DBs and 'text' for RAG DBs).
         The actual implementation is done by the update_record_using_JSON function.
         Parameters:
             target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
@@ -38,23 +39,21 @@ class DB_operator_I(ABC):
         pass
 
     @abstractmethod
-    def check_collectionList_existence(self, collectionList_to_check: list[str]) -> bool:
+    def check_collection_existence(self, collection_to_check: str) -> bool:
         """
-        Checks if all the collections/tables/indexes in the given list exist in the connected DB.
-
+        Checks if the collection/table/index in the given list exists in the connected DB.
         Parameters:
-            collectionList_to_check (list[str]): The list of names of the collections/tables/indexes to check for existence.
-
+            collection_to_check (str): The name of the collection/table/index to check for existence.
         Returns:
-            bool: True if all the collections/tables/indexes exist, False otherwise.
+            bool: True the collection/table/index exist, False otherwise.
         """
         pass
 
     @abstractmethod
     def open_connection(self, *args, **kwargs):
         """
-        Opens the DB connection using the provided configuration.
-
+        Opens the DB connection using the provided configuration. 
+        It also updates the needed instance variables to match the new connection.
         Parameters:
             db_config (DB_config): The configuration to use to open the DB connection.
         """
@@ -84,12 +83,12 @@ class Storage_DB_operator_I(DB_operator_I):
     It extends the DB_operator interface.
     """
     @abstractmethod
-    def get_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
+    def get_record_using_title(self, target_collection_name: str, title: str) -> Storage_DTModel:
         """
         Retrieves a record in the given collection/table/index using its title.
 
         Parameters:
-            input_collection_name (str): The name of the collection/table/index to retrieve the file from.
+            target_collection_name (str): The name of the collection/table/index to retrieve the file from.
             title (str): The title of the record to retrieve.
         Returns:
             DTModel: The record with the given title. None if not found.

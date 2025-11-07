@@ -13,7 +13,8 @@ class Storage_DTModel(DTModel_I):
     """
     def __init__(self, url: str, title: str = "untitled", pages: str = "-1", text: str = "", authors: list[str] = ["unknown"]):
         """
-        Initializes a data transfer model for storing and retrieving data from a vectorial database.
+        Initializes a data transfer model for storing and retrieving data from a vectorial database. 
+        Parameters normalization and url check are performed.
         """
         if (url == None):
             raise ValueError("URL cannot be None")
@@ -28,14 +29,11 @@ class Storage_DTModel(DTModel_I):
 
     @override
     def generate_JSON_data(self) -> dict[str, any]:
-        """
-        Returns a dictionary representation of the object for vectorial database storage.
-        """
         return {
-            "url": str,
-            "title": str,
-            "pages": str,
-            "author": [str]
+            "url": self.url,
+            "title": self.title,
+            "pages": self.pages,
+            "author": self.authors
         }
 
 
