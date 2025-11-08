@@ -3,3 +3,5 @@
 
 temp.pdf
 downloadedFiles/
+tests/covering_tests/downloaded_testFiles/
+tests/covering_tests/.venv/

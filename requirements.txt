@@ -7,3 +7,11 @@ torch
 
 langchain_together
 sentence_transformers
+
+pyyaml
+
+pinecone
+google-api-core
+"unstructured[all-docs]"
+# unstructured.partition.auto
+# "unstructured[pdf]"

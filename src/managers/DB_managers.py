@@ -1,0 +1,185 @@
+from typing import cast
+from abc import ABC, abstractmethod
+
+from src.common.constants import (DB_use_types_enum as DB_usage, 
+                                  Featured_storage_DB_engines_enum as storage_DB_engine, 
+                                  Featured_RAG_DB_engines_enum as RAG_DB_engine)
+
+from src.models.interfaces.DB_config_interface import DB_config_I
+from src.models.interfaces.data_model_interface import DTModel_I
+from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I
+
+from src.models.DB_config_models import Storage_DB_config, RAG_DB_config
+from src.models.data_models import Storage_DTModel, RAG_DTModel
+
+from src.services.db_services import storage_DB_operators, RAG_DB_operators
+
+
+
+
+class _generic_DB_manager_Mixin(ABC):
+    """
+    Generic class not meant to be initialized nor to be used for an abstract design pattern.
+    It contains the methods common between all the DB managers.
+    """
+    DB_operator: DB_operator_I
+
+
+    @abstractmethod
+    def __init__(self, db_config: DB_config_I):
+        pass
+
+
+    def insert_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
+        """
+        Insert a record into the given DB collection/table/index.
+        Parameters:
+            target_collection_name: The collection to insert the record into.
+        Returns:
+            bool: The operation outcome.
+        """
+        return self.DB_operator.insert_record(target_collection_name, data_model)
+    
+
+    def update_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
+        """
+        Updates a record into the given collection/table/index.
+        Parameters:
+            target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
+            data_model (DTModel): The data model describing the record to update.
+        Returns:
+            bool: the operation outcome.
+        """
+        return self.DB_operator.update_record(target_collection_name, data_model)
+
+
+
+
+class Storage_DB_manager(_generic_DB_manager_Mixin):
+    """
+    Manager for DB operations to store papers destined to be embedded.
+    """
+    def __init__(self, DB_config: Storage_DB_config):
+        self.DB_operator: Storage_DB_operator_I = _DB_operator_factory.initialize_storage_db_operator(DB_config)
+
+
+    def get_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
+        """
+        Retrieves a record in the given collection/table/index using its title.
+        Parameters:
+            input_collection_name (str): The name of the collection/table/index to retrieve the file from.
+            title (str): The title of the record to retrieve.
+        Returns:
+            DTModel: The record with the given title. None if not found.
+        """
+        self.DB_operator.get_record_using_title(input_collection_name, title)
+
+    
+    def get_all_records(self, target_collection_name: str) -> list[Storage_DTModel]:
+        """
+        Retrieves all the records in the given collection/table.
+        Parameters:
+            target_collection_name (str): The name of the collection/table to retrieve the files from.
+        Returns:
+            list[DTModel]: A list of all records in the collection/table.
+        """
+        return self.DB_operator.get_all_records(target_collection_name)
+
+    
+    def remove_record_using_title(self, target_collection_name: str, title: str) -> bool:
+        """
+        Retrieves and delete from the collection/table a record having the corresponding title
+        Parameters:
+            target_collection_name (str): The name of the existing DB collection/table where to insert the record into.
+            title (str): The name of the article to remove.
+        Returns:
+            bool: the operation outcome.
+        """
+        return self.DB_operator.remove_record_using_title(target_collection_name, title)
+
+
+
+class RAG_DB_manager(_generic_DB_manager_Mixin):
+    """
+    Manager for DB operations to embed papers and store embeddings.
+    """
+    def __init__(self, DB_config: RAG_DB_config):
+        self.DB_operator: RAG_DB_operator_I = _DB_operator_factory.initialize_RAG_db_operator(DB_config)
+
+
+    def get_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> RAG_DTModel:
+        """
+        Retrieves a record in the given collection/table/index using its embedded text for the exact match.
+        Parameters:
+            target_collection_name (str): The name of the collection/table/index to retrieve the file from.
+            embedded_text_to_find (str): The embedded text of the record to retrieve.
+        Returns:
+            DTModel: The record with the given embedded text. None if not found.
+        """
+        return self.DB_operator.get_record_using_embedded_text(target_collection_name, embedded_text_to_find)
+
+    
+    def remove_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> bool:
+        """
+        Retrieves and delete a record from the collection/table/index using its embedded text for the exact match.
+        Parameters:
+            target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
+            title (str): The name of the article to remove.
+        Returns:
+            bool: the operation outcome.
+        """
+        return self.DB_operator.remove_record_using_embedded_text(target_collection_name, embedded_text_to_find)
+
+    
+    def retrieve_vectors_using_query(self, target_collection_name: str, query: str, top_k: int) -> list[RAG_DTModel]:
+        """
+        Retrieves the top_k most similar vectors to the input query from the given collection/table/index.
+        Parameters:
+            target_collection_name (str): The name of the collection/table/index to retrieve the vectors from.
+            query (str): The input query string to search for similar vectors.
+            top_k (int): The number of top similar vectors to retrieve.
+        Returns:
+            list[DTModel]: A list of the top_k most similar vectors as data models.
+        """
+        return self.DB_operator.retrieve_vectors_using_query(target_collection_name, query, top_k)
+        
+
+
+#TODO(before merge): finish class implementation
+class _DB_operator_factory:
+    """
+    Private class defining a factory responsible for the initializations of the DB operators used by the managers.
+    """
+    def initialize_storage_db_operator(DB_config: Storage_DB_config) -> Storage_DB_operator_I:
+        """
+        Factory method to get the appropriate Storage DB operator based on the DB configuration and the featured DB types.
+        """           
+        # Define the factory cases; one per supported DB engine.
+        if DB_config.db_engine == storage_DB_engine.MONGODB:
+            return storage_DB_operators.Storage_MongoDB_operator(DB_connection_url=DB_config.DB_connection_url, DB_name=DB_config.DB_name)
+        elif DB_config.db_engine == storage_DB_engine.POSTGRESQL:
+            #TODO(before merge): implement PostgreSQL storage DB operator class and return its instance here
+            pass
+
+        raise NotImplementedError(
+        f"Dead code activation: No factory case for {DB_config.usage_type} {DB_config.db_engine}. "
+        "Did you update the featured DBs but forget to extend the factory method?"
+        )
+        
+
+    def initialize_RAG_db_operator(DB_config: RAG_DB_config) -> RAG_DB_operator_I:
+        """
+        Factory method to get the appropriate RAG DB operator based on the DB configuration and the featured DB types.
+        """            
+        # Define the factory cases; one per supported DB engine.
+        if DB_config.db_engine == RAG_DB_engine.PINECONE:
+            #TODO(before merge): implement Pinecone RAG DB operator class and return its instance here
+            pass
+        elif DB_config.db_engine == RAG_DB_engine.MONGODB:
+            #TODO(before merge): implement MongoDB RAG DB operator class and return its instance here
+            pass
+
+        raise NotImplementedError(
+            f"Dead code activation: No factory case for operator named '{DB_config.usage_type}_{DB_config.db_engine}_operator'. "
+            "Did you update featured_DB_types but forget to extend the factory method?"
+        )

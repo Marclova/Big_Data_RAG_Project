@@ -1,0 +1,51 @@
+file_url: "https://ceur-ws.org/Vol-3268/paper1.pdf"
+file_name: "Multi-Objective Recommendation: Overview and Challenges"
+file_extension: ".pdf"
+file_pages: 1
+file_authors: ["Dietmar Jannach", "DJ JOE"]
+file_id: "abc123"
+
+test_collection_url: "mongodb://localhost:27017/"
+test_db_name: "testDB"
+test_collection_name: "coveringTest_table"
+record_to_insert: 
+record_to_insert: {
+  "url": "https://ceur-ws.org/Vol-3268/paper1.pdf",
+  "title": "Multi-Objective Recommendation: Overview and Challenges",
+  "pages": "1",
+  "author": [
+    "Dietmar Jannach",
+    "DJ JOE"
+  ]
+}
+
+folder_path: ["tests", "covering_tests", "downloaded_testFiles"]
+
+text_to_cluster: "Generically defined, recommender systems can be characterized as software solutions that provide users convenient access\nto relevant content. The types of conveniences that such systems provide can be manifold. Historically, recommender\nsystems were mainly designed as information filtering tools, like the early GroupLens system [62] from 1994. Later\non, various other ways were investigated how such systems can create value, e.g., by helping users discover relevant\ncontent, by providing easy access to related content (e.g., accessories), or by even taking automatic action like creating\nand starting a music playlist.\nWhile a recommender systems can serve various purposes and create value in different ways [40], the predominant\n(implicit) objective of recommender systems in literature today can be described as “guide users to relevant items in\nsituations of information overload”, or simply “find good items” [26]. The most common way of operationalizing this\ninformation filtering problem is to frame the recommendation task as a supervised machine learning problem. The\ncore of this problem is to learn a function from noisy data, which accurately predicts the relevance of a given item for\nindividual users, sometimes also taking contextual factors into account.\nAlthough the actual relevance of recommended items can be assessed in different ways [25], data-based offline\nexperiments dominate the research landscape. In early years, rating prediction was considered a central task of a\nrecommender and the corresponding objective was to minimize the mean absolute error (MAE), see [68] for work using\nMAE in 1996. Nowadays, item ranking is mostly considered to be more important than rating prediction, and a variety\nof corresponding ranking accuracy measures are used today.\nWhile the metrics changed over time, the research community has been working on optimizing relevance predictions\nin increasingly sophisticated ways for almost 30 years now. The main objective of such research is to minimize the\nrelevance prediction error or to maximize the accuracy of the recommendations. The underlying assumption of these\nresearch approaches is that better relevance predictions lead to systems that are more valuable for their users. This\nseems intuitive for many practical applications, because a better algorithm should surface more relevant items in the\ntop-N lists shown to users."
+clustered_text: [
+  "Generically defined, recommender systems can be characterized as software solutions that provide users convenient access",
+  "to relevant content. The types of conveniences that such systems provide can be manifold. Historically, recommender",
+  "systems were mainly designed as information filtering tools, like the early GroupLens system [62] from 1994. Later",
+  "on, various other ways were investigated how such systems can create value, e.g., by helping users discover relevant",
+  "content, by providing easy access to related content (e.g., accessories), or by even taking automatic action like creating",
+  "and starting a music playlist.",
+  "While a recommender systems can serve various purposes and create value in different ways [40], the predominant",
+  "(implicit) objective of recommender systems in literature today can be described as “guide users to relevant items in",
+  "situations of information overload”, or simply “find good items” [26]. The most common way of operationalizing this",
+  "information filtering problem is to frame the recommendation task as a supervised machine learning problem. The",
+  "core of this problem is to learn a function from noisy data, which accurately predicts the relevance of a given item for",
+  "individual users, sometimes also taking contextual factors into account.",
+  "Although the actual relevance of recommended items can be assessed in different ways [25], data-based offline",
+  "experiments dominate the research landscape. In early years, rating prediction was considered a central task of a",
+  "recommender and the corresponding objective was to minimize the mean absolute error (MAE), see [68] for work using",
+  "MAE in 1996. Nowadays, item ranking is mostly considered to be more important than rating prediction, and a variety",
+  "of corresponding ranking accuracy measures are used today.",
+  "While the metrics changed over time, the research community has been working on optimizing relevance predictions",
+  "in increasingly sophisticated ways for almost 30 years now. The main objective of such research is to minimize the",
+  "relevance prediction error or to maximize the accuracy of the recommendations. The underlying assumption of these",
+  "research approaches is that better relevance predictions lead to systems that are more valuable for their users. This",
+  "seems intuitive for many practical applications, because a better algorithm should surface more relevant items in the",
+  "top-N lists shown to users."
+]
+mock_vector: [0.1, 0.2, 0.3]
+mock_embedder: "mock_embedder"
