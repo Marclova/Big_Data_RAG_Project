@@ -37,7 +37,7 @@ class Pinecone_embedder(Embedder_I):
 
 
 
-#TODO(before merge): implement class
+#TODO: implement class
 class HuggingFace_embedder(Embedder_I):
     """
     This class uses the HuggingFace API for embedding text files (ex. TXT, PDF).

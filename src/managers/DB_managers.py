@@ -7,13 +7,11 @@ from src.common.constants import (DB_use_types_enum as DB_usage,
 
 from src.models.interfaces.DB_config_interface import DB_config_I
 from src.models.interfaces.data_model_interface import DTModel_I
-from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I
-
 from src.models.DB_config_models import Storage_DB_config, RAG_DB_config
 from src.models.data_models import Storage_DTModel, RAG_DTModel
 
+from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I
 from src.services.db_services import storage_DB_operators, RAG_DB_operators
-
 
 
 
@@ -145,7 +143,6 @@ class RAG_DB_manager(_generic_DB_manager_Mixin):
         
 
 
-#TODO: finish class implementation
 class _DB_operator_factory:
     """
     Private class defining a factory responsible for the initializations of the DB operators used by the managers.
@@ -171,6 +168,7 @@ class _DB_operator_factory:
         )
         
 
+    #TODO: finish method implementation
     def initialize_RAG_db_operator(DB_config: RAG_DB_config) -> RAG_DB_operator_I:
         """
         Factory method to get the appropriate RAG DB operator based on the DB configuration and the featured DB types.

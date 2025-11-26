@@ -9,7 +9,7 @@ from src.common.constants import Featured_RAG_DB_engines_enum as RAG_DB
 
 from src.services.db_services.interfaces.DB_operator_interfaces import RAG_DB_operator_I
 
-from models.data_models import RAG_DTModel
+from src.models.data_models import RAG_DTModel
 
 
 """
@@ -18,7 +18,6 @@ from models.data_models import RAG_DTModel
 """
 
 
-#TODO: implement
 class RAG_PineconeDB_operator(RAG_DB_operator_I):
     """
     Class to manage the Pinecone connection and operations for RAG vector storage.
@@ -192,6 +191,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
 
-#TODO: implement
+#TODO: implement class
 class RAG_MongoDB_operator(RAG_DB_operator_I):
     pass

@@ -128,12 +128,12 @@ def _verify_url(url: str) -> None:
         if r.status_code == 200:
             return True
         elif r.status_code == 206:
-            print(f"Warning: URL '{url}' returned status code 206 (Partial Content).") #TODO consider another logging method
+            print(f"Warning: URL '{url}' returned status code 206 (Partial Content).") #TODO(polishing): consider another logging method
             return True
         elif r.status_code in (301, 302, 303, 307, 308):
-            print(f"ERROR: URL '{url}' is a redirect (status code: {r.status_code}).") #TODO consider another logging method
+            print(f"ERROR: URL '{url}' is a redirect (status code: {r.status_code}).") #TODO(polishing): consider another logging method
         else:
-            print(f"ERROR: URL '{url}' returned unexpected status code {r.status_code}.") #TODO consider another logging method
+            print(f"ERROR: URL '{url}' returned unexpected status code {r.status_code}.") #TODO(polishing): consider another logging method
     except requests.RequestException as e:
-        print(f"ERROR: URL '{url}' is not reachable or invalid. Retured the following exception: {e}") #TODO consider another logging method
+        print(f"ERROR: URL '{url}' is not reachable or invalid. Retured the following exception: {e}") #TODO(polishing): consider another logging method
     return False

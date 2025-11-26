@@ -15,7 +15,7 @@ class RAG_manager:
         self.embedder = Embedder_I(embedder_model_name, embedder_api_key)
         self.chatBot = ChatBot_I(chatBot_APIKey)
 
-    #TODO(refinement): If possible, find a way so that the webScraper can gather name, pages and authors from the file
+    #TODO(improvement): If possible, find a way so that the webScraper can gather name, pages and authors from the file
     def generate_embeddings_from_URL(self, file_URL: str, 
                                      file_name: str = None, file_pages: str = None, file_authors = None) -> list[RAG_DTModel]:
         """

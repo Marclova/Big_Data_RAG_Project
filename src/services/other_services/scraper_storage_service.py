@@ -6,7 +6,7 @@ from unstructured.partition.auto import partition
 
 # DEFAULT_PATH = "downloadedFiles"
 
-
+#TODO(improvement): If possible, find a way so that the webScraper can gather name, pages and authors from the file
 
 def extract_and_partition_text_from_url(url: str) -> list[str]:
     """

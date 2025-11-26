@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.models.interfaces.data_model_interface import DTModel_I
-
-from src.models.data_models import Storage_DTModel
-from models.data_models import RAG_DTModel
+from src.models.data_models import Storage_DTModel, RAG_DTModel
 
 
 class DB_operator_I(ABC):
