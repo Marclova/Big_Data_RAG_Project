@@ -160,7 +160,7 @@ class RAG_DB_operator_I(DB_operator_I):
     #     pass
 
     @abstractmethod
-    def retrieve_vectors(self, target_index_name: str, query_vector: list[float], top_k: int) -> list[RAG_DTModel]:
+    def retrieve_embeddings_from_vectors(self, target_index_name: str, query_vector: list[float], top_k: int) -> list[RAG_DTModel]:
         """
         Retrieves the top_k most similar vectors to the input query from the given index.
 
@@ -171,5 +171,16 @@ class RAG_DB_operator_I(DB_operator_I):
             top_k (int): The number of top similar vectors to retrieve.
         Returns:
             list[DTModel]: A list of the top_k most similar vectors as data models.
+        """
+        pass
+
+    def get_embedder_name(self, target_index_name: str) -> str | None:
+        """
+        Get method to have the embedder name from an index.
+        Parameters:
+            target_index_name (str): The index wherein extract the embedder name from.
+        Returns:
+            str: The embedder used in the given index. 
+                    None if there's no such index, the index has no embedder or the index has an unexpected structure.
         """
         pass
