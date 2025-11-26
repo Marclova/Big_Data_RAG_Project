@@ -1,16 +1,39 @@
-from pinecone import EmbeddingsList
-from pinecone.grpc import PineconeGRPC as Pinecone
+from typing import override
+from pinecone import Inference, Pinecone
+from pinecone.inference.models.embedding_list import EmbeddingsList
+from pinecone.core.openapi.inference.model.embedding import Embedding
 
 from services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 
 
 
-#TODO(before merge): implement class
 class Pinecone_embedder(Embedder_I):
     """
     This class uses the Pinecone API for embedding text files (ex. TXT, PDF).
     """
-    pass
+    def __init__(self, embedder_model_name, embedder_api_key):
+        self.embedder: Inference = Pinecone(api_key=embedder_api_key).inference
+        self.embedder_name = embedder_model_name
+
+    
+    #TODO(testing): The 'Embedding' data structure may be not as expected
+    @override
+    def generate_vectors_from_textChunks(self, textChunkList) -> dict[str,list[float]]:
+        dict_to_return: dict[str,list[float]] = dict()
+
+        #I don't trust the library to return a correctly ordered list, so I use the 'embed' function with one element at time
+        for text in textChunkList:
+            embeddings_list: EmbeddingsList = self.embedder.embed(model=self.embedder_name, inputs=[text])
+            embedding: Embedding = embeddings_list.__getitem__(0)
+            vector: list[float] = embedding.get("values")
+
+            dict_to_return.update({text:vector})
+        return dict_to_return
+
+
+    @override
+    def get_embedder_name(self) -> str:
+        return self.embedder_name        
 
 
 

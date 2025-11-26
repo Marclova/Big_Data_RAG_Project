@@ -15,7 +15,8 @@ class RAG_manager:
         self.chatBot = ChatBot_I(chatBot_APIKey)
 
 
-    def generate_vector_from_URL(self, file_URL: str) -> list[RAG_DTModel]:
+    #TODO(before commit): implement method so that the embedder has just the embedding responsibility
+    def generate_embeddings_from_URL(self, file_URL: str) -> list[RAG_DTModel]:
         """
         Generates a vector from a file by using the embedder.
         Parameters:
@@ -23,7 +24,7 @@ class RAG_manager:
         Returns:
             list[RAG_DTModel]: The list of resulting embeddings obtained from the file.
         """
-        return self.embedder.generate_vector_from_URL(file_URL)
+        minimal_embeddings: dict[str, list[float]] = self.embedder.generate_vectors_from_textChunks(file_URL)
     
 
     def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
