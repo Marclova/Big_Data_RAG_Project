@@ -6,8 +6,8 @@ from unstructured.partition.auto import partition
 
 # DEFAULT_PATH = "downloadedFiles"
 
+#TODO use Llama_Index library to perform text extraction and partitioning (documentation: https://developers.llamaindex.ai/python/examples/low_level/vector_store)
 #TODO(improvement): If possible, find a way so that the webScraper can gather name, pages and authors from the file
-
 def extract_and_partition_text_from_url(url: str) -> list[str]:
     """
     Method to extract and partition text for any textual file (ex. TXT, PDF).

@@ -139,7 +139,7 @@ class RAG_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             list[DTModel]: A list of the top_k most similar vectors as data models.
         """
-        return self.DB_operator.retrieve_vectors(target_collection_name, query, top_k)
+        return self.DB_operator.retrieve_embeddings_from_vector(target_collection_name, query, top_k)
         
 
 

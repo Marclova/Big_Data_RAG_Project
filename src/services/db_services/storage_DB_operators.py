@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from pg import DB as PyGreSQLClient
 
-from src.common.constants import Featured_storage_DB_engines_enum as storage_DBs
+from src.common.constants import Featured_storage_DB_engines_enum as storage_engines_enum
 
 from src.services.db_services.interfaces.DB_operator_interfaces import Storage_DB_operator_I
 
@@ -16,13 +16,14 @@ Embedding and storage of vectors are handled elsewhere.
 Selected DBs are MongoDB and PostgreSQL
 """
 
+#TODO(improvement): consider adding exception handling for DB connections and operations
 
 class Storage_MongoDB_operator(Storage_DB_operator_I):
     """
     Class to manage the MongoDB connection and operations for storage.
     """
     def __init__(self, DB_connection_url: str, DB_name: str):
-        # self.connection: MongoClient
+        self.connection: MongoClient
         self.database: Database
 
         self.open_connection(DB_connection_url, DB_name)
@@ -130,19 +131,20 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
     @override
     def open_connection(self, DB_connection_url: str, DB_name: str):
-        # self.connection = MongoClient(DB_connection_url)
-        # self.database = self.connection[DB_name]
-        self.database = MongoClient(DB_connection_url)[DB_name]
+        self.connection = MongoClient(DB_connection_url)
+        self.database = self.connection[DB_name]
+        # self.database = MongoClient(DB_connection_url)[DB_name]
 
 
     @override
     def close_connection(self):
         self.connection.close()
+        self.database = None
 
 
     @override
     def get_engine_name(self) -> str:
-        return storage_DBs.MONGODB
+        return storage_engines_enum.MONGODB
 
 
 
@@ -218,7 +220,7 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
 
     @override
     def get_engine_name(self) -> str:
-        return storage_DBs.PYGRESQL
+        return storage_engines_enum.PYGRESQL
 
 
     def _generate_authors_string_for_query(authors: list[str]):

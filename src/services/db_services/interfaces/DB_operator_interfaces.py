@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from src.models.interfaces.data_model_interface import DTModel_I
 from src.models.data_models import Storage_DTModel, RAG_DTModel
 
+floatVector = list[float]
 
 class DB_operator_I(ABC):
     """
@@ -158,13 +159,13 @@ class RAG_DB_operator_I(DB_operator_I):
     #     pass
 
     @abstractmethod
-    def retrieve_vectors(self, target_index_name: str, query_vector: list[float], top_k: int) -> list[RAG_DTModel]:
+    def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: floatVector, top_k: int) -> list[RAG_DTModel]:
         """
         Retrieves the top_k most similar vectors to the input query from the given index.
 
         Parameters:
             target_index_name (str): The name of the index to retrieve the vectors from.
-            query_vector (list[float]): The vector representing the query for argument retrieval.
+            query_vector (floatVector): The vector representing the query for argument retrieval.
                                     This value is supposed to be obtained by embedding a natural language question or text to retrieve.
             top_k (int): The number of top similar vectors to retrieve.
         Returns:
