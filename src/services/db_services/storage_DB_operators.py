@@ -23,6 +23,9 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
     Class to manage the MongoDB connection and operations for storage.
     """
     def __init__(self, DB_connection_url: str, DB_name: str):
+        if((DB_connection_url is None) or (DB_name is None)):
+            raise ValueError("MongoDB connection URL and DB name must be provided.")
+
         self.connection: MongoClient
         self.database: Database
 
@@ -31,16 +34,29 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
     @override
     def get_record_using_title(self, target_collection_name: str, title: str) -> dict[any]:
+        if((target_collection_name is None) or (title is None)):
+            raise ValueError("Target collection name and title must be provided.")
+        if(self.check_collection_existence(target_collection_name) is False):
+            raise ValueError(f"The target collection '{target_collection_name}' does not exist in the database.")
+
         return self.database[target_collection_name].find_one({"title": title})
 
 
     @override
     def get_all_records(self, input_collection_name: str) -> list[dict[any]]:
+        if((input_collection_name is None) or (self.check_collection_existence(input_collection_name) is False)):
+            raise ValueError("Input collection name must be provided and must exist in the database.")
+
         return list(self.database[input_collection_name].find())
 
 
     @override
     def insert_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
+        if((target_collection_name is None) or (data_model is None)):
+            raise ValueError("Target collection name and data model must be provided.")
+        if(self.check_collection_existence(target_collection_name) is False):
+            raise ValueError(f"The target collection '{target_collection_name}' does not exist in the database.")
+
         if self.get_record_using_title(target_collection_name, data_model.title) is None:
             try:
                 return (self.database[target_collection_name].insert_one({
@@ -58,6 +74,11 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
     @override
     def update_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
+        if((target_collection_name is None) or (data_model is None)):
+            raise ValueError("Target collection name and data model must be provided.")
+        if(self.check_collection_existence(target_collection_name) is False):
+            raise ValueError(f"The target collection '{target_collection_name}' does not exist in the database.")
+        
         if self.get_record_using_title(target_collection_name, data_model.title) is not None:
             try:
                 return (self.database[target_collection_name].update_one({
@@ -103,6 +124,11 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
         
     @override
     def remove_record_using_title(self, target_collection_name: str, title: str) -> bool:
+        if((target_collection_name is None) or (title is None)):
+            raise ValueError("Target collection name and title must be provided.")
+        if(self.check_collection_existence(target_collection_name) is False):
+            raise ValueError(f"The target collection '{target_collection_name}' does not exist in the database.")
+
         # return (self.remove_records_using_manualFilter(target_collection_name, {"title": title}) is not None)
         return (self.database[target_collection_name].delete_one({"title": title}).deleted_count > 0)
     
@@ -126,11 +152,16 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
     @override
     def check_collection_existence(self, collection_to_check: str) -> bool:
+        if(collection_to_check is None):
+            return False
         return (self.database.get_collection(collection_to_check) != None)
 
 
     @override
     def open_connection(self, DB_connection_url: str, DB_name: str):
+        if((DB_connection_url is None) or (DB_name is None)):
+            raise ValueError("MongoDB connection URL and DB name must be provided.")
+
         self.connection = MongoClient(DB_connection_url)
         self.database = self.connection[DB_name]
         # self.database = MongoClient(DB_connection_url)[DB_name]
@@ -153,6 +184,8 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
     Class to manage the PostgreSQL connection and operations for storage.
     """
     def __init__(self, dbname: str, host: str, port: int, user: str, passwd: str):
+        if((dbname is None) or (host is None) or (port is None) or (user is None) or (passwd is None)):
+            raise ValueError("All PostgreSQL connection parameters must be provided.")
         self.database: PyGreSQLClient
         
         self.open_connection(dbname, host, port, user, passwd)
@@ -160,8 +193,10 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
 
     @override
     def get_record_using_title(self, target_table_name: str, title: str) -> Storage_DTModel:
-        query = f"SELECT * FROM {target_table_name} WHERE title = {title}"
+        if((target_table_name is None) or (title is None)):
+            raise ValueError("Target table name and title must be provided.")
 
+        query = f"SELECT * FROM {target_table_name} WHERE title = {title}"
         record = self.database.query(query).getresult()[0] #only one element is supposed to be retrieved
 
         return Storage_DTModel(url=record[0], title=record[1], pages=record[2], authors=record[3])
@@ -169,6 +204,9 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
 
     @override
     def get_all_records(self, target_table_name: str) -> list[Storage_DTModel]:
+        if(target_table_name is None):
+            raise ValueError("Target table name must be provided.")
+        
         query = f"SELECT * FROM {target_table_name}"
 
         DTModel_list: list[Storage_DTModel] = list()
@@ -180,8 +218,10 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
 
     @override
     def insert_record(self, target_table_name: str, data_model: Storage_DTModel) -> bool:
+        if((target_table_name is None) or (data_model is None)):
+            raise ValueError("Target table name and data model must be provided.")
+        
         authors_list = self._generate_authors_string_for_query(data_model.authors)
-
         query = (f"INSERT INTO {target_table_name}"
                  f"VALUES('{data_model.url}', '{data_model.title}', '{data_model.pages}', '{authors_list}'")
 
@@ -190,6 +230,9 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
     
     @override
     def update_record(self, target_table_name: str, data_model: Storage_DTModel) -> bool:
+        if((target_table_name is None) or (data_model is None)):
+            raise ValueError("Target table name and data model must be provided.")
+
         authors_list = self._generate_authors_string_for_query(data_model.authors)
         query = (f"UPDATE {target_table_name} "
                  f"SET url = {data_model.url}, pages = {data_model.pages}, authors = {authors_list} "
@@ -198,18 +241,28 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
         return (self.database.query(query) != None)
 
 
+    #TODO implement method
     @override
     def remove_record_using_title(self, target_table_name: str, title: str) -> bool:
+        if((target_table_name is None) or (title is None)):
+            raise ValueError("Target table name and title must be provided.")
+
         query = f"DELETE FROM {target_table_name} WHERE title = {title}"
+        return (self.database.query(query) != None)
 
 
     @override
     def check_collection_existence(self, collection_to_check: list[str]) -> bool:
+        if(collection_to_check is None):
+            return False
         return (collection_to_check in self.database.get_tables())
 
 
     @override
     def open_connection(self, dbname: str, host: str, port: int, user: str, passwd: str):
+        if((dbname is None) or (host is None) or (port is None) or (user is None) or (passwd is None)):
+            raise ValueError("All PostgreSQL connection parameters must be provided.")
+
         self.database = PyGreSQLClient(dbname, host, port, user, passwd)
 
 

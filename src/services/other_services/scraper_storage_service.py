@@ -3,11 +3,15 @@ import requests
 from tempfile import NamedTemporaryFile
 from unstructured.partition.auto import partition
 
+# from llama_index.embeddings.openai import OpenAIEmbedding
+# from llama_index.core.vector_stores import (VectorStoreQuery, VectorStoreQueryResult)
+
 
 # DEFAULT_PATH = "downloadedFiles"
 
 #TODO use Llama_Index library to perform text extraction and partitioning (documentation: https://developers.llamaindex.ai/python/examples/low_level/vector_store)
 #TODO(improvement): If possible, find a way so that the webScraper can gather name, pages and authors from the file
+#TODO(improvement): consider to split responsibilities: one method to download, one method to extract and partition
 def extract_and_partition_text_from_url(url: str) -> list[str]:
     """
     Method to extract and partition text for any textual file (ex. TXT, PDF).
@@ -17,6 +21,9 @@ def extract_and_partition_text_from_url(url: str) -> list[str]:
     Returns:
         list[str]: The list of partitioned chunk of text from the file.
     """
+    if(url is None):
+        return []
+
     # a stream has not been used due to compatibility issues with binary an structured files
     try:
     # download file as a request

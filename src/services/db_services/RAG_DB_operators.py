@@ -15,8 +15,6 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.cursor import Cursor
 
-# from llama_index.embeddings.openai import OpenAIEmbedding
-# from llama_index.core.vector_stores import (VectorStoreQuery, VectorStoreQueryResult)
 from openai import OpenAI
 
 from src.common.constants import Featured_RAG_DB_engines_enum as RAG_engines_enum
@@ -38,6 +36,10 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
     Class to manage the Pinecone connection and operations for RAG vector storage.
     """
     def __init__(self, api_key: str, host: str):
+        if((api_key is None) or (api_key.strip() == "") or 
+           (host is None) or (host.strip() == "")):
+            raise ValueError("One or more required parameters for Pinecone RAG DB operator initialization are missing or invalid.")
+
         # self.database: PineconeClient
         self.database: IndexAsyncio
         # self.host: str
@@ -69,6 +71,11 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
     @override
     async def insert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
+        if((target_index_name is None) or (target_index_name.strip() == "") or 
+           (data_model is None)):
+            raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
+        if(self._check_index_existence(target_index_name) is False):
+            raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         #There must be no match
         if self._is_ID_already_in_use(target_index_name, data_model.id):
             return False
@@ -78,6 +85,11 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
     @override
     async def update_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
+        if((target_index_name is None) or (target_index_name.strip() == "") or 
+           (data_model is None)):
+            raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
+        if(self._check_index_existence(target_index_name) is False):
+            raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         #There must be a match
         if not (self._is_ID_already_in_use(target_index_name, data_model.id)):
             return False
@@ -92,6 +104,12 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
     @override
     async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: floatVector, top_k: int) -> list[RAG_DTModel]:
+        if((target_index_name is None) or (target_index_name.strip() == "") or 
+           (query_vector is None) or (top_k is None)):
+            raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
+        if(self._check_index_existence(target_index_name) is False):
+            raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
+        
         response: SearchRecordsResponse = await self.database.query(namespace=target_index_name, 
                                                                     vector=query_vector, top_k=top_k)
         return self._from_SearchRecordsResponse_to_RAGDTModelList(response)
@@ -133,6 +151,13 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         if insertion_count == -1:
             raise RuntimeError("Attribute 'upserted_count' not found in UpsertResponse wrapper.")
         return (insertion_count > 0)
+    
+
+
+    #TODO implement private method
+    def _check_index_existence(self, index_to_check: int) -> bool:
+        # if([namespace. for namespace: ListNamespacesResponse in self.database.namespace.list()])
+        return True
 
 
     async def _is_ID_already_in_use(self, target_index_name: str, id_to_check: str) -> bool:

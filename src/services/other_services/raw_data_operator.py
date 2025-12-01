@@ -9,6 +9,9 @@ def normalize_extension(given_string: str) -> str:
     Returns:
         str: The normalized string with a leading dot.
     """
+    if(given_string is None or len(given_string) == 0):
+        raise ValueError("The given string is None or empty.")
+
     if given_string[0] != ".":
         return ("." + given_string)
     else:
@@ -23,6 +26,9 @@ def normalize_folder_path(given_string: str) -> str:
     Returns:
         str: The normalized folder path with a trailing slash.
     """
+    if(given_string is None or len(given_string) == 0):
+        raise ValueError("The given string is None or empty.")
+
     if given_string[-1] != "/":
         return (given_string + "/")
     else:

@@ -36,6 +36,11 @@ class _generic_DB_manager_Mixin(ABC):
         Returns:
             bool: The operation outcome.
         """
+        if((target_collection_name is None) or (target_collection_name.strip() == "") or (data_model is None)):
+            raise ValueError("The target collection name and the data model cannot be None or empty.")
+        if(self.DB_operator.check_collection_existence(target_collection_name) is False):
+            raise ValueError(f"The target collection/table/index '{target_collection_name}' does not exist in the DB.")
+        
         return self.DB_operator.insert_record(target_collection_name, data_model)
     
 
@@ -48,6 +53,11 @@ class _generic_DB_manager_Mixin(ABC):
         Returns:
             bool: the operation outcome.
         """
+        if((target_collection_name is None) or (target_collection_name.strip() == "") or (data_model is None)):
+            raise ValueError("The target collection name and the data model cannot be None or empty.")
+        if(self.DB_operator.check_collection_existence(target_collection_name) is False):
+            raise ValueError(f"The target collection/table/index '{target_collection_name}' does not exist in the DB.")
+        
         return self.DB_operator.update_record(target_collection_name, data_model)
 
 
@@ -58,6 +68,9 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
     Manager for DB operations to store papers destined to be embedded.
     """
     def __init__(self, DB_config: Storage_DB_config):
+        if(DB_config is None):
+            raise ValueError("The DB configuration cannot be None.")
+
         self.DB_operator: Storage_DB_operator_I = _DB_operator_factory.initialize_storage_db_operator(DB_config)
 
 
@@ -70,7 +83,11 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             DTModel: The record with the given title. None if not found.
         """
-        self.DB_operator.get_record_using_title(input_collection_name, title)
+        if((input_collection_name is None) or (input_collection_name.strip() == "") or 
+           (title is None) or (title.strip() == "")):
+            raise ValueError("The input collection name and the title cannot be None or empty.")
+
+        return self.DB_operator.get_record_using_title(input_collection_name, title)
 
     
     def get_all_records(self, target_collection_name: str) -> list[Storage_DTModel]:
@@ -81,6 +98,9 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             list[DTModel]: A list of all records in the collection/table.
         """
+        if((target_collection_name is None) or (target_collection_name.strip() == "")):
+            raise ValueError("The target collection name cannot be None or empty.")
+
         return self.DB_operator.get_all_records(target_collection_name)
 
     
@@ -93,6 +113,10 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             bool: the operation outcome.
         """
+        if((target_collection_name is None) or (target_collection_name.strip() == "") or 
+           (title is None) or (title.strip() == "")):
+            raise ValueError("The target collection name and the title cannot be None or empty.")
+
         return self.DB_operator.remove_record_using_title(target_collection_name, title)
 
 
@@ -102,44 +126,54 @@ class RAG_DB_manager(_generic_DB_manager_Mixin):
     Manager for DB operations to embed papers and store embeddings.
     """
     def __init__(self, DB_config: RAG_DB_config):
+        if(DB_config is None):
+            raise ValueError("The DB configuration cannot be None.")
+
         self.DB_operator: RAG_DB_operator_I = _DB_operator_factory.initialize_RAG_db_operator(DB_config)
 
 
-    def get_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> RAG_DTModel:
-        """
-        Retrieves a record in the given collection/table/index using its embedded text for the exact match.
-        Parameters:
-            target_collection_name (str): The name of the collection/table/index to retrieve the file from.
-            embedded_text_to_find (str): The embedded text of the record to retrieve.
-        Returns:
-            DTModel: The record with the given embedded text. None if not found.
-        """
-        return self.DB_operator.get_record_using_embedded_text(target_collection_name, embedded_text_to_find)
+    # def get_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> RAG_DTModel:
+    #     """
+    #     Retrieves a record in the given collection/table/index using its embedded text for the exact match.
+    #     Parameters:
+    #         target_collection_name (str): The name of the collection/table/index to retrieve the file from.
+    #         embedded_text_to_find (str): The embedded text of the record to retrieve.
+    #     Returns:
+    #         DTModel: The record with the given embedded text. None if not found.
+    #     """
+    #     return self.DB_operator.get_record_using_embedded_text(target_collection_name, embedded_text_to_find)
 
     
-    def remove_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> bool:
-        """
-        Retrieves and delete a record from the collection/table/index using its embedded text for the exact match.
-        Parameters:
-            target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
-            title (str): The name of the article to remove.
-        Returns:
-            bool: the operation outcome.
-        """
-        return self.DB_operator.remove_record_using_embedded_text(target_collection_name, embedded_text_to_find)
+    # def remove_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> bool:
+    #     """
+    #     Retrieves and delete a record from the collection/table/index using its embedded text for the exact match.
+    #     Parameters:
+    #         target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
+    #         title (str): The name of the article to remove.
+    #     Returns:
+    #         bool: the operation outcome.
+    #     """
+    #     return self.DB_operator.remove_record_using_embedded_text(target_collection_name, embedded_text_to_find)
 
     
-    def retrieve_vectors_using_query(self, target_collection_name: str, query: str, top_k: int) -> list[RAG_DTModel]:
+    def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, vector_query: list[float], top_k: int) -> list[RAG_DTModel]:
         """
         Retrieves the top_k most similar vectors to the input query from the given collection/table/index.
         Parameters:
             target_collection_name (str): The name of the collection/table/index to retrieve the vectors from.
-            query (str): The input query string to search for similar vectors.
+            vector_query (list[float]): The vector query to find similar vectors.
             top_k (int): The number of top similar vectors to retrieve.
         Returns:
             list[DTModel]: A list of the top_k most similar vectors as data models.
         """
-        return self.DB_operator.retrieve_embeddings_from_vector(target_collection_name, query, top_k)
+        if((target_collection_name is None) or (target_collection_name.strip() == "")):
+            raise ValueError("The target collection name cannot be None or empty.")
+        if((vector_query is None) or (vector_query.__len__() == 0)):
+            raise ValueError("The query cannot be None or empty.")
+        if(top_k <= 0):
+            raise ValueError("The top_k parameter must be a positive integer.")
+
+        return self.DB_operator.retrieve_embeddings_from_vector(target_collection_name, vector_query, top_k)
         
 
 
@@ -150,7 +184,7 @@ class _DB_operator_factory:
     def initialize_storage_db_operator(DB_config: Storage_DB_config) -> Storage_DB_operator_I:
         """
         Factory method to get the appropriate Storage DB operator based on the DB configuration and the featured DB types.
-        """           
+        """
         # Define the factory cases; one per supported DB engine.
         if DB_config.db_engine == storage_DB_engine.MONGODB:
             return storage_DB_operators.Storage_MongoDB_operator(

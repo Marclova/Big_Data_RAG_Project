@@ -1,6 +1,8 @@
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
 
+
+#TODO implement chatBot models enum and add parameter validation
 class chatBot_manager:
     """
     Generalized chatBot manager to handle chatbot interactions.
@@ -18,6 +20,11 @@ class chatBot_manager:
         Returns:
             str: The reply from the chatBot
         """
+        if( (message is None) or (message.strip() == "") ):
+            raise ValueError("The message cannot be empty or None.")
+        if((responseInfo is None) or (len(responseInfo) == 0) ):
+            raise ValueError("The responseInfo cannot be empty or None.")
+        
         return self.chatBot.send_message_with_responseInfo(message, responseInfo)
 
 
