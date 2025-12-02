@@ -38,18 +38,22 @@ class Featured_RAG_DB_engines_enum(_Checks_enum_values_Mixin):
 
 
 class Featured_embedding_models(_Checks_enum_values_Mixin):
-    class __Pincecone_Embedders_enum(_Checks_enum_values_Mixin):
+    class __PINECONE(_Checks_enum_values_Mixin):
         LLAMA_TEXT_EMBED_V2= "llama-text-embed-v2"
-    class __OPENAI_Embedders_enum(_Checks_enum_values_Mixin):
+    class __OPEN_AI(_Checks_enum_values_Mixin):
         TEXT_EMBED_3_SMALL = OpenAIEmbeddingModelType.TEXT_EMBED_3_SMALL
+    # class __Pincecone_Embedders_enum(_Checks_enum_values_Mixin):
+    #     LLAMA_TEXT_EMBED_V2= "llama-text-embed-v2"
+    # class __OPEN_AI_Embedders_enum(_Checks_enum_values_Mixin):
+    #     TEXT_EMBED_3_SMALL = OpenAIEmbeddingModelType.TEXT_EMBED_3_SMALL
 
-    PINECONE = __Pincecone_Embedders_enum
-    OPENAI = __OPENAI_Embedders_enum
+    # PINECONE = __Pincecone_Embedders_enum
+    # OPEN_AI = __OPENAI_Embedders_enum
 
     @override
     def has_value(cls, value:str) -> bool:
-        return (Featured_embedding_models.PINECONE.has_value(value=value) or
-                Featured_embedding_models.OPENAI.has_value(value=value))
+        return (Featured_embedding_models.__PINECONE.has_value(value=value) or
+                Featured_embedding_models.__OPEN_AI.has_value(value=value))
 
 
 

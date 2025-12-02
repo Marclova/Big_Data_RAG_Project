@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, override
 from abc import ABC, abstractmethod
 
 from src.common.constants import (DB_use_types_enum as DB_usage, 
@@ -14,8 +14,7 @@ from src.services.db_services.interfaces.DB_operator_interfaces import DB_operat
 from src.services.db_services import storage_DB_operators, RAG_DB_operators
 
 
-
-class _generic_DB_manager_Mixin(ABC):
+class generic_DB_manager(ABC):
     """
     Generic class not meant to be initialized nor to be used for an abstract design pattern.
     It contains the methods common between all the DB managers.
@@ -28,42 +27,52 @@ class _generic_DB_manager_Mixin(ABC):
         pass
 
 
+    @abstractmethod
     def insert_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
         Insert a record into the given DB collection/table/index.
         Parameters:
-            target_collection_name: The collection to insert the record into.
+            target_collection_name (str): The collection to insert the record into.
+            data_model: The data model describing the record to update.
         Returns:
             bool: The operation outcome.
         """
-        if((target_collection_name is None) or (target_collection_name.strip() == "") or (data_model is None)):
-            raise ValueError("The target collection name and the data model cannot be None or empty.")
-        if(self.DB_operator.check_collection_existence(target_collection_name) is False):
-            raise ValueError(f"The target collection/table/index '{target_collection_name}' does not exist in the DB.")
-        
-        return self.DB_operator.insert_record(target_collection_name, data_model)
+        pass
     
 
+    @abstractmethod
     def update_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
         Updates a record into the given collection/table/index.
         Parameters:
             target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
-            data_model (DTModel): The data model describing the record to update.
+            data_model: The data model describing the record to update.
         Returns:
             bool: the operation outcome.
         """
-        if((target_collection_name is None) or (target_collection_name.strip() == "") or (data_model is None)):
-            raise ValueError("The target collection name and the data model cannot be None or empty.")
+        pass
+
+    
+    def __parameters_validation(self, target_collection_name: str, **kwargs) -> None:
+        """
+        Internal method to validate common parameters for DB manager methods. 
+        In case of invalid parameters, raises ValueError.
+        parameters:
+            target_collection_name (str): The name of the target collection/table/index.
+            **kwargs: Additional parameters to validate (only 'None' check is performed)
+        """
+        if(target_collection_name is None):
+            raise ValueError("The target collection name cannot be None.")
+        for param_name, param_value in kwargs.items():
+            if(param_value is None):
+                raise ValueError(f"The parameter '{param_name}' cannot be None.")
         if(self.DB_operator.check_collection_existence(target_collection_name) is False):
             raise ValueError(f"The target collection/table/index '{target_collection_name}' does not exist in the DB.")
-        
-        return self.DB_operator.update_record(target_collection_name, data_model)
 
 
 
 
-class Storage_DB_manager(_generic_DB_manager_Mixin):
+class Storage_DB_manager(generic_DB_manager):
     """
     Manager for DB operations to store papers destined to be embedded.
     """
@@ -72,6 +81,20 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
             raise ValueError("The DB configuration cannot be None.")
 
         self.DB_operator: Storage_DB_operator_I = _DB_operator_factory.initialize_storage_db_operator(DB_config)
+
+    
+    @override
+    def insert_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
+        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        
+        return self.DB_operator.insert_record(target_collection_name, data_model)
+    
+
+    @override
+    def update_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
+        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        
+        return self.DB_operator.update_record(target_collection_name, data_model)
 
 
     def get_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
@@ -83,9 +106,7 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             DTModel: The record with the given title. None if not found.
         """
-        if((input_collection_name is None) or (input_collection_name.strip() == "") or 
-           (title is None) or (title.strip() == "")):
-            raise ValueError("The input collection name and the title cannot be None or empty.")
+        self.__parameters_validation(target_collection_name=input_collection_name, title=title)
 
         return self.DB_operator.get_record_using_title(input_collection_name, title)
 
@@ -98,8 +119,7 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             list[DTModel]: A list of all records in the collection/table.
         """
-        if((target_collection_name is None) or (target_collection_name.strip() == "")):
-            raise ValueError("The target collection name cannot be None or empty.")
+        self.__parameters_validation(target_collection_name=target_collection_name)
 
         return self.DB_operator.get_all_records(target_collection_name)
 
@@ -113,15 +133,13 @@ class Storage_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             bool: the operation outcome.
         """
-        if((target_collection_name is None) or (target_collection_name.strip() == "") or 
-           (title is None) or (title.strip() == "")):
-            raise ValueError("The target collection name and the title cannot be None or empty.")
+        self.__parameters_validation(target_collection_name=target_collection_name, title=title)
 
         return self.DB_operator.remove_record_using_title(target_collection_name, title)
 
 
 
-class RAG_DB_manager(_generic_DB_manager_Mixin):
+class RAG_DB_manager(generic_DB_manager):
     """
     Manager for DB operations to embed papers and store embeddings.
     """
@@ -130,6 +148,20 @@ class RAG_DB_manager(_generic_DB_manager_Mixin):
             raise ValueError("The DB configuration cannot be None.")
 
         self.DB_operator: RAG_DB_operator_I = _DB_operator_factory.initialize_RAG_db_operator(DB_config)
+
+
+    @override
+    def insert_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
+        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        
+        return self.DB_operator.insert_record(target_collection_name, data_model)
+    
+
+    @override
+    def update_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
+        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        
+        return self.DB_operator.update_record(target_collection_name, data_model)
 
 
     # def get_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> RAG_DTModel:
@@ -166,12 +198,7 @@ class RAG_DB_manager(_generic_DB_manager_Mixin):
         Returns:
             list[DTModel]: A list of the top_k most similar vectors as data models.
         """
-        if((target_collection_name is None) or (target_collection_name.strip() == "")):
-            raise ValueError("The target collection name cannot be None or empty.")
-        if((vector_query is None) or (vector_query.__len__() == 0)):
-            raise ValueError("The query cannot be None or empty.")
-        if(top_k <= 0):
-            raise ValueError("The top_k parameter must be a positive integer.")
+        self.__parameters_validation(target_collection_name=target_collection_name, vector_query=vector_query, top_k=top_k)
 
         return self.DB_operator.retrieve_embeddings_from_vector(target_collection_name, vector_query, top_k)
         

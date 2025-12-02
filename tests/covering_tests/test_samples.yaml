@@ -1,7 +1,7 @@
 file_url: "https://ceur-ws.org/Vol-3268/paper1.pdf"
 file_name: "Multi-Objective Recommendation: Overview and Challenges"
 file_extension: ".pdf"
-file_pages: 1
+file_pages: "11"
 file_authors: ["Dietmar Jannach", "DJ JOE"]
 file_id: "abc123"
 
@@ -12,7 +12,7 @@ record_to_insert:
 record_to_insert: {
   "url": "https://ceur-ws.org/Vol-3268/paper1.pdf",
   "title": "Multi-Objective Recommendation: Overview and Challenges",
-  "pages": "1",
+  "pages": "11",
   "author": [
     "Dietmar Jannach",
     "DJ JOE"
