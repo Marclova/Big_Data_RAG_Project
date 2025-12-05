@@ -53,7 +53,7 @@ class generic_DB_manager(ABC):
         pass
 
     
-    def __parameters_validation(self, target_collection_name: str, **kwargs) -> None:
+    def _parameters_validation(self, target_collection_name: str, **kwargs) -> None:
         """
         Internal method to validate common parameters for DB manager methods. 
         In case of invalid parameters, raises ValueError.
@@ -85,14 +85,14 @@ class Storage_DB_manager(generic_DB_manager):
     
     @override
     def insert_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
-        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        self._parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
         
         return self.DB_operator.insert_record(target_collection_name, data_model)
     
 
     @override
     def update_record(self, target_collection_name: str, data_model: Storage_DTModel) -> bool:
-        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        self._parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
         
         return self.DB_operator.update_record(target_collection_name, data_model)
 
@@ -106,7 +106,7 @@ class Storage_DB_manager(generic_DB_manager):
         Returns:
             DTModel: The record with the given title. None if not found.
         """
-        self.__parameters_validation(target_collection_name=input_collection_name, title=title)
+        self._parameters_validation(target_collection_name=input_collection_name, title=title)
 
         return self.DB_operator.get_record_using_title(input_collection_name, title)
 
@@ -119,7 +119,7 @@ class Storage_DB_manager(generic_DB_manager):
         Returns:
             list[DTModel]: A list of all records in the collection/table.
         """
-        self.__parameters_validation(target_collection_name=target_collection_name)
+        self._parameters_validation(target_collection_name=target_collection_name)
 
         return self.DB_operator.get_all_records(target_collection_name)
 
@@ -133,7 +133,7 @@ class Storage_DB_manager(generic_DB_manager):
         Returns:
             bool: the operation outcome.
         """
-        self.__parameters_validation(target_collection_name=target_collection_name, title=title)
+        self._parameters_validation(target_collection_name=target_collection_name, title=title)
 
         return self.DB_operator.remove_record_using_title(target_collection_name, title)
 
@@ -149,17 +149,30 @@ class RAG_DB_manager(generic_DB_manager):
 
         self.DB_operator: RAG_DB_operator_I = _DB_operator_factory.initialize_RAG_db_operator(DB_config)
 
+    def insert_records(self, target_collection_name: str, data_models: list[RAG_DTModel]) -> bool:
+        """
+        Variation of insert_record to insert multiple records at once.
+        """
+        self._parameters_validation(target_collection_name=target_collection_name, data_models=data_models)
+        
+        flag = True
+        for data_model in data_models:
+            if(not self.insert_record(target_collection_name, data_model)):
+                flag = False
+                print(f"ERROR: insertion of record with embedded_text starting with '{data_model.text[:30]}...' failed.") #TODO(polishing) Consider another logging method
+        return flag
+
 
     @override
     def insert_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
-        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        self._parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
         
         return self.DB_operator.insert_record(target_collection_name, data_model)
     
 
     @override
     def update_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
-        self.__parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
+        self._parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
         
         return self.DB_operator.update_record(target_collection_name, data_model)
 
@@ -198,7 +211,7 @@ class RAG_DB_manager(generic_DB_manager):
         Returns:
             list[DTModel]: A list of the top_k most similar vectors as data models.
         """
-        self.__parameters_validation(target_collection_name=target_collection_name, vector_query=vector_query, top_k=top_k)
+        self._parameters_validation(target_collection_name=target_collection_name, vector_query=vector_query, top_k=top_k)
 
         return self.DB_operator.retrieve_embeddings_from_vector(target_collection_name, vector_query, top_k)
         
@@ -236,12 +249,10 @@ class _DB_operator_factory:
         """            
         # Define the factory cases; one per supported DB engine.
         if DB_config.db_engine == RAG_DB_engine.PINECONE:
-            #TODO: implement Pinecone RAG DB operator class and return its instance here
-            pass
+            return RAG_DB_operators.RAG_PineconeDB_operator(api_key=DB_config.api_key, host=DB_config.connection_url)
         elif DB_config.db_engine == RAG_DB_engine.MONGODB:
-            #TODO: implement MongoDB RAG DB operator class and return its instance here
-            pass
-
+            return RAG_DB_operators.RAG_MongoDB_operator(DB_connection_url=DB_config.connection_url, DB_name=DB_config.database_name, 
+                                                         batch_size= DB_config.batch_size)
         raise NotImplementedError(
             f"Dead code activation: No factory case for operator named '{DB_config.usage_type}_{DB_config.db_engine}_operator'. "
             "Did you update featured_DB_types but forget to extend the factory method?"

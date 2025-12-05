@@ -1,13 +1,19 @@
 # tf_keras
-pymongo
-pymupdf  # use instead llama-index-readers-file pymupdf
-torch
-transformers
 # sentence-transformers
-
 # langchain_together
 # sentence_transformers
-
 # pyyaml
 
+
+#DBs
+pymongo
+PyGreSQL
+
+#file extraction
+#pymupdf  
+llama-index-readers-file pymupdf
+
+#embedders and transformers
+torch
+transformers
 llama-index-embeddings-openai

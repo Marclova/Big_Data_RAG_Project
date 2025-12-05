@@ -1,49 +1,137 @@
+import fitz
 import os
 import requests
 from tempfile import NamedTemporaryFile
-from unstructured.partition.auto import partition
+# from unstructured.partition.auto import partition
+from pathlib import Path
 
-# from llama_index.embeddings.openai import OpenAIEmbedding
-# from llama_index.core.vector_stores import (VectorStoreQuery, VectorStoreQueryResult)
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.readers.file import PyMuPDFReader
+# from llama_index.core import Document
 
 
-# DEFAULT_PATH = "downloadedFiles"
+DEFAULT_PATH = "downloadedFiles"
 
-#TODO use Llama_Index library to perform text extraction and partitioning (documentation: https://developers.llamaindex.ai/python/examples/low_level/vector_store)
-#TODO(improvement): If possible, find a way so that the webScraper can gather name, pages and authors from the file
+#TODO(improvement): If possible, find a way so that the webScraper can gather authors from the file
 #TODO(improvement): consider to split responsibilities: one method to download, one method to extract and partition
-def extract_and_partition_text_from_url(url: str) -> list[str]:
-    """
-    Method to extract and partition text for any textual file (ex. TXT, PDF).
-    The method will create and delete a temporary file.
-    Parameters:
-        url (str): The url to download the file from and then extract the text.
-    Returns:
-        list[str]: The list of partitioned chunk of text from the file.
-    """
-    if(url is None):
-        return []
 
-    # a stream has not been used due to compatibility issues with binary an structured files
+def download_file(url: str, download_folder: str = DEFAULT_PATH) -> str:
+    """
+    Method to download a file from a given URL into a specified folder.
+    The file is saved with a name deduced from the URL.
+    It will be needed to delete the file manually after usage by calling another method.
+    Parameters:
+        url (str): The URL to download the file from.
+        download_folder (str): The folder where to save the downloaded file.
+    Returns:
+        str: The path to the downloaded file.
+    """
     try:
-    # download file as a request
+        if(url is None):
+            raise ValueError("The provided url is None")
+        
+        #download file and save it into a temporary location
         r: requests.Response = requests.get(url, stream=False)
         r.raise_for_status()
 
-        # save physically a temporary file
-        tmp_path: str = None
-        with NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(r.content)
-            tmp_path = tmp.name
+        #determine file name from URL
+        file_name = url.split("/")[-1]
 
-        # text extraction (auto-format detection and default partitioning with 'libmagic')
-        elements = partition(filename=tmp_path)
-    finally:
-        # Ensure temporary file is deleted
-        if tmp_path and os.path.exists(tmp_path):
-            os.remove(tmp_path)
+        #create download folder (if it doesn't exist)
+        if not os.path.exists(download_folder):
+            os.makedirs(download_folder)
+        file_path = os.path.join(download_folder, file_name)
 
-    return [el.text for el in elements if el.text]
+        #save file
+        with open(file_path, 'wb') as file:
+            file.write(r.content)
+        return file_path
+    
+    except Exception as e:
+        raise RuntimeError(f"Error while trying to download file: {e}")
+    
+
+def extract_partition_text_and_metadata_from_file(file_path: str, pop_file: bool=True) -> dict[str,any]:
+    """
+    Method to extract and partition text for any textual file (ex. TXT, PDF).
+    Parameters:
+        file_path (str): The path to the file to extract the text from.
+        pop_file (bool): Delete the read file after data extraction.
+    Returns:
+        dict[str,any]: A dictionary containing:
+            - "text_chunks" (list[str]): The list of partitioned chunk of text from the file.
+            - "pages_count" (int): The number of pages in the file.
+    """
+    pages_count: str = str(fitz.open(file_path).page_count)
+    loader = PyMuPDFReader()
+    documents = loader.load(file_path=file_path)
+    node_parser = SentenceSplitter(chunk_size=256)
+    nodes = node_parser.get_nodes_from_documents(documents)
+
+    result_dict: dict[str, any] = dict()
+    result_dict["text_chunks"] = [node.get_content(metadata_mode="none") for node in nodes]
+    result_dict["pages_count"] = pages_count
+
+    if(pop_file):
+        os.remove(file_path)
+
+    return result_dict
+
+
+# def extract_and_partition_text_from_file(file_path: str) -> list[str]:
+    # """
+    # Method to extract and partition text for any textual file (ex. TXT, PDF).
+    # Parameters:
+    #     file_path (str): The path to the file to extract the text from.
+    # Returns:
+    #     list[str]: The list of partitioned chunk of text from the file.
+    # """
+#     if(file_path is None):
+#         return []
+    
+#     file_extension = Path(file_path).suffix.lower()
+#     if(file_extension in ['.pdf', '.epub', '.mobi', '.cbz', '.fb2']):
+#         reader = PyMuPDFReader()
+#         documents = reader.load_data(file=file_path)
+#         node_parser = SentenceSplitter(chunk_size=256)
+#         nodes = node_parser.get_nodes_from_documents(documents)
+#         return [node.get_text() for node in nodes]
+#     else:
+#         raise ValueError(f"File extension '{file_extension}' not supported for text extraction.")
+
+
+# def extract_and_partition_text_from_url(url: str) -> list[str]:
+#     """
+#     Method to extract and partition text for any textual file (ex. TXT, PDF).
+#     The method will create and delete a temporary file.
+#     Parameters:
+#         url (str): The url to download the file from and then extract the text.
+#     Returns:
+#         list[str]: The list of partitioned chunk of text from the file.
+#     """
+#     if(url is None):
+#         return []
+
+#     # a stream has not been used due to compatibility issues with binary an structured files
+#     try:
+#     # download file as a request
+#         r: requests.Response = requests.get(url, stream=False)
+#         r.raise_for_status()
+
+#         # save physically a temporary file
+#         tmp_path: str = None
+#         with NamedTemporaryFile(delete=False) as tmp:
+#             tmp.write(r.content)
+#             tmp_path = tmp.name
+
+#         # text extraction
+#         elements = partition(filename=tmp_path)
+#     finally:
+#         # Ensure temporary file is deleted
+#         if tmp_path and os.path.exists(tmp_path):
+#             os.remove(tmp_path)
+
+#     return [el.text for el in elements if el.text]
 
 
 # def download_file(file_url: str, file_extension: str, file_name: str = "appendFile", folder_path: str = DEFAULT_PATH) -> str:

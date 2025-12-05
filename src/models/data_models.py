@@ -1,7 +1,7 @@
 import requests
 from typing import override
 
-from src.common.constants import Featured_embedding_models as embed_models
+from src.common.constants import Featured_embedding_models_enum as embed_models
 
 from src.models.interfaces.data_model_interface import DTModel_I
 
@@ -12,7 +12,22 @@ class Storage_DTModel(DTModel_I):
     Each model represents a text chunk and its associated vector.
     Initially the vector and text are empty, they will be filled after the embedding process.
     """
-    def __init__(self, JSON_data: dict[str, any]):
+    def __init__(self, url: str, title: str = "untitled", pages: str = "-1", authors: list[str] = ["unknown"]):
+        """
+        Initializes a data transfer model for storing and retrieving data. 
+        Parameters normalization and url check are performed.
+        """
+        if (url is None):
+            raise ValueError("URL cannot be None")
+        url, title, pages, authors = _init_params_normalization(url=url, title=title, pages=pages, authors=authors)
+
+        self.url = url
+        self.title = title
+        self.pages = pages
+        self.authors = authors
+
+    @classmethod
+    def create_from_JSONData(cls, JSON_data: dict[str, any]):
         """
         Initializes a data transfer model for storing and retrieving data. 
         Parameters normalization and url check are performed.
@@ -28,29 +43,7 @@ class Storage_DTModel(DTModel_I):
         except Exception as e:
             raise ValueError(f"Invalid JSON data provided: {e}")
 
-        if (url == None):
-            raise ValueError("URL cannot be None")
-        url, title, pages, authors = _init_params_normalization(url, title, pages, authors)
-
-        self.url = url
-        self.title = title
-        self.pages = pages
-        self.authors = authors
-
-        
-    def __init__(self, url: str, title: str = "untitled", pages: str = "-1", authors: list[str] = ["unknown"]):
-        """
-        Initializes a data transfer model for storing and retrieving data. 
-        Parameters normalization and url check are performed.
-        """
-        if (url is None):
-            raise ValueError("URL cannot be None")
-        url, title, pages, authors = _init_params_normalization(url, title, pages, authors)
-
-        self.url = url
-        self.title = title
-        self.pages = pages
-        self.authors = authors
+        return cls(url, title, pages, authors)
 
 
     @override
@@ -70,7 +63,28 @@ class RAG_DTModel(Storage_DTModel):
     This class defines the structure of the records stored in the RAG database.
     It implements Storage_DTModel because it contains a superset of the fields defined in Storage_DTModel.
     """
-    def __init__(self, JSON_data: dict[str, any]):
+    def __init__(self, vector: list[float], text: str, embedder_name: str, 
+                 url: str, title: str = "untitled", pages: str = "-1", 
+                 authors: list[str] = ["unknown"], id: str = "0"):
+        super().__init__(url=url, title=title, pages=pages, authors=authors)
+        
+        self.id = id
+        self.vector = vector
+        self.text = text
+        self.embedder_name = embedder_name
+
+        self._fields_check()
+
+
+    @classmethod
+    def create_from_StorageDTModel(cls, vector: list[float], text: str, embedder_name: str, 
+                                   storage_model: Storage_DTModel, id: str = "0"):
+        return cls(vector, text, embedder_name, 
+                   storage_model.url, storage_model.title, storage_model.pages, storage_model.authors, id)
+        
+    
+    @classmethod
+    def create_from_JSONData(cls, JSON_data: dict[str, any]):
         # Can't call super().__init__ because of different JSON structure        
         try:
             id: str = JSON_data["id"]
@@ -84,66 +98,10 @@ class RAG_DTModel(Storage_DTModel):
         except Exception as e:
             raise ValueError(f"Invalid JSON data provided for RAG_DTModel initialization: {e}")
         
-        # if (url == None):
-        #     raise ValueError("URL cannot be None")
-        # url, title, pages, authors = _init_params_normalization(url, title, pages, authors)
-        # if (text is None or text == ""):
-        #     raise ValueError("'text' cannot be None or empty")
-        # if (vector is None or vector.__len__() == 0):
-        #     raise ValueError("Vector cannot be None or empty")
-        # if (embedder_name is None or embedder_name.strip() == ""):
-        #     raise ValueError("Embedder name cannot be None or empty")
-        
-        self.id = id
-        self.vector = vector
-        self.text = text
-        self.url = url
-        self.title = title
-        self.pages = pages
-        self.authors = authors
-        self.embedder_name = embedder_name
-
-        self.__fields_check()
+        return cls(vector, text, embedder_name, 
+                   url, title, pages, authors, id)
 
 
-    def __init__(self, vector: list[float], text: str, embedder_name: str, storage_model: Storage_DTModel, id: str = "0"):
-        super().__init__(storage_model.url, storage_model.title, storage_model.pages, storage_model.authors)
-
-        # if (text is None or text == ""):
-        #     raise ValueError("'text' cannot be None or empty")
-        # if (vector is None or vector.__len__() == 0):
-        #     raise ValueError("'vector' cannot be None or empty")
-        # if (embedder_name is None or embedder_name.strip() == ""):
-        #     raise ValueError("'embedder_name' cannot be None or empty")
-        
-        self.id = id
-        self.vector = vector
-        self.text = text
-        self.embedder_name = embedder_name
-
-        self.__fields_check()
-
-
-    def __init__(self, vector: list[float], text: str, embedder_name: str, 
-                 url: str, title: str = "untitled", pages: str = "-1", 
-                 authors: list[str] = ["unknown"], id: str = "0"):
-        super().__init__(url, title, pages, text, authors)
-
-        # if (text is None or text == ""):
-        #     raise ValueError("'text' cannot be None or empty")
-        # if (vector is None or vector.__len__() == 0):
-        #     raise ValueError("Vector cannot be None or empty")
-        # if (embedder_name is None or embedder_name.strip() == ""):
-        #     raise ValueError("Embedder name cannot be None or empty")
-        
-        self.id = id
-        self.vector = vector
-        self.text = text
-        self.embedder_name = embedder_name
-
-        self.__fields_check()
-
-        
     @override
     def generate_JSON_data(self) -> dict[str, any]:
         """
@@ -163,27 +121,26 @@ class RAG_DTModel(Storage_DTModel):
         }
     
 
-    def __fields_check(self) -> None:
+    def _fields_check(self) -> None:
         """
         Checks if all fields are correctly initialized.
         Raises ValueError if any field is invalid.
         Not all fields are checked, only those that are not checked or normalized in the parent class.
         """
-        if(url == None):
+        if(self.url == None):
             raise ValueError("URL cannot be None")
-        url, title, pages, authors = _init_params_normalization(url, title, pages, authors)
         if(self.text is None or self.text == ""):
             raise ValueError("'text' cannot be None or empty")
         if(self.vector is None or self.vector.__len__() == 0):
             raise ValueError("Vector cannot be None or empty")
-        if(self.embedder_name is None or self.embedder_name.strip() == ""):
-            raise ValueError("Embedder name cannot be None or empty")
+        if(self.embedder_name is None):
+            raise ValueError("Embedder name cannot be None.")
         if(not embed_models.has_value(value=self.embedder_name)):
             raise ValueError(f"Embedder '{self.embedder_name}' is not featured.")
 
 
 
-def _init_params_normalization(self, url: str = "", title: str = "untitled", authors: list[str] = ["unknown"]) -> tuple:
+def _init_params_normalization(url: str, title: str = None, pages: str = None, authors: list[str] = None) -> tuple:
         """
         module private function to normalize parameters used for data model initialization.
         Parameters:
@@ -191,21 +148,28 @@ def _init_params_normalization(self, url: str = "", title: str = "untitled", aut
             title (str): title to normalize
             authors (list[str]): list to modify in case it's empty.
         Returns:
-            tuple: The three corrected parameters.
+            tuple: The three corrected parameters (url, title, pages, authors).
         """
-        _verify_url(url)
+        if((url is None) or (not _verify_url(url))):
+            raise ValueError("The given url is not valid.")
 
-        if (title.strip() == ""):
+        if((title is None) or (title.strip() == "")):
             title = "untitled"
         else:
             title = title.replace(" ","_")
-        if (authors.__len__() == 0):
+
+        if(pages is None):
+            pages = "-1"
+        else:
+            pages = _normalize_pages(pages)
+
+        if((authors is None) or (authors.__len__() == 0)):
             authors = ["unknown"]
         
-        return url, title, authors
+        return url, title, pages, authors
 
 
-def _verify_url(url: str) -> None:
+def _verify_url(url: str) -> bool:
     """
     Verifies if a given URL is reachable.
         Parameters:
@@ -228,3 +192,20 @@ def _verify_url(url: str) -> None:
     except requests.RequestException as e:
         print(f"ERROR: URL '{url}' is not reachable or invalid. Retured the following exception: {e}") #TODO(polishing): consider another logging method
     return False
+
+
+def _normalize_pages(pages: str) -> str:
+    """
+    Private method to normalize the 'pages' parameter.
+    It removes leading zeros and spaces, and checks for invalid characters.
+    If the resulting string is empty or contains invalid characters, it returns "-1".
+    Parameters:
+        pages (str): The pages string to normalize.
+    Returns:
+        str: The normalized pages string or "-1" if invalid.
+    """
+    pages = pages.strip()
+    if(not pages.isdigit()):
+        return "-1"
+    normalized = pages.lstrip("0")
+    return normalized if (len(normalized) > 0) else "-1"

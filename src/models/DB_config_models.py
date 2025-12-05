@@ -37,7 +37,8 @@ class RAG_DB_config(DB_config_I):
     Needed by the DB operator factory for class initialization.
     """
     @override
-    def __init__(self, db_engine: RAG_engines, api_key: str=None, connection_url: str=None, database_name: str=None):
+    def __init__(self, db_engine: RAG_engines, api_key: str=None, connection_url: str=None, database_name: str=None, 
+                 batch_size: int=100000):
         if(db_engine is None):
             raise ValueError("the parameter 'db_engine' must be provided.")
         if not RAG_engines.has_value(db_engine.value):
@@ -48,3 +49,4 @@ class RAG_DB_config(DB_config_I):
         self.api_key = api_key
         self.connection_url = connection_url
         self.database_name = database_name
+        self.batch_size = batch_size

@@ -196,18 +196,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         data_list: list[RAG_DTModel] = []
 
         for hit in hit_list:
-            retrieved_record: dict[str, any] = hit.fields
-            
-            data_list.append(RAG_DTModel(id=retrieved_record["id"],
-                                         vector=retrieved_record["vector"], 
-                                         embedder_name=retrieved_record["metadata"]["embedder"], 
-                                         url=retrieved_record["metadata"]["url"], 
-                                         title=retrieved_record["metadata"]["title"], 
-                                         text=retrieved_record["text"], 
-                                         pages=retrieved_record["metadata"]["pages"], 
-                                         authors=retrieved_record["metadata"]["author"]
-                                        )
-                            )
+            data_list.append(RAG_DTModel.create_from_JSONData(JSON_data=hit.fields))
         return data_list
     
 
@@ -235,9 +224,11 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 #TODO consider to move include 'record_limit_per_block' in the constructor as a configurable instance variable.
 class RAG_MongoDB_operator(RAG_DB_operator_I):
     """
-    MongoDB-based backend providing vector storage, embedding support, and
+    MongoDB-based backend providing vector storage, embedding support, and 
     argument retrieval capabilities. Designed for full compatibility with
     standard MongoDB deployments, without requiring custom configurations.
+    The built-in argument-retrieval implementation is supposed to work with 
+    already normalized vectors.
 
     DISCLAIMER
     ----------
@@ -256,13 +247,15 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
     not indicative of an architectural issue and should not be refactored into
     shared abstractions unless a future, stable pattern emerges.
     """
-    def __init__(self, DB_connection_url: str, DB_name: str, api_key: str, batch_size: int = 100000):
+    # def __init__(self, DB_connection_url: str, DB_name: str, openai_api_key: str, batch_size: int = 100000):
+    def __init__(self, DB_connection_url: str, DB_name: str, batch_size: int = 100000):
         self.connection: MongoClient
         self.database: Database
         self.batch_size: int = batch_size
         # self.embedder: OpenAI
 
-        self.open_connection(DB_connection_url, DB_name, api_key)
+        # self.open_connection(DB_connection_url, DB_name, openai_api_key)
+        self.open_connection(DB_connection_url, DB_name)
 
 
     @override
@@ -281,33 +274,8 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
             return False
         
         return self._insert_update_record(target_collection_name, data_model)
-    
-
-    @override
-    def check_collection_existence(self, collection_to_check: str) -> bool:
-        return (self.database.get_collection(collection_to_check) != None)
 
 
-    @override
-    def open_connection(self, DB_connection_url: str, DB_name: str, api_key: str):
-        self.connection = MongoClient(DB_connection_url)
-        self.database = self.connection[DB_name]
-        self.embedder = OpenAI(api_key=api_key)
-
-
-    @override
-    def close_connection(self):
-        self.connection.close()
-        self.database = None
-        self.embedder.close()
-
-
-    @override
-    def get_engine_name(self) -> str:
-        return RAG_engines_enum.MONGODB
-
-
-    #TODO implement method
     @override
     def retrieve_embeddings_from_vector(self, target_collection_name: str, normalized_query_vector: floatVector, top_k: int) -> list[RAG_DTModel]:
         if( (target_collection_name is None) or (normalized_query_vector is None) or (top_k is None) ):
@@ -340,16 +308,14 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
                 local_results: list[tuple[float, dict[str, any]]] = [(np_cosine_results_array[i], records_chunk[i]) 
                                                                      for i in range(len(records_chunk))]
                 local_results.sort(key=lambda t: t[0], reverse=True)
-                top_m = top_k * (1 + math.log(self.batch_size))
+                top_m = math.ceil(top_k * (1 + math.log(self.batch_size)))
                 local_results = local_results[:top_m]
                 global_results.extend(local_results)
         
         # applying 'divide...
         asyncio.run( __find_k_best_matches(normalized_query_vector, top_k) ) # after this execution, 'global_results' will contain 'len(all_records)/record_limit_per_block * top_k' best matches
+        
         # ...et impera'
-        # global_results.sort(key=lambda t: t[0], reverse=True)
-        # global_results = global_results[:top_k]
-        # return [ RAG_DTModel(result[1]) for result in global_results ]
         heap_id: int = 0
         top_k_heap: heapq = []
         for global_res in global_results:
@@ -358,7 +324,32 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
             else: # add one result and remove the less close one ('head_id' is used in case of equality)
                 heapq.heappushpop(top_k_heap, (global_res[0], heap_id, global_res[1]))
             heap_id += 1
-        return [ RAG_DTModel(heap_res[2]) for heap_res in list(top_k_heap) ]
+        return [ RAG_DTModel.create_from_JSONData(JSON_data=heap_res[2]) for heap_res in list(top_k_heap) ]
+    
+
+    @override
+    def check_collection_existence(self, collection_to_check: str) -> bool:
+        return (self.database.get_collection(collection_to_check) != None)
+
+
+    @override
+    # def open_connection(self, DB_connection_url: str, DB_name: str, openai_api_key: str):
+    def open_connection(self, DB_connection_url: str, DB_name: str):
+        self.connection = MongoClient(DB_connection_url)
+        self.database = self.connection[DB_name]
+        # self.embedder = OpenAI(api_key=openai_api_key)
+
+
+    @override
+    def close_connection(self):
+        self.connection.close()
+        self.database = None
+        # self.embedder.close()
+
+
+    @override
+    def get_engine_name(self) -> str:
+        return RAG_engines_enum.MONGODB
 
     
 
