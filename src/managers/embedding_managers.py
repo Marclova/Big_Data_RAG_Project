@@ -5,7 +5,8 @@ from src.common.constants import Featured_embedding_models_enum as embed_models
 
 from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 from src.services.embedder_services import embedder_operators
-from src.services.other_services import scraper_storage_service as webScraper
+from src.services.other_services import (scraper_storage_service as webScraper, 
+                                         raw_data_operator as rawOperator)
 
 from src.models.data_models import RAG_DTModel
 
@@ -23,7 +24,7 @@ class Embedding_manager:
         if(not embed_models.has_value(value=embedder_model_name)):
             raise ValueError(f"Embedding model '{embedder_model_name}' not featured")
         
-        self.embedder = self._embedder_operator_factory(embedder_model_name, embedder_api_key)
+        self.embedder: Embedder_I = self._embedder_operator_factory(embedder_model_name, embedder_api_key)
         
 
     #TODO(improvement): If possible, find a way so that the webScraper can gather authors from the file
@@ -43,7 +44,7 @@ class Embedding_manager:
         file_path: str = webScraper.download_file(file_URL)
         file_name = os.path.basename(file_path)
 
-        partition_result: dict[str,any] = webScraper.extract_partition_text_and_metadata_from_file(file_path, pop_file=True)
+        partition_result: dict[str,any] = rawOperator.extract_partition_text_and_metadata_from_file(file_path, pop_file=True)
         textChunkList: list[str] = partition_result["text_chunks"]
 
         minimal_embeddings: dict[str, list[float]] = self.embedder.generate_vectors_from_textChunks(textChunkList)
