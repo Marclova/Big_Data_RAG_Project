@@ -2,7 +2,7 @@ from src.services.chatBot_services.interfaces.chatBot_service_interfaces import 
 
 
 
-#TODO: implement class
+#TODO(CREATE): implement class
 class BotLibre_service(ChatBot_I):
     """
     Simple and free chatbot service providing minimal configuration to provide information to the user.
@@ -12,7 +12,7 @@ class BotLibre_service(ChatBot_I):
 
 
 
-#TODO: implement class
+#TODO(CREATE): implement class
 class OpenAI_service(ChatBot_I):
     """
     Simple chatBot service using a powerful provider that can access to further information through the internet 

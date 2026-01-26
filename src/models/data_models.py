@@ -150,8 +150,10 @@ def _init_params_normalization(url: str, title: str = None, pages: str = None, a
         Returns:
             tuple: The three corrected parameters (url, title, pages, authors).
         """
-        if((url is None) or (not _verify_url(url))):
-            raise ValueError("The given url is not valid.")
+        if(url is None):
+            raise ValueError("The given url is None")
+        # if(not _verify_url(url)):
+        #     raise ValueError("The given url is not valid.")
 
         if((title is None) or (title.strip() == "")):
             title = "untitled"
@@ -169,6 +171,7 @@ def _init_params_normalization(url: str, title: str = None, pages: str = None, a
         return url, title, pages, authors
 
 
+#TODO(improvement): Correct bug where 'false' is returned mistakenly (It's not caused by flow control)
 def _verify_url(url: str) -> bool:
     """
     Verifies if a given URL is reachable.

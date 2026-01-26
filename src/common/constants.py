@@ -57,4 +57,4 @@ class Featured_embedding_models_enum(_Checks_enum_values_Mixin):
 
 
 
-#TODO define chatBot models enum
+#TODO(CREATE) define chatBot models enum

@@ -11,7 +11,7 @@ from src.models.DB_config_models import Storage_DB_config, RAG_DB_config
 from src.models.data_models import Storage_DTModel, RAG_DTModel
 
 from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I
-from src.services.db_services import storage_DB_operators, RAG_DB_operators
+from src.services.db_services import storage_DB_operators, rag_DB_operators
 
 
 class generic_DB_manager(ABC):
@@ -242,16 +242,15 @@ class _DB_operator_factory:
         )
         
 
-    #TODO: finish method implementation
     def initialize_RAG_db_operator(DB_config: RAG_DB_config) -> RAG_DB_operator_I:
         """
         Factory method to get the appropriate RAG DB operator based on the DB configuration and the featured DB types.
         """            
         # Define the factory cases; one per supported DB engine.
         if DB_config.db_engine == RAG_DB_engine.PINECONE:
-            return RAG_DB_operators.RAG_PineconeDB_operator(api_key=DB_config.api_key, host=DB_config.connection_url)
+            return rag_DB_operators.RAG_PineconeDB_operator(api_key=DB_config.api_key, host=DB_config.connection_url)
         elif DB_config.db_engine == RAG_DB_engine.MONGODB:
-            return RAG_DB_operators.RAG_MongoDB_operator(DB_connection_url=DB_config.connection_url, DB_name=DB_config.database_name, 
+            return rag_DB_operators.RAG_MongoDB_operator(DB_connection_url=DB_config.connection_url, DB_name=DB_config.database_name, 
                                                          batch_size= DB_config.batch_size)
         raise NotImplementedError(
             f"Dead code activation: No factory case for operator named '{DB_config.usage_type}_{DB_config.db_engine}_operator'. "

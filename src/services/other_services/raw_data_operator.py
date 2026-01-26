@@ -208,6 +208,7 @@ def _ends_with_stopWord(string: str) -> bool:
     return bool(tokens) and tokens[-1].lower() in STOPWORDS
 
 
+#TODO(polishing): Invert the iteration so that it goes backwards from the end.
 def _pop_last_sentence(text: str) -> tuple[str, str]:
     """
     Removes the last sentence from the given text.
