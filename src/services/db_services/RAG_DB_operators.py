@@ -3,7 +3,7 @@ import heapq
 import math
 import numpy
 from itertools import islice
-from typing import override, Tuple
+from typing import Any, override, Tuple
 
 from pinecone import (Pinecone as PineconeClient, SearchQuery, UpsertResponse, Vector)
 from pinecone.db_data import IndexAsyncio
@@ -28,8 +28,34 @@ from src.models.data_models import RAG_DTModel
  Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.
  Selected DBs are Pinecone and MongoDB
 """
-
+TOLERANCE = 0.85
+json = dict[str, Any]
 floatVector = list[float]
+# vectorNode = tuple[
+#                         float, 
+#                         int, 
+#                         dict[str, json], 
+#                         floatVector
+#                     ]
+# """
+# Types:
+#     float: similarity (primary evaluation parameter)
+#     int: unique ID (tie-breaker parameter)
+#     dict[str, json]: dict of text chunks and RAG_DTModel (transmitted data)
+#     floatVector: vector (used for intra-top_k similarity avoidance)
+# """
+class _VectorModel:
+    """
+    Container class for vector nodes used in the retrieval process.
+    More precisely, it is used to assign similarity scores to text chunks and ease access raw vector data for intra-top_k similarity checks.
+    """
+    def __init__(self, similarity_to_query: float, json_RAGDTModel: json, vector: list[floatVector]): #, ID: int = None):
+        # self.ID = ID if ID is not None else 0
+        self.similarity_to_query = similarity_to_query
+        self.json_RAGDTModel = json_RAGDTModel
+        self.vector = vector
+
+
 
 class RAG_PineconeDB_operator(RAG_DB_operator_I):
     """
@@ -40,7 +66,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
            (host is None) or (host.strip() == "")):
             raise ValueError("One or more required parameters for Pinecone RAG DB operator initialization are missing or invalid.")
 
-        # self.database: PineconeClient
+        self.connection: PineconeClient
         self.database: IndexAsyncio
         # self.host: str
 
@@ -74,7 +100,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (data_model is None)):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
-        if(self._check_index_existence(target_index_name) is False):
+        if(self.check_collection_existence(target_index_name) is False):
             raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         #There must be no match
         if self._is_ID_already_in_use(target_index_name, data_model.id):
@@ -88,7 +114,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (data_model is None)):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
-        if(self._check_index_existence(target_index_name) is False):
+        if(self.check_collection_existence(target_index_name) is False):
             raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         #There must be a match
         if not (self._is_ID_already_in_use(target_index_name, data_model.id)):
@@ -103,22 +129,32 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
     @override
-    async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: floatVector, top_k: int) -> list[RAG_DTModel]:
+    async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (query_vector is None) or (top_k is None)):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
-        if(self._check_index_existence(target_index_name) is False):
+        if(self.check_collection_existence(target_index_name) is False):
             raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         
         response: SearchRecordsResponse = await self.database.query(namespace=target_index_name, 
                                                                     vector=query_vector, top_k=top_k)
         return self._from_SearchRecordsResponse_to_RAGDTModelList(response)
+    
+
+    @override
+    def check_collection_existence(self, index_to_check: str) -> bool:
+        indexModel_list = self.connection.list_indexes().indexes
+        indexName_list = [index.index.name for index in indexModel_list]
+        res = (index_to_check in indexName_list)
+        return res
+        # return (index_to_check in self.connection.list_indexes())
 
 
     @override
     def open_connection(self, api_key: str, host: str):
-        client = PineconeClient(api_key)
-        self.database = client.IndexAsyncio(host=host)
+        self.connection = PineconeClient(api_key)
+        # self.database = self.connection.IndexAsyncio(host=host)
+        self.database = self.connection.Index(host=host)
         # self.host = host
 
 
@@ -151,13 +187,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         if insertion_count == -1:
             raise RuntimeError("Attribute 'upserted_count' not found in UpsertResponse wrapper.")
         return (insertion_count > 0)
-    
-
-
-    #TODO implement private method
-    def _check_index_existence(self, index_to_check: int) -> bool:
-        # if([namespace. for namespace: ListNamespacesResponse in self.database.namespace.list()])
-        return True
 
 
     async def _is_ID_already_in_use(self, target_index_name: str, id_to_check: str) -> bool:
@@ -220,8 +249,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
 
-#TODO: implement class
-#TODO consider to move include 'record_limit_per_block' in the constructor as a configurable instance variable.
 class RAG_MongoDB_operator(RAG_DB_operator_I):
     """
     MongoDB-based backend providing vector storage, embedding support, and 
@@ -275,9 +302,9 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
         
         return self._insert_update_record(target_collection_name, data_model)
 
-
+    #TODO(improvement): Implement normalized vector checking and eventual normalization (using 'raw_data_operator.py')
     @override
-    def retrieve_embeddings_from_vector(self, target_collection_name: str, normalized_query_vector: floatVector, top_k: int) -> list[RAG_DTModel]:
+    def retrieve_embeddings_from_vector(self, target_collection_name: str, normalized_query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
         if( (target_collection_name is None) or (normalized_query_vector is None) or (top_k is None) ):
             raise ValueError("The method 'retrieve_embeddings_from_vector' has been called with one or more required parameters as 'None'")
         if(not self.check_collection_existence(target_collection_name)):
@@ -287,44 +314,81 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
 
         all_records: Cursor = self.database[target_collection_name].find()
         
-        global_results: list[tuple[float, dict[str, any]]] = list()
-        async def __find_k_best_matches(normalized_query_vector: floatVector, top_k: int) -> None:
-            while all_records.alive:
+        top_m = math.ceil(top_k * (1 + math.log(self.batch_size))) #top_m represents threads' maximum length of the results
+        global_results: list[_VectorModel] = list()
+        async def __find_k_best_matches(normalized_query_vector: floatVector) -> None:
+            while True:
                 # get embeddings from cursor
-                records_chunk: list[dict[str, any]] = list(islice(all_records, self.batch_size))
-                normalized_document_vectors: list[floatVector] = [record["vector"] for record in records_chunk]
+                json_RAGDTModel_list: list[json] = []
+                all_records._next_batch(json_RAGDTModel_list, self.batch_size)
+                if(len(json_RAGDTModel_list) == 0): #no more elements to process
+                    break
+                normalized_document_vectors: list[floatVector] = [record["vector"] for record in json_RAGDTModel_list]
                 
-                # calculate cosine similarity 'ndarray[float]' (a single float value for each 'floatVector' couple)
-                # np_products_array = numpy.dot(
-                #     numpy.array(normalized_vectors, dtype=float), 
-                #     numpy.array(normalized_query_vector, dtype=float))
-                # np_cosine_results_array = ( np_products_array / 
-                #                            numpy.linalg.norm(normalized_vectors) * numpy.linalg.norm(normalized_query_vector) )
-                np_cosine_results_array = numpy.dot(
+                #array of floats
+                cosine_similarity_array = numpy.dot(
                     numpy.array(normalized_document_vectors, dtype=float), 
                     numpy.array(normalized_query_vector, dtype=float))
 
                 # since no order alteration is guaranteed, we can safely pair results with their corresponding records using the same index
-                local_results: list[tuple[float, dict[str, any]]] = [(np_cosine_results_array[i], records_chunk[i]) 
-                                                                     for i in range(len(records_chunk))]
-                local_results.sort(key=lambda t: t[0], reverse=True)
-                top_m = math.ceil(top_k * (1 + math.log(self.batch_size)))
+                local_results: list[_VectorModel] = [
+                    _VectorModel(similarity_to_query=cosine_similarity_array[i], 
+                                 json_RAGDTModel=json_RAGDTModel_list[i], 
+                                 vector=normalized_document_vectors[i]) 
+                            for i in range(len(cosine_similarity_array))
+                    ]
+                    
+                #we are not returning a number of results equal to 'batch_size', but only the 'top_m' best ones among them
+                local_results.sort(key=lambda t: t.similarity_to_query, reverse=True)
                 local_results = local_results[:top_m]
                 global_results.extend(local_results)
         
         # applying 'divide...
-        asyncio.run( __find_k_best_matches(normalized_query_vector, top_k) ) # after this execution, 'global_results' will contain 'len(all_records)/record_limit_per_block * top_k' best matches
+        asyncio.run( __find_k_best_matches(normalized_query_vector) ) # after this execution, 'global_results' will contain 'len(all_records)/batch_size * top_m' best matches
+        if(len(global_results) == 0):
+            print(f"ERROR: The collection '{target_collection_name}' is empty or not connected.") #TODO(polishing): consider another logging method
+            return []
         
         # ...et impera'
-        heap_id: int = 0
-        top_k_heap: heapq = []
-        for global_res in global_results:
-            if len(top_k_heap) < top_k: # add one result into the heap
-                heapq.heappush(top_k_heap, (global_res[0], heap_id, global_res[1]))
-            else: # add one result and remove the less close one ('head_id' is used in case of equality)
-                heapq.heappushpop(top_k_heap, (global_res[0], heap_id, global_res[1]))
-            heap_id += 1
-        return [ RAG_DTModel.create_from_JSONData(JSON_data=heap_res[2]) for heap_res in list(top_k_heap) ]
+        is_fully_ordered: bool = True
+        # only the first and last are guaranteed to be ordered
+        top_k_semi_ordered_list: list[_VectorModel] = [global_results.pop(0)] #initialize with the first result
+        for new_candidate_res in global_results: # insert candidates one by one
+            
+            #early skip (abilitated after 'top_k' results have been collected)
+            if(len(top_k_semi_ordered_list) >= top_k):
+                if(new_candidate_res.similarity_to_query < top_k_semi_ordered_list[0].similarity_to_query):
+                    continue #candidate too far: discard it
+
+            #detect intra-top_k similarity avoidance here (discard the new candidate or another old candidate if needed)
+            discarded_vector: _VectorModel = self._solve_redundance(new_candidate_res, top_k_semi_ordered_list)
+            if(discarded_vector is new_candidate_res): #new candidate discarded
+                continue
+
+            #insert new candidate result (determining if the list remains ordered)
+            if(new_candidate_res.similarity_to_query >= top_k_semi_ordered_list[-1].similarity_to_query):
+                top_k_semi_ordered_list.append(new_candidate_res) #most efficient insertion (no later sorting needed)
+            else:
+                top_k_semi_ordered_list.insert(-1, new_candidate_res) #less efficient insertion (later sorting needed)
+                is_fully_ordered = False
+
+            if len(top_k_semi_ordered_list) > top_k: #remove less close one
+                if(not is_fully_ordered): #sort only if needed
+                    top_k_semi_ordered_list.sort(key=lambda t: t.similarity_to_query) #ascending order
+                top_k_semi_ordered_list.pop(0)
+
+        return [ RAG_DTModel.create_from_JSONData(JSON_data=best_res.json_RAGDTModel) for best_res in top_k_semi_ordered_list ]
+        
+        # heap_id: int = 0
+        # top_k_heap: heapq[vectorNode] = []
+        # for candidate_res in global_results:
+        #     if len(top_k_heap) < top_k: # add one result into the heap
+        #         heapq.heappush(top_k_heap, (candidate_res[0], heap_id, candidate_res[1], candidate_res[2]))
+        #     else: # add one result and remove the less close one ('head_id' is used in case of equality)
+        #         heapq.heappushpop(top_k_heap, (candidate_res[0], heap_id, candidate_res[1], candidate_res[2]))
+        #     heap_id += 1
+        # return [ RAG_DTModel.create_from_JSONData(JSON_data=heap_res[2]) for heap_res in list(top_k_heap) ]
+
     
 
     @override
@@ -402,3 +466,40 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
             int: The estimated number of tokens in the text.
         """
         return 0.6 * (len(text) / 3.3) + 0.4 * (len(text.split(" ")) * 2.2)
+    
+
+    def _solve_redundance(self, new_vector: _VectorModel, vector_list: list[_VectorModel]) -> _VectorModel:
+        """
+        Private method to resolve redundancy between a given record and a list of already selected records.
+        It removes the less similar record to the query between the given record and the redundant one found in the list.
+        Parameters:
+            vector (_VectorModel): The record to check.
+            vector_list (list[_VectorModel]): The list of already selected records.
+        Returns:
+            _VectorModel: The record that has been discarded due to redundancy (may be the given record or one from the list).
+                            None if no redundancy is found.
+        """
+        redundant_vector: _VectorModel = self._cosine_redundance_check(new_vector, vector_list)
+        if(redundant_vector is not None):
+            if(redundant_vector.similarity_to_query >= new_vector.similarity_to_query):
+                return new_vector #old candidate keeps its place; no discard needed
+            else:
+                vector_list.remove(redundant_vector) #discard old candidate instead
+                return redundant_vector
+        return None
+    
+
+    def _cosine_redundance_check(self, vector: _VectorModel, vector_list: list[_VectorModel]) -> _VectorModel:
+        """
+        Private method to check if a given record is redundant with respect to a list of already selected records.
+        Parameters:
+            vector (_VectorModel): The record to check.
+            vector_list (list[_VectorModel]): The list of already selected records.
+        Returns:
+            _VectorModel: The record in the vector_list that is redundant with respect to the given record.
+                            None if no redundancy is found.
+        """
+        for existing_vector in vector_list:
+            if(numpy.dot(existing_vector.vector, vector.vector) >= TOLERANCE):
+                return existing_vector
+        return None
