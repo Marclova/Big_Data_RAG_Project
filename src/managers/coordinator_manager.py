@@ -1,7 +1,7 @@
 from src.common.constants import (Featured_storage_DB_engines_enum as storage_engines)
 from src.managers.DB_managers import (Storage_DB_manager, RAG_DB_manager)
 from src.managers.embedding_managers import Embedding_manager
-from src.models.DB_config_models import (Storage_DB_config, RAG_DB_config)
+from models.config_models import (Storage_DB_config, RAG_DB_config)
 
 
 #TODO(CREATE): implement class

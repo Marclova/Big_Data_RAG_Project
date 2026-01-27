@@ -4,7 +4,7 @@ from src.common.constants import (Featured_storage_DB_engines_enum as storage_en
                                   Featured_RAG_DB_engines_enum as RAG_engines,
                                   DB_use_types_enum as DB_usage)
 
-from src.models.interfaces.DB_config_interface import DB_config_I
+from models.interfaces.config_interfaces import DB_config_I
 
 
 
