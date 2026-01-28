@@ -2,6 +2,6 @@
 **/__pycache__/
 
 temp.pdf
-downloadedFiles/
-tests/covering_tests/downloaded_testFiles/
+file_storage/
+tests/covering_tests/test_files/
 tests/covering_tests/.venv/
