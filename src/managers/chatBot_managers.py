@@ -25,7 +25,7 @@ class chatBot_manager:
         if((responseInfo is None) or (len(responseInfo) == 0) ):
             raise ValueError("The responseInfo cannot be empty or None.")
         
-        return self.chatBot.send_message_with_responseInfo(message, responseInfo)
+        return self.chatBot.send_message(message, responseInfo)
 
 
     def get_chat_context_as_JSON(self) -> dict[str,any]:
@@ -34,7 +34,7 @@ class chatBot_manager:
         Returns:
             dict[str,any]: The JSON containing all the chat history and used context.
         """
-        return self.chatBot.get_chat_context_as_JSON()
+        return self.chatBot.get_script_as_JSON()
 
 
     def clear_chat(self) -> bool:

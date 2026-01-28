@@ -8,6 +8,7 @@ from models.config_models import (Storage_DB_config, RAG_DB_config)
 #TODO(FIX): Implement a check to make sure that new embeddings ain't going to create incongruence
 #               (mixed vector types in the same collection)
 #TODO(TEST): Make sure that any combination of embedding-RAG_DB works
+#TODO(MINOR REFACTOR): create a 'generic_manager_I' interface for all managers to implement (method 'disconnect' at least)
 class Coordinator_manager:
     """
     General manager orchestrating other managers in order to permit strict collaboration between managers

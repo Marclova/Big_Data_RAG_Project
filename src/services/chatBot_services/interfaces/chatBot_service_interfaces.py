@@ -30,9 +30,10 @@ class ChatBot_I(ABC):
         pass
 
     @abstractmethod
-    def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
+    def send_message(self, message: str) -> str:
         """
         Method to send a message to the chatBot and receive a response.
+        The bot's script is supposed to be already set up by the 'set_chatbot_script' method.
         Parameters:
             message (str): The message to send to the bot. 
                             Presumably a question regarding the content of the papers stored in the storage DB.
@@ -44,7 +45,7 @@ class ChatBot_I(ABC):
         pass
 
     @abstractmethod
-    def get_chat_context_as_JSON(self) -> dict[str,any]:
+    def get_script_as_JSON(self) -> dict[str,any]:
         """
         Returns all the data saved in the cache.
         Returns:
@@ -53,7 +54,7 @@ class ChatBot_I(ABC):
         pass
 
     @abstractmethod
-    def clear_chat(self) -> bool:
+    def clear_script(self) -> bool:
         """
         Clears the chat history.
         Returns:
