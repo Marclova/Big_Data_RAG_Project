@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-@abstractmethod
+
 class DB_config_I(ABC):
     """
     Marker interface for DB configurations.
@@ -9,4 +9,14 @@ class DB_config_I(ABC):
     """
     @abstractmethod
     def __init__(self, db_engine: str, connection_url: str, *args):
+        pass
+
+#TODO(UPDATE): see how much specific parameters can be added to this interface (evaluation post OpenAI integration)
+class ChatBot_config_I(ABC):
+    """
+    Marker interface for chatBot configurations.
+    Needed by the chatBot factory for class initialization.
+    """
+    @abstractmethod
+    def __init__(self, *args):
         pass

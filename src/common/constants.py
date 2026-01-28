@@ -56,5 +56,6 @@ class Featured_embedding_models_enum(_Checks_enum_values_Mixin):
     #             Featured_embedding_models_enum.Open_AI_models_enum.has_value(value=value))
 
 
-
-#TODO(CREATE) define chatBot models enum
+class Featured_chatBot_models_enum(_Checks_enum_values_Mixin):
+    BOTLIBRE = "BotLibre<unnamed>" #no specific model names required
+    OPENAI = "OpenAI" #TODO(FIX): specify a specific model name

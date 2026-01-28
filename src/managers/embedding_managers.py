@@ -1,6 +1,7 @@
 import os
 from typing import assert_never
 
+from models.config_models import embedder_config
 from src.common.constants import Featured_embedding_models_enum as embed_models
 
 from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
@@ -17,14 +18,8 @@ class Embedding_manager:
     Generalized embedding manager to handle text embeddings.
     """
 
-    def __init__(self, embedder_model_name: str, embedder_api_key: str):
-        if((embedder_model_name is None) or 
-           (embedder_api_key is None) or (embedder_api_key.strip() == "") ):
-            raise ValueError("The embedder model name and API key cannot be None or empty.")
-        if(not embed_models.has_value(value=embedder_model_name)):
-            raise ValueError(f"Embedding model '{embedder_model_name}' not featured")
-        
-        self.embedder: Embedder_I = self._embedder_operator_factory(embedder_model_name, embedder_api_key)
+    def __init__(self, config: embedder_config):        
+        self.embedder: Embedder_I = self._embedder_operator_factory(config.embedder_model_name, config.embedder_api_key)
         
 
     #TODO(improvement): If possible, find a way so that the webScraper can gather authors from the file
@@ -84,14 +79,13 @@ class Embedding_manager:
     
 
 
-    def _embedder_operator_factory(self, embedder_model_name: str, embedder_api_key: str) -> Embedder_I:
+    def _embedder_operator_factory(self, embedder_model_name: embed_models, embedder_api_key: str) -> Embedder_I:
         # Iterating every featured constructor for an embedder
-        if(embedder_model_name == embed_models.PINECONE_LLAMA_TEXT_EMBED_V2.value):
+        if(embedder_model_name == embed_models.PINECONE_LLAMA_TEXT_EMBED_V2):
             return embedder_operators.Pinecone_embedder(embedder_model_name=embedder_model_name, embedder_api_key=embedder_api_key)
-        elif(embedder_model_name == embed_models.OPEN_AI_TEXT_EMBED_3_SMALL.value):
+        elif(embedder_model_name == embed_models.OPEN_AI_TEXT_EMBED_3_SMALL):
             return embedder_operators.OpenAI_embedder(embedder_model_name=embedder_model_name, embedder_api_key=embedder_api_key)
         
-        # assert_never(embedder_model_name)
         raise NotImplementedError(
             f"Dead code activation: No factory case for embedding model named '{embedder_model_name}'. "
             "Did you update 'Featured_embedding_models_enum' but forget to extend the factory method?"

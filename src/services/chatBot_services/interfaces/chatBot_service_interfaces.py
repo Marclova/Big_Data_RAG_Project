@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from src.models.interfaces.config_interfaces import ChatBot_config_I
+
 
 class ChatBot_I(ABC):
     """
@@ -8,11 +10,22 @@ class ChatBot_I(ABC):
     Chat history is saved inside the RAM and only one chat at time can be saved.
     """
     @abstractmethod
-    def __init__(self, chatBot_APIKey: str=None):
+    def __init__(self, bot_config: ChatBot_config_I):
         """
         Parameters:
-            chatBot_APIKey (str): The API key that may be required for the chatBot service.
-                                    Not always required.
+            bot_config (ChatBot_config_I): Configuration object for the chatBot service.
+        """
+        pass
+
+    @abstractmethod
+    def set_chatbot_script(self, script_content: list[str]) -> bool:
+        """
+        Method to set the bot's script with the provided content.
+        Information about the bot and script IDs should be already set up in the object.
+        Parameters:
+            script_content (list[str]): A list of strings representing the content to set as the bot's script.
+        Returns:
+            bool: True if the script was set successfully. False otherwise.
         """
         pass
 
