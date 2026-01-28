@@ -1,7 +1,7 @@
 import os
 import yaml
 import unittest
-import src.services.raw_data_operator as RD_operator
+import src.services.other_services.raw_data_operator as RD_operator
 
 
 class Raw_data_operator_tester(unittest.TestCase):
@@ -22,6 +22,7 @@ class Raw_data_operator_tester(unittest.TestCase):
         text_to_cluster = self.samples["text_to_cluster"]
         clustered_text = self.samples["clustered_text"]
         
+        #TODO(FIX): update the test with the latest version of the project
         self.assertEqual(RD_operator.cluster_text(text_to_cluster), clustered_text)
 
 
