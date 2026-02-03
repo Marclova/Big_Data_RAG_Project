@@ -5,9 +5,9 @@ from src.common.constants import (DB_use_types_enum as DB_usage,
                                   Featured_storage_DB_engines_enum as storage_DB_engine, 
                                   Featured_RAG_DB_engines_enum as RAG_DB_engine)
 
-from models.interfaces.config_interfaces import DB_config_I
+from src.models.interfaces.config_interfaces import DB_config_I
 from src.models.interfaces.data_model_interface import DTModel_I
-from models.config_models import Storage_DB_config, RAG_DB_config
+from src.models.config_models import Storage_DB_config, RAG_DB_config
 from src.models.data_models import Storage_DTModel, RAG_DTModel
 
 from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I

@@ -1,7 +1,7 @@
 import os
 from typing import assert_never
 
-from models.config_models import embedder_config
+from src.models.config_models import embedder_config
 from src.common.constants import Featured_embedding_models_enum as embed_models
 
 from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I

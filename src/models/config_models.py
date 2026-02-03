@@ -5,7 +5,7 @@ from src.common.constants import (Featured_embedding_models_enum as embed_models
                                   Featured_RAG_DB_engines_enum as RAG_engines,
                                   DB_use_types_enum as DB_usage)
 
-from models.interfaces.config_interfaces import DB_config_I
+from src.models.interfaces.config_interfaces import DB_config_I
 
 
 

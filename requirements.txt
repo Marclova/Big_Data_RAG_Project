@@ -2,7 +2,6 @@
 # sentence-transformers
 # langchain_together
 # sentence_transformers
-# pyyaml
 
 
 #DBs
@@ -10,10 +9,18 @@ pymongo
 PyGreSQL
 
 #file extraction
-#pymupdf  
-llama-index-readers-file pymupdf
+pymupdf # maybe is ' llama-index-readers-file pymupdf '
+
+# web interactions and protocols
+requests
+fitz
+frontend
 
 #embedders and transformers
 torch
 transformers
 llama-index-embeddings-openai
+
+#project setup and management
+pyyaml
+unittest

@@ -4,3 +4,14 @@ input_dbCollection_name : "records"
 output_dbCollection_name : "embedding_files"
 embedder_model_name : "togethercomputer/m2-bert-80M-32k-retrieval"
 embedder_API_key : "9247636f968300e75c8ed9f7540734db51991313c7798264da83ee877260f2c0"
+
+
+
+botLibre_config: {
+  username: "Marclova",
+  password: "bigpassword",
+  user_id: "7860132618576389205", #also known as 'application ID'
+  main_bot_id: "21017390", #also known as 'instance ID'
+  main_script_id: "21034887",
+  main_script_name: "mainScript"
+}
