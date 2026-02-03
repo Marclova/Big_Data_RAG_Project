@@ -1,15 +1,21 @@
-from models.interfaces.chatBot_service_interfaces import ChatBot_I
+from src.common.constants import Featured_chatBot_models_enum as chatBot_models
+
+from src.models.config_models import Chatbot_config
+from src.models.interfaces.chatBot_service_interfaces import ChatBot_I
+
+from src.services.chatBot_services.chatBot_operators import (BotLibre_chatBot_operator, OpenAI_chatBot_operator)
 
 
 
 #TODO(CREATE) implement chatBot models enum and add parameter validation
-class chatBot_manager:
+class ChatBot_manager:
     """
     Generalized chatBot manager to handle chatbot interactions.
     """    
-    def __init__(self, chatBot_model_name: str, chatBot_APIKey: str):
-        self.chatBot = ChatBot_I(chatBot_APIKey)
-        self.chatBot_model_name = chatBot_model_name
+    def __init__(self, bot_config: Chatbot_config):
+        self.chatBot: ChatBot_I = self._chatbot_operator_factory(bot_config)
+        self.chatBot_model_name = bot_config.chatbot_model_name.value
+
 
     def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
         """
@@ -45,6 +51,7 @@ class chatBot_manager:
         """
         self.chatBot.clear_chat()
 
+
     def get_chatBot_model_name(self) -> str:
         """
         Gets the name of the chatBot model used by the chatBot_manager.
@@ -52,3 +59,25 @@ class chatBot_manager:
             str: The name of the chatBot model.
         """
         return self.chatBot_model_name
+    
+
+
+    def _chatbot_operator_factory(self, bot_config: Chatbot_config) -> ChatBot_I:
+        """
+        Factory method to create the chatBot operator based on the provided configuration.
+        Parameters:
+            config (Chatbot_config): The configuration for the chatBot.
+        Returns:
+            ChatBot_I: The instantiated chatBot operator.
+        """
+        if(bot_config is None):
+            raise ValueError("The chatBot configuration cannot be None.")
+        elif(bot_config.chatbot_model_name == chatBot_models.BOTLIBRE):
+            return BotLibre_chatBot_operator(bot_config)
+        elif(bot_config.chatbot_model_name == chatBot_models.OPENAI):
+            return OpenAI_chatBot_operator(bot_config)
+        
+        raise NotImplementedError(
+            f"Dead code activation: No factory case for chatBot model named '{bot_config.chatbot_model_name}'. "
+            "Did you update 'Featured_chatBot_models_enum' but forget to extend the factory method?"
+        )

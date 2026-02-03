@@ -1,9 +1,10 @@
 from typing import override
 
-from src.common.constants import (Featured_embedding_models_enum as embed_models, 
-                                  Featured_storage_DB_engines_enum as storage_engines, 
+from src.common.constants import (Featured_storage_DB_engines_enum as storage_engines, 
                                   Featured_RAG_DB_engines_enum as RAG_engines,
-                                  DB_use_types_enum as DB_usage)
+                                  DB_use_types_enum as DB_usage,
+                                  Featured_embedding_models_enum as embed_models, 
+                                  Featured_chatBot_models_enum as chatBot_models)
 
 from src.models.interfaces.config_interfaces import DB_config_I
 
@@ -53,7 +54,7 @@ class RAG_DB_config(DB_config_I):
         self.batch_size = batch_size
 
 
-class embedder_config:
+class Embedder_config:
     """
     Set of configurations for an embedder model.
     Needed by the embedder factory for class initialization.
@@ -69,24 +70,42 @@ class embedder_config:
         self.embedder_api_key = embedder_api_key
 
 
-class BotLibre_config:
+#TODO(FIX): See if you can merge 
+class Chatbot_config:
     """
     Set of configurations for the BotLibre chatBot model.
     Needed by the chatBot factory for class initialization.
     """
-    def __init__(self, username: str, password: str, user_ID: str, 
-                 bot_ID: str, script_ID: str = None, script_name: str = None):
-        if((username is None) or (username.strip() == "") or
-           (password is None) or (password.strip() == "") or
-           (user_ID is None) or (user_ID.strip() == "") or
-           (bot_ID is None) or (bot_ID.strip() == "") ):
-            raise ValueError("The BotLibre configuration parameters cannot be None or empty, except for script_name.")
-        if( (script_ID is None) != (script_name is None) ):
-            raise ValueError("Both 'script_ID' and 'script_name' must be provided together, or both set to None.")
+    # def __init__(self, chatbot_model_name: chatBot_models, api_key: str, username: str=None, password: str=None,
+    #              bot_ID: str=None, script_ID: str = None, script_name: str = None):
+    #     if((username is None) or (username.strip() == "") or
+    #        (password is None) or (password.strip() == "") or
+    #        (user_ID is None) or (user_ID.strip() == "") or
+    #        (bot_ID is None) or (bot_ID.strip() == "") ):
+    #         raise ValueError("The BotLibre configuration parameters cannot be None or empty, except for script_name.")
+    #     if( (script_ID is None) != (script_name is None) ):
+    #         raise ValueError("Both 'script_ID' and 'script_name' must be provided together, or both set to None.")
+    def __init__(self, chatbot_model_name: chatBot_models, api_key: str, other_params: dict[str, any]=None):
+        if(chatbot_model_name is None or api_key is None or api_key.strip() == ""):
+            raise ValueError("The chatBot model name and API key cannot be None or empty.")
+        if not chatBot_models.has_value(chatbot_model_name.value):
+            raise ValueError(f"ChatBot model '{chatbot_model_name.value}' not featured")
 
-        self.username: str = username
-        self.password: str = password
-        self.user_ID: str = user_ID #labeled as 'application' in the documentation
-        self.bot_ID: str = bot_ID #labeled as 'instance' in the documentation
-        self.script_ID: str = script_ID
-        self.script_name: str = script_name
+        self.chatbot_model_name: chatBot_models = chatbot_model_name
+        self.api_key: str = api_key #labeled as 'application' or 'user ID' in the documentation
+
+        # Specific parameters for each chatBot model
+
+        if(chatbot_model_name == chatBot_models.BOTLIBRE.value):
+            self.username: str = other_params.get("username", None)
+            self.password: str = other_params.get("password", None)
+            self.bot_ID: str = other_params.get("main_bot_id", None) #labeled as 'instance' in the documentation
+            self.script_ID: str = other_params.get("main_script_id", None)
+            self.script_name: str = other_params.get("main_script_name", None)
+        if(chatbot_model_name == chatBot_models.OPENAI.value):
+            pass #TODO(CREATE): add specific parameters for OpenAI chatBot
+
+        raise NotImplementedError(
+            f"Dead code activation: No factory case for chatBot model named '{chatbot_model_name}'. "
+            "Did you update 'Featured_chatBot_models_enum' but forget to extend the factory method?"
+        )

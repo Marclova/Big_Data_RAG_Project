@@ -3,7 +3,7 @@ from urllib import response
 from aiohttp import FormData
 import requests
 
-from src.models.config_models import BotLibre_config
+from src.models.config_models import Chatbot_config
 from models.interfaces.chatBot_service_interfaces import ChatBot_I
 
 import src.services.other_services.scraper_storage_service as storage_service
@@ -11,14 +11,14 @@ import src.services.other_services.scraper_storage_service as storage_service
 
 
 #TODO(CREATE): implement class
-class BotLibre_chatBot_service(ChatBot_I):
+class BotLibre_chatBot_operator(ChatBot_I):
     """
     Simple and free chatbot service providing minimal configuration to provide information to the user.
     The provider requires no subscription nor API Key.
     """
     
     @override
-    def __init__(self, bot_config: BotLibre_config, create_ephemeral_script: bool=False):
+    def __init__(self, bot_config: Chatbot_config, create_ephemeral_script: bool=False):
         self.username: str = bot_config.username
         self.password: str = bot_config.password
         self.user_ID: str = bot_config.user_ID #labeled as 'application' in the documentation
@@ -101,7 +101,7 @@ class BotLibre_chatBot_service(ChatBot_I):
 
 
 #TODO(CREATE): implement class
-class OpenAI_chatBot_service(ChatBot_I):
+class OpenAI_chatBot_operator(ChatBot_I):
     """
     Simple chatBot service using a powerful provider that can access to further information through the internet 
     and complex thinking and problem solving.
