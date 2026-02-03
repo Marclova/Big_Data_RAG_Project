@@ -2,14 +2,14 @@ import os
 from typing import assert_never, override
 
 from managers.interfaces.manager_interface import Manager_I
+from services.other_services import scraper_storage_services as webScraper
 from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 
 from src.models.config_models import Embedder_config
 from src.common.constants import Featured_embedding_models_enum as embed_models
 
 from src.services.embedder_services import embedder_operators
-from src.services.other_services import (scraper_storage_service as webScraper, 
-                                         raw_data_operator as rawOperator)
+from services.other_services import (raw_data_services as rawOperator)
 
 from src.models.data_models import RAG_DTModel
 

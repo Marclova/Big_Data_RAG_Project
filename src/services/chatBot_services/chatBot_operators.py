@@ -6,7 +6,7 @@ import requests
 from src.models.config_models import Chatbot_config
 from services.chatBot_services.chatBot_service_interfaces import ChatBot_I
 
-import src.services.other_services.scraper_storage_service as storage_service
+import services.other_services.scraper_storage_services as storage_service
 
 
 
