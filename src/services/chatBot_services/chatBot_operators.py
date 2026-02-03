@@ -4,7 +4,7 @@ from aiohttp import FormData
 import requests
 
 from src.models.config_models import Chatbot_config
-from models.interfaces.chatBot_service_interfaces import ChatBot_I
+from services.chatBot_services.chatBot_service_interfaces import ChatBot_I
 
 import src.services.other_services.scraper_storage_service as storage_service
 
@@ -20,8 +20,8 @@ class BotLibre_chatBot_operator(ChatBot_I):
     @override
     def __init__(self, bot_config: Chatbot_config, create_ephemeral_script: bool=False):
         self.username: str = bot_config.username
+        self.user_ID: str = bot_config.api_key #labeled as 'application' in the documentation
         self.password: str = bot_config.password
-        self.user_ID: str = bot_config.user_ID #labeled as 'application' in the documentation
         self.bot_ID: str = bot_config.bot_ID #labeled as 'instance' in the documentation
         self.script_ID: str = bot_config.script_ID #may be None
         self.script_name: str = bot_config.script_name #may be None
@@ -98,6 +98,14 @@ class BotLibre_chatBot_operator(ChatBot_I):
     @override
     def clear_script(self) -> bool:
         pass
+
+
+    @override
+    def delete_sensitive_info(self) -> None:
+        self.user_ID = None
+        self.password = None
+        self.bot_ID = None
+        self.script_ID = None
 
 
 #TODO(CREATE): implement class

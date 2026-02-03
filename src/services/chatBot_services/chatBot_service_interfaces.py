@@ -61,4 +61,12 @@ class ChatBot_I(ABC):
             bool: True if the chat has been deleted. False cache was already empty.
         """
         pass
+
+    @abstractmethod
+    def delete_sensitive_info(self) -> None:
+        """
+        Deletes all the sensitive information stored in the object, such as API keys, user IDs, etc.
+        This method is meant to be used before the deletion of the object or when the chatBot service is not needed anymore.
+        """
+        pass
     

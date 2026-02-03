@@ -1,6 +1,8 @@
 from typing import cast, override
 from abc import ABC, abstractmethod
 
+from managers.interfaces.manager_interface import Manager_I
+
 from src.common.constants import (DB_use_types_enum as DB_usage, 
                                   Featured_storage_DB_engines_enum as storage_DB_engine, 
                                   Featured_RAG_DB_engines_enum as RAG_DB_engine)
@@ -14,7 +16,7 @@ from src.services.db_services.interfaces.DB_operator_interfaces import DB_operat
 from src.services.db_services import storage_DB_operators, rag_DB_operators
 
 
-class generic_DB_manager(ABC):
+class generic_DB_manager(Manager_I):
     """
     Generic class not meant to be initialized nor to be used for an abstract design pattern.
     It contains the methods common between all the DB managers.
@@ -25,7 +27,6 @@ class generic_DB_manager(ABC):
     @abstractmethod
     def __init__(self, db_config: DB_config_I):
         pass
-
 
     @abstractmethod
     def insert_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
@@ -38,7 +39,6 @@ class generic_DB_manager(ABC):
             bool: The operation outcome.
         """
         pass
-    
 
     @abstractmethod
     def update_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
@@ -51,6 +51,10 @@ class generic_DB_manager(ABC):
             bool: the operation outcome.
         """
         pass
+
+    @override
+    def disconnect(self):
+        self.DB_operator.close_connection()
 
     
     def _parameters_validation(self, target_collection_name: str, **kwargs) -> None:

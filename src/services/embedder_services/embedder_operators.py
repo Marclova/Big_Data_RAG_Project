@@ -63,7 +63,12 @@ class Pinecone_embedder(Embedder_I):
 
     @override
     def get_embedder_name(self) -> str:
-        return self.embedder_name        
+        return self.embedder_name    
+
+
+    @override
+    def delete_sensitive_info(self):
+        self.embedder.config.api_key = None
 
 
 

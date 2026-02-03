@@ -1,10 +1,12 @@
 import os
-from typing import assert_never
+from typing import assert_never, override
 
-from src.models.config_models import embedder_config
+from managers.interfaces.manager_interface import Manager_I
+from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
+
+from src.models.config_models import Embedder_config
 from src.common.constants import Featured_embedding_models_enum as embed_models
 
-from src.services.embedder_services.interfaces.embedder_interfaces import Embedder_I
 from src.services.embedder_services import embedder_operators
 from src.services.other_services import (scraper_storage_service as webScraper, 
                                          raw_data_operator as rawOperator)
@@ -13,12 +15,12 @@ from src.models.data_models import RAG_DTModel
 
 
 
-class Embedding_manager:
+class Embedding_manager(Manager_I):
     """
     Generalized embedding manager to handle text embeddings.
     """
 
-    def __init__(self, config: embedder_config):        
+    def __init__(self, config: Embedder_config):        
         self.embedder: Embedder_I = self._embedder_operator_factory(config.embedder_model_name, config.embedder_api_key)
         
 
@@ -76,6 +78,12 @@ class Embedding_manager:
             str: The name of the embedder.
         """
         return self.embedder.get_embedder_name()
+    
+
+    @override
+    def disconnect(self):
+        self.embedder.delete_sensitive_info()
+    
     
 
 

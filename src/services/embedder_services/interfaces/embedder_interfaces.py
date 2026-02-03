@@ -48,6 +48,13 @@ class Embedder_I(ABC):
         """
         pass
 
+    @abstractmethod
+    def delete_sensitive_info(self):
+        """
+        Method to delete any sensitive information stored in the embedder instance.
+        """
+        pass
+
 
 # class Embedder_with_retrieval_I(Embedder_I):
 #     """

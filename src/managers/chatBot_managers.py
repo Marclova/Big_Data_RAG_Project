@@ -1,14 +1,18 @@
+from typing import override
+
+from managers.interfaces.manager_interface import Manager_I
+from services.chatBot_services.chatBot_service_interfaces import ChatBot_I
+
 from src.common.constants import Featured_chatBot_models_enum as chatBot_models
 
 from src.models.config_models import Chatbot_config
-from src.models.interfaces.chatBot_service_interfaces import ChatBot_I
 
 from src.services.chatBot_services.chatBot_operators import (BotLibre_chatBot_operator, OpenAI_chatBot_operator)
 
 
 
 #TODO(CREATE) implement chatBot models enum and add parameter validation
-class ChatBot_manager:
+class ChatBot_manager(Manager_I):
     """
     Generalized chatBot manager to handle chatbot interactions.
     """    
@@ -59,6 +63,11 @@ class ChatBot_manager:
             str: The name of the chatBot model.
         """
         return self.chatBot_model_name
+    
+
+    @override
+    def disconnect(self) -> None:
+        self.chatBot.delete_sensitive_info()
     
 
 
