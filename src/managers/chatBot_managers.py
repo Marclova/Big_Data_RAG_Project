@@ -1,4 +1,4 @@
-from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
+from models.interfaces.chatBot_service_interfaces import ChatBot_I
 
 
 
