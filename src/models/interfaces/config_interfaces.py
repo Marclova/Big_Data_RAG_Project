@@ -1,7 +1,12 @@
 from abc import ABC, abstractmethod
 
 
-class DB_config_I(ABC):
+class Configuration_model_I(ABC):
+    """
+    Marker interface for any sort of configuration model.
+    """
+
+class DB_config_I(Configuration_model_I):
     """
     Marker interface for DB configurations.
     DB_config don't have a more structured common interface because 
@@ -12,7 +17,7 @@ class DB_config_I(ABC):
         pass
 
 #TODO(UPDATE): see how much specific parameters can be added to this interface (evaluation post OpenAI integration)
-class ChatBot_config_I(ABC):
+class ChatBot_config_I(Configuration_model_I):
     """
     Marker interface for chatBot configurations.
     Needed by the chatBot factory for class initialization.

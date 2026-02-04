@@ -158,13 +158,14 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
 
     @override
-    def open_connection(self, DB_connection_url: str, DB_name: str):
+    def open_connection(self, DB_connection_url: str, DB_name: str) -> bool:
         if((DB_connection_url is None) or (DB_name is None)):
             raise ValueError("MongoDB connection URL and DB name must be provided.")
 
         self.connection = MongoClient(DB_connection_url)
         self.database = self.connection[DB_name]
         # self.database = MongoClient(DB_connection_url)[DB_name]
+        return True
 
 
     @override

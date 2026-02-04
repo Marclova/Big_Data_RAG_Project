@@ -133,6 +133,10 @@ class OpenAI_embedder(Embedder_I):
 
     def get_embedder_name(self):
         return self.embedder_name
+    
+    @override
+    def delete_sensitive_info(self):
+        self.embedder.api_key = None
 
 
 

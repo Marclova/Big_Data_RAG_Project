@@ -16,9 +16,9 @@ from src.services.db_services.interfaces.DB_operator_interfaces import DB_operat
 from src.services.db_services import storage_DB_operators, rag_DB_operators
 
 
-class generic_DB_manager(Manager_I):
+class Abstract_DB_manager(Manager_I):
     """
-    Generic class not meant to be initialized nor to be used for an abstract design pattern.
+    Abstract class not meant to be initialized nor to be used for an abstract design pattern.
     It contains the methods common between all the DB managers.
     """
     DB_operator: DB_operator_I
@@ -53,6 +53,10 @@ class generic_DB_manager(Manager_I):
         pass
 
     @override
+    def connect(self, db_config: DB_config_I):
+        return self.DB_operator.open_connection(db_config)
+
+    @override
     def disconnect(self):
         self.DB_operator.close_connection()
 
@@ -76,7 +80,7 @@ class generic_DB_manager(Manager_I):
 
 
 
-class Storage_DB_manager(generic_DB_manager):
+class Storage_DB_manager(Abstract_DB_manager):
     """
     Manager for DB operations to store papers destined to be embedded.
     """
@@ -143,7 +147,7 @@ class Storage_DB_manager(generic_DB_manager):
 
 
 
-class RAG_DB_manager(generic_DB_manager):
+class RAG_DB_manager(Abstract_DB_manager):
     """
     Manager for DB operations to embed papers and store embeddings.
     """

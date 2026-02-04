@@ -17,8 +17,10 @@ class ChatBot_manager(Manager_I):
     Generalized chatBot manager to handle chatbot interactions.
     """    
     def __init__(self, bot_config: Chatbot_config):
-        self.chatBot: ChatBot_I = self._chatbot_operator_factory(bot_config)
-        self.chatBot_model_name = bot_config.chatbot_model_name.value
+        self.chatBot: ChatBot_I
+        self.chatBot_model_name: str
+
+        self.connect(bot_config)
 
 
     def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
@@ -26,7 +28,7 @@ class ChatBot_manager(Manager_I):
         Sends a message to the chatBot and returns the response from the chat.
         Parameters:
             message (str): The message to send.
-            responseInfo (set[str]): The info for the response to receive.
+            responseInfo (set[str]): The information that the chatBot can use to formulate its response.
         Returns:
             str: The reply from the chatBot
         """
@@ -66,7 +68,20 @@ class ChatBot_manager(Manager_I):
     
 
     @override
+    def connect(self, connection_config: Chatbot_config):
+        """
+        Connects the manager to outer providers or other kind of sources using the given configurations.
+            NOTE: There's not actually a connection being opened, but just a class state set for API requests.
+        """
+        self.chatBot = self._chatbot_operator_factory(connection_config)
+        self.chatBot_model_name = connection_config.chatbot_model_name.value
+    
+
+    @override
     def disconnect(self) -> None:
+        """
+        Deletes sensible information used for queries.
+        """
         self.chatBot.delete_sensitive_info()
     
 

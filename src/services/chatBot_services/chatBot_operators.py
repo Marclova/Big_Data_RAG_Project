@@ -4,7 +4,7 @@ from aiohttp import FormData
 import requests
 
 from src.models.config_models import Chatbot_config
-from services.chatBot_services.chatBot_service_interfaces import ChatBot_I
+from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
 import services.other_services.scraper_storage_services as storage_service
 

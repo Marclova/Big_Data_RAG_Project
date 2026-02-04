@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from src.models.interfaces.config_interfaces import DB_config_I
 from src.models.interfaces.data_model_interface import DTModel_I
 from src.models.data_models import Storage_DTModel, RAG_DTModel
 
@@ -49,12 +50,14 @@ class DB_operator_I(ABC):
         pass
 
     @abstractmethod
-    def open_connection(self, *args, **kwargs):
+    def open_connection(self, connection_config: DB_config_I) -> bool:
         """
         Opens the DB connection using the provided configuration. 
         It also updates the needed instance variables to match the new connection.
         Parameters:
             db_config (DB_config): The configuration to use to open the DB connection.
+        Returns:
+            bool: 'True' if the connection was successful. Raise exception otherwise.
         """
         pass
 
@@ -63,7 +66,6 @@ class DB_operator_I(ABC):
         """
         Closes the DB connection.
         """
-        pass
 
     @abstractmethod
     def get_engine_name(self) -> str:

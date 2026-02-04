@@ -21,7 +21,9 @@ class Embedding_manager(Manager_I):
     """
 
     def __init__(self, config: Embedder_config):        
-        self.embedder: Embedder_I = self._embedder_operator_factory(config.embedder_model_name, config.embedder_api_key)
+        self.embedder: Embedder_I
+        
+        self.connect(config)
         
 
     #TODO(improvement): If possible, find a way so that the webScraper can gather authors from the file
@@ -79,9 +81,23 @@ class Embedding_manager(Manager_I):
         """
         return self.embedder.get_embedder_name()
     
+    
+    @override
+    def connect(self, connection_config: Embedder_config) -> bool:
+        """
+        Connects the manager to outer providers or other kind of sources using the given configurations.
+            NOTE: There's not actually a connection being opened, but just a class state set for API requests.
+        """
+        self.embedder: Embedder_I = self._embedder_operator_factory(connection_config.embedder_model_name, connection_config.embedder_api_key)
+        return True
+        
+
 
     @override
     def disconnect(self):
+        """
+        Deletes sensible information used for queries.
+        """
         self.embedder.delete_sensitive_info()
     
     

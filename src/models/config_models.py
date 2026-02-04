@@ -6,7 +6,7 @@ from src.common.constants import (Featured_storage_DB_engines_enum as storage_en
                                   Featured_embedding_models_enum as embed_models, 
                                   Featured_chatBot_models_enum as chatBot_models)
 
-from src.models.interfaces.config_interfaces import DB_config_I
+from src.models.interfaces.config_interfaces import (Configuration_model_I, DB_config_I)
 
 
 
@@ -54,7 +54,7 @@ class RAG_DB_config(DB_config_I):
         self.batch_size = batch_size
 
 
-class Embedder_config:
+class Embedder_config(Configuration_model_I):
     """
     Set of configurations for an embedder model.
     Needed by the embedder factory for class initialization.
@@ -71,7 +71,7 @@ class Embedder_config:
 
 
 #TODO(FIX): See if you can merge 
-class Chatbot_config:
+class Chatbot_config(Configuration_model_I):
     """
     Set of configurations for the BotLibre chatBot model.
     Needed by the chatBot factory for class initialization.
