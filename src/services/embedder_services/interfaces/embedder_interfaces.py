@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 
-from src.common.constants import Featured_embedding_models_enum as embed_models
-
 
 floatVector = list[float]
 
@@ -54,24 +52,3 @@ class Embedder_I(ABC):
         Method to delete any sensitive information stored in the embedder instance.
         """
         pass
-
-
-# class Embedder_with_retrieval_I(Embedder_I):
-#     """
-#     Extending another interface, this one is for embedders which embed text files (ex. TXT, PDF) 
-#     and also implement argument retrieval for DBs that don't have such functionality natively.
-#     This interface is supposed to be implemented/extended only by sub-classes of 'RAG_DB_operator_I'.
-#     """
-#     @abstractmethod
-#     def retrieve_vectors_using_query(self, target_collection_name: str, query: str, top_k: int) -> list[RAG_DTModel]:
-#         """
-#         Retrieves the top_k most similar vectors to the input query from the given collection/table/index.
-
-#         Parameters:
-#             target_collection_name (str): The name of the collection/table/index to retrieve the vectors from.
-#             query (str): The input query string to search for similar vectors.
-#             top_k (int): The number of top similar vectors to retrieve.
-#         Returns:
-#             list[DTModel]: A list of the top_k most similar vectors as data models.
-#         """
-#         pass

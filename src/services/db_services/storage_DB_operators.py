@@ -93,34 +93,6 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
             print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': record does not exist.") #TODO(polishing): consider another logging method
         return None
         
-    
-    # def update_record_using_JSON(self, target_collection_name: str, json: dict[any]) -> results.UpdateResult:
-    #     """
-    #     Updates a record in the Mongo DB having the corresponding title
-
-    #     Parameters:
-    #         target_collection_name (str): The name of the existing DB collection where to insert the record into.
-    #         title (str): The name of the article to update.
-    #         new_values (dict[any]): The JSON script describing the new values to set in the record.
-        
-    #     Returns:
-    #         UpdateResult: Pymongo's result type for record updates.
-    #     """
-    #     title = json.get("title", None)
-    #     if title is None:
-    #         raise ValueError("The input JSON must contain a 'title' field to identify the record to update.")
-        
-    #     params_to_update: dict[str,dict[str,any]] = dict()
-    #     params_to_update.update({"$set": dict()})
-
-    #     # create the update JSON only with the parameters that are present in the input JSON
-    #     for param in ["url", "pages", "author"]:
-    #         param_value = json.get(param, None)
-    #         if param_value is not None:
-    #              params_to_update["$set"].update({param: param_value})
-
-    #     return self.database[target_collection_name].update_one({"title": title}, params_to_update)
-        
         
     @override
     def remove_record_using_title(self, target_collection_name: str, title: str) -> bool:
@@ -131,23 +103,6 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
         # return (self.remove_records_using_manualFilter(target_collection_name, {"title": title}) is not None)
         return (self.database[target_collection_name].delete_one({"title": title}).deleted_count > 0)
-    
-
-    # def remove_records_using_manualFilter(self, target_collection_name: str, filter: dict[any]) -> results.DeleteResult:
-    #     """
-    #     Removal function permitting to insert a custom JSON as filter.
-
-    #     Parameters:
-    #     target_collection_name (str): The name of the existing DB collection where to insert the record into.
-    #     filter (dict[any]): JSON script to use to make the filtered query in the DB.
-        
-    #     Returns:
-    #     DeleteResult: Pymongo's result type for record deletion.
-    #     """
-    #     result: results.DeleteResult = self.database[target_collection_name].delete_many(filter)
-    #     if result.deleted_count > 0:
-    #         return result
-    #     return None
     
 
     @override
@@ -164,7 +119,6 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
         self.connection = MongoClient(DB_connection_url)
         self.database = self.connection[DB_name]
-        # self.database = MongoClient(DB_connection_url)[DB_name]
         return True
 
 
@@ -242,7 +196,6 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
         return (self.database.query(query) != None)
 
 
-    #TODO implement method
     @override
     def remove_record_using_title(self, target_table_name: str, title: str) -> bool:
         if((target_table_name is None) or (title is None)):

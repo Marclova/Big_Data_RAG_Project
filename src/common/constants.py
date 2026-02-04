@@ -19,7 +19,7 @@ class _Checks_enum_values_Mixin(Enum):
         return value in cls._value2member_map_
     
 
-#TODO(polishing): define data model values enum
+#TODO(polishing): define data model values enum for conversion from dict response to DTModel
 
 
 class DB_use_types_enum(_Checks_enum_values_Mixin):
@@ -40,20 +40,6 @@ class Featured_RAG_DB_engines_enum(_Checks_enum_values_Mixin):
 class Featured_embedding_models_enum(_Checks_enum_values_Mixin):
     PINECONE_LLAMA_TEXT_EMBED_V2= "llama-text-embed-v2"
     OPEN_AI_TEXT_EMBED_3_SMALL = OpenAIEmbeddingModelType.TEXT_EMBED_3_SMALL.value
-
-
-    # class __Pincecone_Embedders_enum(_Checks_enum_values_Mixin):
-    #     LLAMA_TEXT_EMBED_V2= "llama-text-embed-v2"
-    # class __OPEN_AI_Embedders_enum(_Checks_enum_values_Mixin):
-    #     TEXT_EMBED_3_SMALL = OpenAIEmbeddingModelType.TEXT_EMBED_3_SMALL
-
-    # PINECONE = __Pincecone_Embedders_enum
-    # OPEN_AI = __OPENAI_Embedders_enum
-
-    # @override
-    # def has_value(cls, value:str) -> bool:
-    #     return (Featured_embedding_models_enum.Pinecone_models_enum.has_value(value=value) or
-    #             Featured_embedding_models_enum.Open_AI_models_enum.has_value(value=value))
 
 
 class Featured_chatBot_models_enum(_Checks_enum_values_Mixin):

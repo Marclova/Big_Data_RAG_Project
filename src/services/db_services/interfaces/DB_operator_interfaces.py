@@ -123,42 +123,12 @@ class Storage_DB_operator_I(DB_operator_I):
         """
         pass
 
-#TODO(improvement): Implement methods for exact subtext search ('get_record_using_embedded_text' and 'remove_record_using_embedded_text')
+
 class RAG_DB_operator_I(DB_operator_I):
     """
     This is an abstract class that defines the interface for RAG database operations and semantic search.
     It extends the DB_operator interface.
     """
-    # @abstractmethod
-    # def get_record_using_embedded_text(self, target_index_name: str, embedded_text_to_find: str) -> RAG_DTModel:
-    #     """
-    #     Retrieves a record in the given index using its embedded text.
-    #     The retrieval may be done using vector similarity search instead of an exact match, 
-    #         but in this case only the most similar record is returned and then checked for exactness by the DB operator.
-
-    #     Parameters:
-    #         target_index_name (str): The name of the index to retrieve the file from.
-    #         embedded_text_to_find (str): The embedded text of the record to retrieve.
-    #     Returns:
-    #         DTModel: The record with the given embedded text. None if not found.
-    #     """
-    #     pass
-
-    # @abstractmethod
-    # def remove_record_using_embedded_text(self, target_index_name: str, embedded_text_to_find: str) -> bool:
-    #     """
-    #     Retrieves and delete from the index a record having the corresponding embedded text.
-    #     The retrieval may be done using vector similarity search instead of an exact match, 
-    #         but in this case only the most similar record is returned and then checked for exactness by the DB operator.
-
-    #     Parameters:
-    #         target_index_name (str): The name of the existing DB index where to insert the record into.
-    #         title (str): The name of the article to remove.
-        
-    #     Returns:
-    #         bool: the operation outcome.
-    #     """
-    #     pass
 
     @abstractmethod
     def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: floatVector, top_k: int) -> list[RAG_DTModel]:

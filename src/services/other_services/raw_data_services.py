@@ -57,17 +57,6 @@ def normalize_folder_path(given_string: str) -> str:
         return given_string
 
 
-# def cluster_text(text_to_cluster: str) -> list[str]:
-#     """
-#     Extracts the text from a text file (ex. txt or PDF) and clusters it into a list of strings.
-#     Parameters:
-#         filePath (str): The path to the file.
-#     Returns:
-#         list[str]: The clustered text extracted from the file.
-#     """
-#     return text_to_cluster.split("\n")
-
-
 def increase_09az_id_with_carry(id: str) -> str:
     """
     Increases the given id, which is supposed to be a string of digits and lowercase letters, by one.\n
@@ -137,10 +126,6 @@ def extract_partition_text_and_metadata_from_file(file_path: str, pop_file: bool
     node_parser = SentenceSplitter(chunk_size=256)
     nodes = node_parser.get_nodes_from_documents(documents)
 
-    # text_chunk_list: list[str] = list()
-    # for node in nodes:
-    #     candidate_text_chunk = node.get_content(metadata_mode="none")
-    #     text_chunk_list.append[candidate_text_chunk]
     text_chunk_list: list[str] = [node.get_content(metadata_mode="none") for node in nodes]
     text_chunk_list = refine_embedding_textList(text_chunk_list)
 
@@ -208,7 +193,7 @@ def _ends_with_stopWord(string: str) -> bool:
     return bool(tokens) and tokens[-1].lower() in STOPWORDS
 
 
-#TODO(polishing): Invert the iteration so that it goes backwards from the end.
+#TODO(improvement): Invert the iteration so that it goes backwards from the end (increase efficiency).
 def _pop_last_sentence(text: str) -> tuple[str, str]:
     """
     Removes the last sentence from the given text.

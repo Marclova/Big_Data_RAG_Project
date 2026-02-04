@@ -2,10 +2,9 @@ import asyncio
 import heapq
 import math
 import numpy
-from itertools import islice
-from typing import Any, override, Tuple
+from typing import Any, override
 
-from pinecone import (Pinecone as PineconeClient, SearchQuery, UpsertResponse, Vector)
+from pinecone import (Pinecone as PineconeClient, SearchQuery, UpsertResponse)
 from pinecone.db_data import IndexAsyncio
 from pinecone.core.openapi.db_data.model.search_records_response import SearchRecordsResponse
 from pinecone.core.openapi.db_data.model.search_records_response_result import SearchRecordsResponseResult
@@ -14,8 +13,6 @@ from pinecone.core.openapi.db_data.model.hit import Hit
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.cursor import Cursor
-
-from openai import OpenAI
 
 from src.common.constants import Featured_RAG_DB_engines_enum as RAG_engines_enum
 
@@ -73,28 +70,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         self.open_connection(api_key, host)
 
 
-    # @override
-    # async def get_record_using_embedded_text(self, target_index_name: str, embedded_text_to_find: str) -> RAG_DTModel:
-    #     # index: IndexAsyncio = PineconeClient.IndexAsyncio(host=self.host)
-    #     response: SearchRecordsResponse = await self.database.search(namespace=target_index_name, 
-    #                                                                  query=SearchQuery(inputs={"text": embedded_text_to_find}, 
-    #                                                                                    top_k=1)
-    #                                                                 )
-    #     retrieved_record: dict[str, any] = self._from_SearchRecordsResponse_to_dict(response, {"text": embedded_text_to_find})
-
-    #     if retrieved_record == None:
-    #         return None
-    #     else:
-            # return RAG_DTModel(vector=retrieved_record["vector"], 
-            #                    embedder_name=retrieved_record["metadata"]["embedder"], 
-            #                    url=retrieved_record["metadata"]["url"], 
-            #                    title=retrieved_record["metadata"]["title"], 
-            #                    text=retrieved_record["metadata"]["text"], 
-            #                    pages=retrieved_record["metadata"]["pages"], 
-            #                    authors=retrieved_record["metadata"]["author"]
-            #                   )
-
-
     @override
     async def insert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
@@ -123,11 +98,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         return self._upsert_record(target_index_name, data_model)
 
 
-    # @override
-    # def remove_record_using_embedded_text(self, target_index_name: str, embedded_text_to_find: str) -> bool:
-    #     pass
-
-
     @override
     async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
@@ -147,15 +117,12 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         indexName_list = [index.index.name for index in indexModel_list]
         res = (index_to_check in indexName_list)
         return res
-        # return (index_to_check in self.connection.list_indexes())
 
 
     @override
     def open_connection(self, api_key: str, host: str):
         self.connection = PineconeClient(api_key)
-        # self.database = self.connection.IndexAsyncio(host=host)
         self.database = self.connection.Index(host=host)
-        # self.host = host
 
 
     @override
@@ -179,7 +146,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
             bool: True if the a new record has been inserted or if an old one has been updated. 
                     False if the DB has not been changed.
         """
-        # vector: Vector = self._from_RAGDTModel_to_Vector(data_model)
         response: UpsertResponse = await self.database.upsert(namespace=target_index_name, vectors=[data_model.generate_JSON_data()])
         
         insertion_count: int = getattr(response, "upserted_count", -1)
@@ -227,25 +193,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         for hit in hit_list:
             data_list.append(RAG_DTModel.create_from_JSONData(JSON_data=hit.fields))
         return data_list
-    
-
-    # def _from_RAGDTModel_to_Vector(self, data_model: RAG_DTModel) -> Vector:
-    #     """
-    #     Private method to convert a RAG_DTModel data model into a Vector for Pinecone RAG storage.
-    #     Parameters:
-    #         data_model (RAG_DTModel): The data model to convert.
-    #     Returns:
-    #         Vector: The Pinecone vector created from the data.
-    #     """
-    #     return Vector(id=data_model.id, values=data_model.vector, 
-    #                   metadata={
-    #                       "url" : data_model.url,
-    #                       "title" : data_model.title,
-    #                       "text" : data_model.text,
-    #                       "pages" : data_model.pages,
-    #                       "author" : data_model.authors,
-    #                       "embedder" : data_model.embedder_name
-    #                   })
 
 
 
@@ -274,14 +221,11 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
     not indicative of an architectural issue and should not be refactored into
     shared abstractions unless a future, stable pattern emerges.
     """
-    # def __init__(self, DB_connection_url: str, DB_name: str, openai_api_key: str, batch_size: int = 100000):
     def __init__(self, DB_connection_url: str, DB_name: str, batch_size: int = 100000):
         self.connection: MongoClient
         self.database: Database
         self.batch_size: int = batch_size
-        # self.embedder: OpenAI
 
-        # self.open_connection(DB_connection_url, DB_name, openai_api_key)
         self.open_connection(DB_connection_url, DB_name)
 
 
@@ -378,18 +322,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
                 top_k_semi_ordered_list.pop(0)
 
         return [ RAG_DTModel.create_from_JSONData(JSON_data=best_res.json_RAGDTModel) for best_res in top_k_semi_ordered_list ]
-        
-        # heap_id: int = 0
-        # top_k_heap: heapq[vectorNode] = []
-        # for candidate_res in global_results:
-        #     if len(top_k_heap) < top_k: # add one result into the heap
-        #         heapq.heappush(top_k_heap, (candidate_res[0], heap_id, candidate_res[1], candidate_res[2]))
-        #     else: # add one result and remove the less close one ('head_id' is used in case of equality)
-        #         heapq.heappushpop(top_k_heap, (candidate_res[0], heap_id, candidate_res[1], candidate_res[2]))
-        #     heap_id += 1
-        # return [ RAG_DTModel.create_from_JSONData(JSON_data=heap_res[2]) for heap_res in list(top_k_heap) ]
 
-    
 
     @override
     def check_collection_existence(self, collection_to_check: str) -> bool:
@@ -401,14 +334,12 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
     def open_connection(self, DB_connection_url: str, DB_name: str):
         self.connection = MongoClient(DB_connection_url)
         self.database = self.connection[DB_name]
-        # self.embedder = OpenAI(api_key=openai_api_key)
 
 
     @override
     def close_connection(self):
         self.connection.close()
         self.database = None
-        # self.embedder.close()
 
 
     @override

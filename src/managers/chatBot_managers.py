@@ -1,7 +1,7 @@
 from typing import override
 
-from managers.interfaces.manager_interface import Manager_I
-from services.chatBot_services.chatBot_service_interfaces import ChatBot_I
+from src.managers.interfaces.manager_interface import Manager_I
+from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
 from src.common.constants import Featured_chatBot_models_enum as chatBot_models
 
@@ -11,7 +11,6 @@ from src.services.chatBot_services.chatBot_operators import (BotLibre_chatBot_op
 
 
 
-#TODO(CREATE) implement chatBot models enum and add parameter validation
 class ChatBot_manager(Manager_I):
     """
     Generalized chatBot manager to handle chatbot interactions.

@@ -1,10 +1,9 @@
 from typing import cast, override
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-from managers.interfaces.manager_interface import Manager_I
+from src.managers.interfaces.manager_interface import Manager_I
 
-from src.common.constants import (DB_use_types_enum as DB_usage, 
-                                  Featured_storage_DB_engines_enum as storage_DB_engine, 
+from src.common.constants import (Featured_storage_DB_engines_enum as storage_DB_engine, 
                                   Featured_RAG_DB_engines_enum as RAG_DB_engine)
 
 from src.models.interfaces.config_interfaces import DB_config_I
@@ -76,7 +75,6 @@ class Abstract_DB_manager(Manager_I):
                 raise ValueError(f"The parameter '{param_name}' cannot be None.")
         if(self.DB_operator.check_collection_existence(target_collection_name) is False):
             raise ValueError(f"The target collection/table/index '{target_collection_name}' does not exist in the DB.")
-
 
 
 
@@ -183,30 +181,6 @@ class RAG_DB_manager(Abstract_DB_manager):
         self._parameters_validation(target_collection_name=target_collection_name, data_model=data_model)
         
         return self.DB_operator.update_record(target_collection_name, data_model)
-
-
-    # def get_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> RAG_DTModel:
-    #     """
-    #     Retrieves a record in the given collection/table/index using its embedded text for the exact match.
-    #     Parameters:
-    #         target_collection_name (str): The name of the collection/table/index to retrieve the file from.
-    #         embedded_text_to_find (str): The embedded text of the record to retrieve.
-    #     Returns:
-    #         DTModel: The record with the given embedded text. None if not found.
-    #     """
-    #     return self.DB_operator.get_record_using_embedded_text(target_collection_name, embedded_text_to_find)
-
-    
-    # def remove_record_using_embedded_text(self, target_collection_name: str, embedded_text_to_find: str) -> bool:
-    #     """
-    #     Retrieves and delete a record from the collection/table/index using its embedded text for the exact match.
-    #     Parameters:
-    #         target_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
-    #         title (str): The name of the article to remove.
-    #     Returns:
-    #         bool: the operation outcome.
-    #     """
-    #     return self.DB_operator.remove_record_using_embedded_text(target_collection_name, embedded_text_to_find)
 
     
     def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, vector_query: list[float], top_k: int) -> list[RAG_DTModel]:

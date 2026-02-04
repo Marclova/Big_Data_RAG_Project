@@ -27,6 +27,7 @@ class Manager_coordinator:
         self.default_Storage_DB_collection_name = default_Storage_DB_collection_name
 
 
+    #TODO(UPDATE): make method 'from storage DB' instead 'from URLs'
     def ingest_documents_from_urls(self, file_URLs: list[str], 
                                    target_index_name: str = None) -> tuple[bool, list[str]]:
         """
