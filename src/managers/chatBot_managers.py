@@ -48,13 +48,13 @@ class ChatBot_manager(Manager_I):
         return self.chatBot.get_script_as_JSON()
 
 
-    def clear_chat(self) -> bool:
-        """
-        Clears the chat history and context. Permitting the start of a new chat.
-        Returns:
-            bool: True if the chat has been deleted. False cache was already empty.
-        """
-        self.chatBot.clear_chat()
+    # def clear_chat(self) -> bool:
+    #     """
+    #     Clears the chat history and context. Permitting the start of a new chat.
+    #     Returns:
+    #         bool: True if the chat has been deleted. False cache was already empty.
+    #     """
+    #     self.chatBot.clear_chat()
 
 
     def get_chatBot_model_name(self) -> str:
@@ -67,13 +67,15 @@ class ChatBot_manager(Manager_I):
     
 
     @override
-    def connect(self, connection_config: Chatbot_config):
+    def connect(self, connection_config: Chatbot_config) -> bool:
         """
         Connects the manager to outer providers or other kind of sources using the given configurations.
             NOTE: There's not actually a connection being opened, but just a class state set for API requests.
         """
         self.chatBot = self._chatbot_operator_factory(connection_config)
         self.chatBot_model_name = connection_config.chatbot_model_name.value
+
+        return True
     
 
     @override

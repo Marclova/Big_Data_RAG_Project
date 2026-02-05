@@ -52,7 +52,7 @@ class Abstract_DB_manager(Manager_I):
         pass
 
     @override
-    def connect(self, db_config: DB_config_I):
+    def connect(self, db_config: DB_config_I) -> bool:
         return self.DB_operator.open_connection(db_config)
 
     @override
@@ -102,6 +102,20 @@ class Storage_DB_manager(Abstract_DB_manager):
         
         return self.DB_operator.update_record(target_collection_name, data_model)
 
+    
+    #TODO(FIX): make so that this method returns just a 'Cursor' instead of a 'list'
+    def get_all_records(self, target_collection_name: str) -> list[Storage_DTModel]:
+        """
+        Retrieves all the records in the given collection/table.
+        Parameters:
+            target_collection_name (str): The name of the collection/table to retrieve the files from.
+        Returns:
+            list[DTModel]: A list of all records in the collection/table.
+        """
+        self._parameters_validation(target_collection_name=target_collection_name)
+
+        return self.DB_operator.get_all_records(target_collection_name)
+
 
     def get_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
         """
@@ -115,19 +129,6 @@ class Storage_DB_manager(Abstract_DB_manager):
         self._parameters_validation(target_collection_name=input_collection_name, title=title)
 
         return self.DB_operator.get_record_using_title(input_collection_name, title)
-
-    
-    def get_all_records(self, target_collection_name: str) -> list[Storage_DTModel]:
-        """
-        Retrieves all the records in the given collection/table.
-        Parameters:
-            target_collection_name (str): The name of the collection/table to retrieve the files from.
-        Returns:
-            list[DTModel]: A list of all records in the collection/table.
-        """
-        self._parameters_validation(target_collection_name=target_collection_name)
-
-        return self.DB_operator.get_all_records(target_collection_name)
 
     
     def remove_record_using_title(self, target_collection_name: str, title: str) -> bool:
@@ -183,7 +184,8 @@ class RAG_DB_manager(Abstract_DB_manager):
         return self.DB_operator.update_record(target_collection_name, data_model)
 
     
-    def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, vector_query: list[float], top_k: int) -> list[RAG_DTModel]:
+    def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, 
+                                           vector_query: list[float], top_k: int) -> list[RAG_DTModel]:
         """
         Retrieves the top_k most similar vectors to the input query from the given collection/table/index.
         Parameters:

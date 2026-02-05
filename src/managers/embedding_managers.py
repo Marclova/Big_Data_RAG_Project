@@ -94,7 +94,7 @@ class Embedding_manager(Manager_I):
 
 
     @override
-    def disconnect(self):
+    def disconnect(self) -> None:
         """
         Deletes sensible information used for queries.
         """
