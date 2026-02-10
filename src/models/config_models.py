@@ -70,7 +70,7 @@ class Embedder_config(Configuration_model_I):
         self.embedder_api_key = embedder_api_key
 
 
-#TODO(FIX): See if you can merge 
+
 class Chatbot_config(Configuration_model_I):
     """
     Set of configurations for the BotLibre chatBot model.
@@ -96,16 +96,18 @@ class Chatbot_config(Configuration_model_I):
 
         # Specific parameters for each chatBot model
 
-        if(chatbot_model_name == chatBot_models.BOTLIBRE.value):
+        if(chatbot_model_name == chatBot_models.BOTLIBRE):
             self.username: str = other_params.get("username", None)
             self.password: str = other_params.get("password", None)
             self.bot_ID: str = other_params.get("main_bot_id", None) #labeled as 'instance' in the documentation
             self.script_ID: str = other_params.get("main_script_id", None)
             self.script_name: str = other_params.get("main_script_name", None)
-        if(chatbot_model_name == chatBot_models.OPENAI.value):
+        
+        elif(chatbot_model_name == chatBot_models.OPENAI.value):
             pass #TODO(CREATE): add specific parameters for OpenAI chatBot
 
-        raise NotImplementedError(
-            f"Dead code activation: No factory case for chatBot model named '{chatbot_model_name}'. "
-            "Did you update 'Featured_chatBot_models_enum' but forget to extend the factory method?"
-        )
+        else:
+            raise NotImplementedError(
+                f"Dead code activation: No factory case for chatBot model named '{chatbot_model_name}'. "
+                "Did you update 'Featured_chatBot_models_enum' but forget to extend the factory method?"
+            )

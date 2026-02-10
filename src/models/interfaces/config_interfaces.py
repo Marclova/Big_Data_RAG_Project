@@ -16,7 +16,6 @@ class DB_config_I(Configuration_model_I):
     def __init__(self, db_engine: str, connection_url: str, *args):
         pass
 
-#TODO(UPDATE): see how much specific parameters can be added to this interface (evaluation post OpenAI integration)
 class ChatBot_config_I(Configuration_model_I):
     """
     Marker interface for chatBot configurations.

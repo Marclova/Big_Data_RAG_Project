@@ -20,6 +20,7 @@ class Abstract_DB_manager(Manager_I):
     Abstract class not meant to be initialized nor to be used for an abstract design pattern.
     It contains the methods common between all the DB managers.
     """
+    selected_DB_name: str
     DB_operator: DB_operator_I
 
 
@@ -50,6 +51,16 @@ class Abstract_DB_manager(Manager_I):
             bool: the operation outcome.
         """
         pass
+
+    def get_selected_DB_name(self) -> str:
+        """
+        Returns the name of the DB assigned to this manager.
+        """
+        return self.DB_operator.get_DB_name()
+
+    @override
+    def get_configuration_info(self) -> str:
+        return self.DB_operator.get_configuration_info()
 
     @override
     def connect(self, db_config: DB_config_I) -> bool:
@@ -153,7 +164,7 @@ class RAG_DB_manager(Abstract_DB_manager):
     def __init__(self, DB_config: RAG_DB_config):
         if(DB_config is None):
             raise ValueError("The DB configuration cannot be None.")
-
+        
         self.DB_operator: RAG_DB_operator_I = _DB_operator_factory.initialize_RAG_db_operator(DB_config)
 
     def insert_records(self, target_collection_name: str, data_models: list[RAG_DTModel]) -> bool:

@@ -68,6 +68,20 @@ class DB_operator_I(ABC):
         """
 
     @abstractmethod
+    def get_DB_name(self) -> str:
+        """
+        Returns the name of the DB connected with this operator.
+        """
+
+    @abstractmethod
+    def get_configuration_info(self) -> str:
+        """
+        Debugging or final-user display method to represent the information 
+        used to initialize this operator (except sensible info)
+        """
+        pass
+
+    @abstractmethod
     def get_engine_name(self) -> str:
         """
         Gets the name of the DB engine.

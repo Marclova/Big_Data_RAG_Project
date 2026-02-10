@@ -116,9 +116,12 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
     def open_connection(self, DB_connection_url: str, DB_name: str) -> bool:
         if((DB_connection_url is None) or (DB_name is None)):
             raise ValueError("MongoDB connection URL and DB name must be provided.")
-
-        self.connection = MongoClient(DB_connection_url)
-        self.database = self.connection[DB_name]
+        try:
+            self.connection = MongoClient(DB_connection_url)
+            self.database = self.connection[DB_name]
+        except Exception as e:
+            print(f"Error while connecting to storage DB: {e}") #TODO(polishing): consider another logging method
+            return False
         return True
 
 
@@ -126,6 +129,20 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
     def close_connection(self):
         self.connection.close()
         self.database = None
+
+
+    @override
+    def get_configuration_info(self) -> str:
+        return ("Storage_DB: {\n"
+                f"   DB_engine: '{self.get_engine_name()}',\n"
+                f"   database_name: '{self.get_DB_name()}',\n"
+                f"   access_type: 'local host',\n"
+                f"   DB_url: '{self.database.client.address}'\n"
+                "}")
+    
+
+    def get_DB_name(self):
+        return self.database.name
 
 
     @override
@@ -141,8 +158,10 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
     def __init__(self, dbname: str, host: str, port: int, user: str, passwd: str):
         if((dbname is None) or (host is None) or (port is None) or (user is None) or (passwd is None)):
             raise ValueError("All PostgreSQL connection parameters must be provided.")
-        self.database: PyGreSQLClient
         
+        self.database_name: str = dbname
+        self.database: PyGreSQLClient
+
         self.open_connection(dbname, host, port, user, passwd)
 
 
@@ -213,16 +232,37 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
 
 
     @override
-    def open_connection(self, dbname: str, host: str, port: int, user: str, passwd: str):
+    def open_connection(self, dbname: str, host: str, port: int, user: str, passwd: str) -> bool:
         if((dbname is None) or (host is None) or (port is None) or (user is None) or (passwd is None)):
             raise ValueError("All PostgreSQL connection parameters must be provided.")
 
-        self.database = PyGreSQLClient(dbname, host, port, user, passwd)
+        try:
+            self.database = PyGreSQLClient(dbname, host, port, user, passwd)
+        except Exception as e:
+            print(f"Error while connecting to storage DB: {e}") #TODO(polishing): consider another logging method
+            return False
+        return True
 
 
     @override
     def close_connection(self):
         self.database.close()
+
+
+    @override
+    def get_configuration_info(self) -> str:
+        return ("Storage_DB: {"
+                f"   DB_engine: '{self.get_engine_name()}',\n"
+                f"   database_name: '{self.get_DB_name()}',\n"
+                f"   access_type: 'user and password',\n"
+                f"   DB_url: '{self.database.host}',\n"
+                f"   user: '{self.database.user}'\n"
+                "}")
+    
+
+    @override
+    def get_DB_name(self):
+        return self.database_name
 
 
     @override

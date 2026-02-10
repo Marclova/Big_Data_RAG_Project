@@ -19,15 +19,24 @@ class Pinecone_embedder(Embedder_I):
     """
     This class uses the Pinecone API for embedding text files (ex. TXT, PDF).
     """
-    def __init__(self, embedder_model_name: str, embedder_api_key: str):
-        if((embedder_model_name is None) or (embedder_api_key is None)):
+    def __init__(self, embedder_model_name: embed_models, embedder_api_key: str):
+        if((embedder_model_name is None) or 
+           (embedder_api_key is None) or (embedder_api_key == "")):
             raise ValueError("Embedding model name and API key must be provided")
-        if(not embed_models.has_value(value=embedder_model_name)):
+        if(not embed_models.has_value(value=embedder_model_name.value)):
             raise ValueError(f"Embedding model '{embedder_model_name}' not featured")
         
         self.embedder: Inference = Pinecone(api_key=embedder_api_key).inference
         self.embedder_name: str = embedder_model_name
 
+
+    @override
+    def get_configuration_info(self) -> str:
+        return ("Embedder: {\n"
+                f"   embedder_name: '{self.get_embedder_name()}',\n"
+                f"   access_type: 'API key'"
+                f"   API_key: '{self.embedder.config.api_key}'\n"
+                "}")
     
 
     @override

@@ -18,6 +18,14 @@ class ChatBot_I(ABC):
         pass
 
     @abstractmethod
+    def get_configuration_info(self) -> str:
+        """
+        Debugging or final-user display method to represent the information 
+        used to initialize this operator (except sensible info)
+        """
+        pass
+
+    @abstractmethod
     def set_chatbot_script(self, script_content: list[str]) -> bool:
         """
         Method to set the bot's script with the provided content.
@@ -30,7 +38,7 @@ class ChatBot_I(ABC):
         pass
 
     @abstractmethod
-    def send_message(self, message: str) -> str:
+    def send_message(self, message: str, responseInfo: set[str]) -> str:
         """
         Method to send a message to the chatBot and receive a response.
         The bot's script is supposed to be already set up by the 'set_chatbot_script' method.

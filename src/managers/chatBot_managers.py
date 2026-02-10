@@ -21,6 +21,11 @@ class ChatBot_manager(Manager_I):
 
         self.connect(bot_config)
 
+    
+    @override
+    def get_configuration_info(self) -> str:
+        return self.chatBot.get_configuration_info()
+
 
     def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
         """
@@ -75,6 +80,7 @@ class ChatBot_manager(Manager_I):
         self.chatBot = self._chatbot_operator_factory(connection_config)
         self.chatBot_model_name = connection_config.chatbot_model_name.value
 
+        #TODO(refinement): implement a connection check by performing a get (this operator's API doesn't work)
         return True
     
 

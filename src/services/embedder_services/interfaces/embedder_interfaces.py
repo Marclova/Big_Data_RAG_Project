@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from src.common.constants import Featured_embedding_models_enum as embed_models
+
 
 floatVector = list[float]
 
@@ -10,7 +12,15 @@ class Embedder_I(ABC):
     returning them as RAG_DTModels for DB interactions.
     """
     @abstractmethod
-    def __init__(self, embedder_model_name: str, embedder_api_key: str):
+    def __init__(self, embedder_model_name: embed_models, embedder_api_key: str):
+        pass
+
+    @abstractmethod
+    def get_configuration_info(self) -> str:
+        """
+        Debugging or final-user display method to represent the information 
+        used to initialize this operator (except sensible info)
+        """
         pass
 
     @abstractmethod

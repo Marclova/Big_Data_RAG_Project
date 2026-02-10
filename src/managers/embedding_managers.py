@@ -24,6 +24,11 @@ class Embedding_manager(Manager_I):
         self.embedder: Embedder_I
         
         self.connect(config)
+
+
+    @override
+    def get_configuration_info(self) -> str:
+        return self.embedder.get_configuration_info()
         
 
     #TODO(UPDATE): If possible, find a way so that the webScraper can gather authors from the file
@@ -88,7 +93,11 @@ class Embedding_manager(Manager_I):
         Connects the manager to outer providers or other kind of sources using the given configurations.
             NOTE: There's not actually a connection being opened, but just a class state set for API requests.
         """
-        self.embedder: Embedder_I = self._embedder_operator_factory(connection_config.embedder_model_name, connection_config.embedder_api_key)
+        try:
+            self.embedder: Embedder_I = self._embedder_operator_factory(connection_config.embedder_model_name, connection_config.embedder_api_key)
+        except Exception as e:
+            print(f"Error during embedder connection: {e}") #TODO(polishing): consider another logging method
+            return False
         return True
         
 

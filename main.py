@@ -1,163 +1,75 @@
-from src.managers.DB_managers import Abstract_DB_manager
+import os
+import tkinter as tk
+import yaml
 
-from src.models.interfaces.config_interfaces import DB_config_I
-from src.models.config_models import (Chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config)
+from src.common.constants import Featured_storage_DB_engines_enum as Storage_DB_enums
+from src.common.constants import Featured_RAG_DB_engines_enum as RAG_DB_enums
+from src.common.constants import Featured_embedding_models_enum as Embedder_enums
+from src.common.constants import Featured_chatBot_models_enum as Chatbot_enums
 
-from src.models.interfaces.data_model_interface import DTModel_I
-from src.models.data_models import RAG_DTModel, Storage_DTModel
+from src.models.config_models import Chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config
 
-from src.coordinators.manager_coordinator import Manager_coordinator
-from src.managers.DB_managers import (RAG_DB_manager, Storage_DB_manager)
-from src.managers.chatBot_managers import ChatBot_manager
-from src.managers.embedding_managers import Embedding_manager
+from src.GUI.gui import AppGUI
 
-
-
-class Application_controller:
-
-    def __init__(self, storage_config: Storage_DB_config, rag_config: RAG_DB_config, 
-                 embedder_config: Embedder_config, chatbot_config: Chatbot_config, 
-                 default_RAG_DB_index_name: str, default_Storage_DB_collection_name: str):
-        
-        #parameters checks are performed in classes constructors
-        self.storage_db_manager = Storage_DB_manager(storage_config)
-        self.rag_db_manager = RAG_DB_manager(rag_config)
-        self.embedding_manager = Embedding_manager(embedder_config)
-        self.chatbot_manager = ChatBot_manager(chatbot_config)
-
-        self.default_RAG_DB_index_name = default_RAG_DB_index_name
-        self.default_Storage_DB_collection_name = default_Storage_DB_collection_name
-
-        self.manager_coordinator = Manager_coordinator(self.storage_db_manager, self.rag_db_manager,
-                                                       self.embedding_manager, self.chatbot_manager, 
-                                                       self.default_Storage_DB_collection_name, 
-                                                       self.default_RAG_DB_index_name)
+from src.controllers.application_controller import Application_controller
 
 
-    #region Manager_coordinator methods
+
+if __name__=="__main__":
+
+    #region yaml parameters initialization
+
+    # stream = open(os.path.join("src", "app_config_input.yaml"), 'r', encoding="utf-8")
+    stream = open("app_config_input.yaml", 'r', encoding="utf-8")
+    application_config = yaml.safe_load(stream)
+    stream.close()
     
-    def ingest_all_documents_from_storage(self, target_storage_collection_name: str = None, 
-                                          target_RAG_index_name: str = None) -> tuple[bool, list[str]]:
-        return self.manager_coordinator.ingest_all_documents_from_storage(target_storage_collection_name, 
-                                                                          target_RAG_index_name)
+    append_config: dict[str, any] #used as append variable to extract data from the structured yaml file
 
+    used_storage_DB: Storage_DB_enums = Storage_DB_enums.MONGODB
+    used_RAG_DB: RAG_DB_enums = RAG_DB_enums.MONGODB
+    used_embedder_model_name: Embedder_enums = Embedder_enums.PINECONE_LLAMA_TEXT_EMBED_V2
+    used_embedder_APIkey: str = "Pinecone_APIkey"
+    used_chatbot: Chatbot_enums = Chatbot_enums.BOTLIBRE
 
-    def ingest_documents_from_urls(self, file_URLs: list[str], 
-                                   target_RAG_index_name: str = None) -> tuple[bool, list[str]]:
-        return self.ingest_documents_from_urls(file_URLs, target_RAG_index_name)
+    default_RAG_DB_index_name: str = application_config["storage_collection_name"]
+    default_Storage_DB_collection_name: str = application_config["rag_index_name"]
 
-
-    def reply_to_question(self, question: str) -> str:
-        return self.manager_coordinator.reply_to_question(question)
-
-
-    def reply_to_question_raw_response(self, question: str) -> list[RAG_DTModel]:
-        return  self.manager_coordinator.reply_to_question_raw_response(question)
-
-
-    def disconnect_all_managers(self) -> None:
-        self.manager_coordinator.disconnect_all_managers()
+    # initialize storage DB configuration object
+    append_config = application_config[used_storage_DB.value]
+    storage_config = Storage_DB_config(db_engine = used_storage_DB,
+                                       connection_url = append_config.get("db_connection_url"), 
+                                       port = append_config.get("port"), 
+                                       database_name = append_config.get("db_name"), 
+                                       username = append_config.get("username"), 
+                                       password = append_config.get("password"))
     
-    #endregion Manager_coordinator methods
+    # initialize RAG DB configuration object
+    append_config = application_config[used_RAG_DB.value]
+    rag_config = RAG_DB_config(db_engine = used_RAG_DB, 
+                               api_key = append_config.get("api_key"), 
+                               connection_url = append_config.get("db_connection_url"), 
+                               database_name = append_config.get("db_name"))
+
+    # initialize embedder configuration object
+    append_config = application_config["embedder_api_keys"]
+    embedder_config = Embedder_config(embedder_model_name = used_embedder_model_name, 
+                                      embedder_api_key= append_config.get(used_embedder_APIkey))
 
 
-    #region Abstract_DB_manager methods
+    append_config = application_config[used_chatbot.value]
+    chatbot_config = Chatbot_config(chatbot_model_name= used_chatbot, 
+                                    api_key = append_config.get("api_key"), 
+                                    other_params = append_config.get("other_params"))
 
-    def static_insert_record(operating_DB_manager: Abstract_DB_manager, 
-                             target_collection_name: str, data_model: DTModel_I) -> bool:
-        return operating_DB_manager.insert_record(target_collection_name, data_model)
+    #endregion yaml parameters initialization
 
-
-    def static_update_record(operating_DB_manager: Abstract_DB_manager, 
-                             target_collection_name: str, data_model: DTModel_I) -> bool:
-        return operating_DB_manager.update_record(target_collection_name, data_model)
-    
-
-    def static_reconnect_to_DB(operating_DB_manager: Abstract_DB_manager, 
-                               db_config: DB_config_I) -> bool:
-        return operating_DB_manager.connect(db_config)
-
-
-    def static_disconnect_from_DB(operating_DB_manager: Abstract_DB_manager):
-        return operating_DB_manager.disconnect()
-
-    #endregion Abstract_DB_manager methods
-
-
-    #region Storage_DB_manager methods
-
-    def get_all_storage_records(self, target_collection_name: str) -> list[Storage_DTModel]:
-        return self.storage_db_manager.get_all_records(target_collection_name)
-
-
-    def get_storage_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
-        return self.storage_db_manager.get_record_using_title(input_collection_name, title)
-
-
-    def remove_storage_record_using_title(self, target_collection_name: str, title: str) -> bool:
-        return self.storage_db_manager.remove_record_using_title(target_collection_name, title)
-
-    #endregion Storage_DB_manager methods
-
-
-    #region RAG_DB_manager methods
-
-    def insert_multiple_RAG_records(self, target_collection_name: str, data_models: list[RAG_DTModel]) -> bool:
-        return self.rag_db_manager.insert_records(target_collection_name, data_models)
-
-
-    def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, 
-                                           vector_query: list[float], top_k: int) -> list[RAG_DTModel]:
-        return self.rag_db_manager.retrieve_vectors_using_vectorQuery(target_collection_name, vector_query, 
-                                                                      top_k)
-    
-    #endregion RAG_DB_manager methods
-
-    
-    #region Embedding_manager methods
-
-    def generate_embeddings_from_URL(self, file_URL: str, file_authors = None) -> list[RAG_DTModel]:
-        return self.embedding_manager.generate_embeddings_from_URL(file_URL, file_authors)
-
-
-    def generate_vector_query_from_text(self, text_query: str) -> list[float]:
-        return self.embedding_manager.generate_vector_query_from_text(text_query)
-    
-
-    def reset_embedder_API_setup(self, connection_config: Embedder_config) -> bool:
-        return self.embedding_manager.connect(connection_config)
-
-
-    def delete_embedder_API_info(self) -> None:
-        self.embedding_manager.disconnect()
-    
-    #endregion Embedding_manager methods
-
-
-    #region Chatbot_manager methods
-
-    def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
-        return self.chatbot_manager.send_message_with_responseInfo(message, responseInfo)
-
-
-    def reset_chatbot_API_setup(self, connection_config: Chatbot_config) -> bool:
-        return self.chatbot_manager.connect(connection_config)
-
-
-    def delete_chatbot_API_info(self) -> None:
-        return self.chatbot_manager.disconnect()
-    
-    #endregion Chatbot_manager methods
-
-
-    #region GUI methods
-    
-    #TODO(CREATE): define and implement methods (class unexistent)
-    
-    #endregion GUI methods
-
-
-
-#TODO(CREATE): define imperative main
-if __name__()=="__main__":
-    pass
+    root = tk.Tk()
+    controller = Application_controller(storage_config = storage_config, 
+                                        rag_config = rag_config, 
+                                        embedder_config = embedder_config, 
+                                        chatbot_config = chatbot_config, 
+                                        default_RAG_DB_index_name = default_RAG_DB_index_name, 
+                                        default_Storage_DB_collection_name = default_Storage_DB_collection_name)
+    AppGUI(root, controller)
+    root.mainloop()

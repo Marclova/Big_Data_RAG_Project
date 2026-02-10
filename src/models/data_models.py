@@ -120,6 +120,7 @@ class RAG_DTModel(Storage_DTModel):
             }	
         }
     
+    
 
     def _fields_check(self) -> None:
         """
@@ -137,6 +138,17 @@ class RAG_DTModel(Storage_DTModel):
             raise ValueError("Embedder name cannot be None.")
         if(not embed_models.has_value(value=self.embedder_name)):
             raise ValueError(f"Embedder '{self.embedder_name}' is not featured.")
+        
+
+    @override
+    def __str__(self):
+        return self.text
+        
+
+    @override
+    def __repr__(self):
+        return "<- "+self.text+" ->\n"
+        
 
 
 

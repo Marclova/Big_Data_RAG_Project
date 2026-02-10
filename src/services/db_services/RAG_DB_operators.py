@@ -3,6 +3,7 @@ import heapq
 import math
 import numpy
 from typing import Any, override
+from urllib.parse import urlparse
 
 from pinecone import (Pinecone as PineconeClient, SearchQuery, UpsertResponse)
 from pinecone.db_data import IndexAsyncio
@@ -71,6 +72,17 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
     @override
+    def get_configuration_info(self) -> str:
+        return ("RAG_DB: {"
+                f"   DB_engine: '{self.get_engine_name()}',\n"
+                f"   database_name: {self.get_index_name()},\n"
+                f"   access_type: 'apy key',\n"
+                f"   DB_url: '{self.database.config.host}',\n"
+                f"   API_key: '{self.database.config.api_key}'\n"
+                "}")
+
+
+    @override
     async def insert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (data_model is None)):
@@ -120,9 +132,14 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
     @override
-    def open_connection(self, api_key: str, host: str):
-        self.connection = PineconeClient(api_key)
-        self.database = self.connection.Index(host=host)
+    def open_connection(self, api_key: str, host: str) -> bool:
+        try:
+            self.connection = PineconeClient(api_key)
+            self.database = self.connection.Index(host=host)
+        except Exception as e:
+            print(f"Error while connecting to RAG DB: {e}") #TODO(polishing): consider another logging method
+            return False
+        return True
 
 
     @override
@@ -133,6 +150,10 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
     @override
     def get_engine_name(self) -> str:
         return RAG_engines_enum.PINECONE
+    
+    def get_index_name(self) -> str:
+        url: str = urlparse(self.database.config.host).hostname
+        return url.split("-")[0]
     
 
 
@@ -331,15 +352,35 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
 
     @override
     # def open_connection(self, DB_connection_url: str, DB_name: str, openai_api_key: str):
-    def open_connection(self, DB_connection_url: str, DB_name: str):
-        self.connection = MongoClient(DB_connection_url)
-        self.database = self.connection[DB_name]
+    def open_connection(self, DB_connection_url: str, DB_name: str) -> bool:
+        try:
+            self.connection = MongoClient(DB_connection_url)
+            self.database = self.connection[DB_name]
+        except Exception as e:
+            print(f"Error while connecting to RAG DB: {e}") #TODO(polishing): consider another logging method
+            return False
+        return True
 
 
     @override
     def close_connection(self):
         self.connection.close()
         self.database = None
+
+
+    @override
+    def get_configuration_info(self) -> str:
+        return ("RAG_DB: {\n"
+                f"   DB_engine: '{self.get_engine_name()} (built-in vectorial ver.)',\n"
+                f"   database_name: '{self.get_DB_name()}',\n"
+                f"   access_type: 'local host',\n"
+                f"   DB_url: '{self.database.client.address}'\n"
+                "}")
+    
+
+    @override
+    def get_DB_name(self):
+        return self.database.name
 
 
     @override

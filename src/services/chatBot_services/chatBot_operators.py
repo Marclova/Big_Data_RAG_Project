@@ -3,6 +3,8 @@ from typing import override
 # from aiohttp import FormData
 import requests
 
+from src.common.constants import Featured_chatBot_models_enum as Chatbot_enums
+
 from src.models.config_models import Chatbot_config
 
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
@@ -32,7 +34,20 @@ class BotLibre_chatBot_operator(ChatBot_I):
             if(not self.is_script_ephemeral):
                 raise ValueError("If no script_name is provided, 'create_ephemeral_script' must be set to True")
             raise NotImplementedError("Ephemeral script creation not implemented yet")
-
+        
+    
+    @override
+    def get_configuration_info(self) -> str:
+        return ("ChatBot: {\n"
+                f"   chatbot_model: '{self.get_chatbot_model()}',\n"
+                f"   bot_ID: '{self.bot_ID}',\n"
+                f"   script_ID: '{self.script_ID}',\n"
+                f"   script_name: '{self.script_name}',\n"
+                f"   is_script_ephemeral: '{self.is_script_ephemeral}',\n"
+                f"   access_type: 'username and password',\n"
+                f"   username: '{self.username}',\n"
+                f"   user_ID: '{self.user_ID}',\n"
+                )
 
     # def get_all_botLibre_bots(self) -> any:
     #     var request = new XMLHttpRequest();
@@ -84,7 +99,8 @@ class BotLibre_chatBot_operator(ChatBot_I):
 
     #TODO(CREATE): implement method
     @override
-    def send_message(self, message: str) -> str:
+    def send_message(self, message: str, responseInfo: set[str]) -> str:
+        return "BotLibre has not been implemented"
         pass
 
 
@@ -92,6 +108,9 @@ class BotLibre_chatBot_operator(ChatBot_I):
     @override
     def get_script_as_JSON(self) -> dict[str,any]:
         pass
+
+    def get_chatbot_model(self) -> str:
+        return Chatbot_enums.BOTLIBRE
 
 
     #TODO(CREATE): implement method

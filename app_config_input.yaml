@@ -1,0 +1,44 @@
+#region DB configs
+
+storage_db_name : "testDB"
+storage_collection_name : "records"
+rag_db_name : "testDB"
+rag_index_name : "unitTestEmbeddingsPinecone"
+
+#Both for storage and RAG operations
+MongoDB: {
+  db_connection_url : "mongodb://localhost:27017/",
+  db_name : "testDB"
+}
+
+#TODO(CREATE): Pinecone
+
+#TODO(CREATE): PyGreSQL
+
+#endregion DB configs
+
+#region embedder configs
+
+embedder_api_keys: {
+  Pinecone_APIkey: "",
+  OpenAI_APIkey: ""
+}
+
+#endregion embedder configs
+
+#region chatbot region
+
+BotLibre: {
+  api_key: "", #also known as 'user ID' or'application ID'
+  other_params : {
+    username: "Marclova",
+    password: "",
+    main_bot_id: "", #also known as 'instance ID'
+    main_script_id: "",
+    main_script_name: ""
+  }
+}
+
+#TODO(CREATE): openAI chatbot
+
+##endregion chatbot region
