@@ -77,4 +77,3 @@ class ChatBot_I(ABC):
         This method is meant to be used before the deletion of the object or when the chatBot service is not needed anymore.
         """
         pass
-    

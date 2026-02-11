@@ -1,4 +1,4 @@
-from typing import cast, override
+from typing import override
 from abc import abstractmethod
 
 from src.managers.interfaces.manager_interface import Manager_I
@@ -13,6 +13,7 @@ from src.models.data_models import Storage_DTModel, RAG_DTModel
 
 from src.services.db_services.interfaces.DB_operator_interfaces import DB_operator_I, RAG_DB_operator_I, Storage_DB_operator_I
 from src.services.db_services import storage_DB_operators, rag_DB_operators
+
 
 
 class Abstract_DB_manager(Manager_I):
@@ -67,7 +68,7 @@ class Abstract_DB_manager(Manager_I):
         return self.DB_operator.open_connection(db_config)
 
     @override
-    def disconnect(self):
+    def disconnect(self) -> None:
         self.DB_operator.close_connection()
 
     
@@ -157,6 +158,7 @@ class Storage_DB_manager(Abstract_DB_manager):
 
 
 
+
 class RAG_DB_manager(Abstract_DB_manager):
     """
     Manager for DB operations to embed papers and store embeddings.
@@ -177,7 +179,6 @@ class RAG_DB_manager(Abstract_DB_manager):
         for data_model in data_models:
             if(not self.insert_record(target_collection_name, data_model)):
                 flag = False
-                print(f"ERROR: insertion of record with embedded_text starting with '{data_model.text[:30]}...' failed.") #TODO(polishing) Consider another logging method
         return flag
 
 
@@ -209,7 +210,8 @@ class RAG_DB_manager(Abstract_DB_manager):
         self._parameters_validation(target_collection_name=target_collection_name, vector_query=vector_query, top_k=top_k)
 
         return self.DB_operator.retrieve_embeddings_from_vector(target_collection_name, vector_query, top_k)
-        
+
+
 
 
 class _DB_operator_factory:

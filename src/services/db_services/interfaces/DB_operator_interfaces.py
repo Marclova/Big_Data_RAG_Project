@@ -6,6 +6,7 @@ from src.models.data_models import Storage_DTModel, RAG_DTModel
 
 floatVector = list[float]
 
+
 class DB_operator_I(ABC):
     """
     This is an abstract class that defines the interface for database operators.

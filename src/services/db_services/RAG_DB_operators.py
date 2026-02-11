@@ -1,5 +1,5 @@
 import asyncio
-import heapq
+import logging
 import math
 import numpy
 from typing import Any, override
@@ -22,10 +22,7 @@ from src.services.db_services.interfaces.DB_operator_interfaces import RAG_DB_op
 from src.models.data_models import RAG_DTModel
 
 
-"""
- Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.
- Selected DBs are Pinecone and MongoDB
-"""
+#region custom types
 TOLERANCE = 0.85
 json = dict[str, Any]
 floatVector = list[float]
@@ -52,6 +49,12 @@ class _VectorModel:
         self.similarity_to_query = similarity_to_query
         self.json_RAGDTModel = json_RAGDTModel
         self.vector = vector
+#endregion custom types
+
+"""
+ Service module to manage the connection and operations on a database meant to store embedded data for argument retrieval.
+ Selected DBs are Pinecone and MongoDB
+"""
 
 
 
@@ -66,7 +69,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
         self.connection: PineconeClient
         self.database: IndexAsyncio
-        # self.host: str
 
         self.open_connection(api_key, host)
 
@@ -111,7 +113,8 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
     @override
-    async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
+    async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: list[floatVector], 
+                                              top_k: int) -> list[RAG_DTModel]:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (query_vector is None) or (top_k is None)):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
@@ -137,7 +140,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
             self.connection = PineconeClient(api_key)
             self.database = self.connection.Index(host=host)
         except Exception as e:
-            print(f"Error while connecting to RAG DB: {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to connect to the RAG DB '{self.get_DB_name()}': {e}")
             return False
         return True
 
@@ -150,6 +153,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
     @override
     def get_engine_name(self) -> str:
         return RAG_engines_enum.PINECONE
+    
     
     def get_index_name(self) -> str:
         url: str = urlparse(self.database.config.host).hostname
@@ -217,6 +221,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
 
+
 class RAG_MongoDB_operator(RAG_DB_operator_I):
     """
     MongoDB-based backend providing vector storage, embedding support, and 
@@ -253,7 +258,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
     @override
     def insert_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
         if self._check_record_existence_using_embedded_text(target_collection_name, data_model.text):
-            print(f"Error while inserting the record with embedded text '{data_model.text}' into '{target_collection_name}': record already exists.") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to insert the record with embedded text '{data_model.text}' into '{target_collection_name}': record already exists.")
             return False
         
         return self._insert_update_record(target_collection_name, data_model)
@@ -262,10 +267,11 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
     @override    
     def update_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
         if not self._check_record_existence_using_embedded_text(target_collection_name, data_model.text):
-            print(f"Error while updating the record with embedded text '{data_model.text}' in '{target_collection_name}': record not existing.") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to update the record with embedded text '{data_model.text}' in '{target_collection_name}': record not existing.")
             return False
         
         return self._insert_update_record(target_collection_name, data_model)
+
 
     #TODO(improvement): Implement normalized vector checking and eventual normalization (using 'raw_data_operator.py')
     @override
@@ -273,7 +279,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
         if( (target_collection_name is None) or (normalized_query_vector is None) or (top_k is None) ):
             raise ValueError("The method 'retrieve_embeddings_from_vector' has been called with one or more required parameters as 'None'")
         if(not self.check_collection_existence(target_collection_name)):
-            print(f"ERROR: No collection named '{target_collection_name}' in DB '{self.database.name}'")
+            logging.info(f"[ERROR]: No collection named '{target_collection_name}' in DB '{self.database.name}'")
         if(len(normalized_query_vector) == 0 or top_k <= 0):
             return []
 
@@ -311,7 +317,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
         # applying 'divide...
         asyncio.run( __find_k_best_matches(normalized_query_vector) ) # after this execution, 'global_results' will contain 'len(all_records)/batch_size * top_m' best matches
         if(len(global_results) == 0):
-            print(f"ERROR: The collection '{target_collection_name}' is empty or not connected.") #TODO(polishing): consider another logging method
+            logging.info(f"[INFO]: The collection '{target_collection_name}' is empty or not connected.")
             return []
         
         # ...et impera'
@@ -357,7 +363,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
             self.connection = MongoClient(DB_connection_url)
             self.database = self.connection[DB_name]
         except Exception as e:
-            print(f"Error while connecting to RAG DB: {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to connect to the RAG DB '{self.get_engine_name()}': {e}")
             return False
         return True
 
@@ -412,7 +418,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
                 }
             }) is not None )
         except Exception as e:
-            print(f"Error while inserting the record with embedded text '{data_model.text}' into '{target_collection_name}': {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to insert the record with embedded text '{data_model.text[:30]}' into '{target_collection_name}': {e}")
             return False
         
 

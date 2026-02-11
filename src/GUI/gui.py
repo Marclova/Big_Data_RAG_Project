@@ -29,7 +29,8 @@ class AppGUI:
 
     def _display_configurations(self):
         logging.info(self.controller.get_configuration_info())
-    
+
+
     def _send_question_for_RAG_response(self):
         question = self.message_input_entry.get()
         if(question == ""):
@@ -130,6 +131,7 @@ class AppGUI:
         self.log_text["yscrollcommand"] = scrollbar.set
 
 
+
     def _build_controls(self):
         frame = ttk.Frame(self.root)
         frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
@@ -194,66 +196,3 @@ class AppGUI:
             )
         )
         logging.getLogger().addHandler(handler)
-
-
-
-# class AppGUI:
-#     def __init__(self, root: tk.Tk, on_action_callback: Callable[[str], None]):
-#         self.root = root
-#         self.root.title("Project GUI")
-#         self.root.geometry("900x500")
-
-#         # layout principale
-#         self.root.columnconfigure(0, weight=3)
-#         self.root.columnconfigure(1, weight=1)
-#         self.root.rowconfigure(0, weight=1)
-
-#         self._build_log_panel()
-#         self._build_controls(on_action_callback)
-#         self._setup_logging()
-
-
-
-#     def _build_log_panel(self):
-#         frame = ttk.Frame(self.root)
-#         frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-
-#         frame.rowconfigure(0, weight=1)
-#         frame.columnconfigure(0, weight=1)
-
-#         self.log_text = tk.Text(
-#             frame,
-#             state="disabled",
-#             wrap="word"
-#         )
-#         self.log_text.grid(row=0, column=0, sticky="nsew")
-
-#         scrollbar = ttk.Scrollbar(frame, command=self.log_text.yview)
-#         scrollbar.grid(row=0, column=1, sticky="ns")
-#         self.log_text["yscrollcommand"] = scrollbar.set
-
-
-#     def _build_controls(self, callback):
-#         frame = ttk.Frame(self.root)
-#         frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
-
-#         ttk.Label(frame, text="Input:").pack(anchor="w")
-#         self.input_entry = ttk.Entry(frame)
-#         self.input_entry.pack(fill="x", pady=5)
-
-#         ttk.Button(
-#             frame,
-#             text="Esegui",
-#             command=lambda: callback(self.input_entry.get())
-#         ).pack(fill="x", pady=5)
-
-
-#     def _setup_logging(self):
-#         handler = TkinterLogHandler(self.log_text)
-#         handler.setFormatter(
-#             logging.Formatter(
-#                 "%(asctime)s [%(levelname)s] %(message)s",
-#                 "%H:%M:%S"
-#             )
-#         )
-#         logging.getLogger().addHandler(handler)

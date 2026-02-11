@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import override
 
@@ -19,7 +20,6 @@ class Embedding_manager(Manager_I):
     """
     Generalized embedding manager to handle text embeddings.
     """
-
     def __init__(self, config: Embedder_config):        
         self.embedder: Embedder_I
         
@@ -47,6 +47,7 @@ class Embedding_manager(Manager_I):
 
         file_path: str = webScraper.download_file(file_URL)
         file_name = os.path.basename(file_path)
+        logging.info(f"[INFO]: Embedding file '{file_name} from {file_URL}...'")
 
         partition_result: dict[str,any] = rawOperator.extract_partition_text_and_metadata_from_file(file_path, pop_file=True)
         textChunkList: list[str] = partition_result["text_chunks"]
@@ -60,6 +61,7 @@ class Embedding_manager(Manager_I):
                                         title=file_name, pages=partition_result["pages_count"], 
                                         text=text, authors=file_authors, id=None)
                         )
+        logging.info(f"[INFO]: File '{file_name}' correctly embedded.")
         return DTModel_list
     
 
@@ -96,7 +98,7 @@ class Embedding_manager(Manager_I):
         try:
             self.embedder: Embedder_I = self._embedder_operator_factory(connection_config.embedder_model_name, connection_config.embedder_api_key)
         except Exception as e:
-            print(f"Error during embedder connection: {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to connect with the embedder service: {e}") #TODO(polishing): consider another logging method
             return False
         return True
         
@@ -108,7 +110,6 @@ class Embedding_manager(Manager_I):
         Deletes sensible information used for queries.
         """
         self.embedder.delete_sensitive_info()
-    
     
 
 

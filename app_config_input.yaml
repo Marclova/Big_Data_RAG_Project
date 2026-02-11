@@ -34,8 +34,8 @@ BotLibre: {
     username: "Marclova",
     password: "",
     main_bot_id: "", #also known as 'instance ID'
-    main_script_id: "",
-    main_script_name: ""
+    main_script_id: 
+    main_script_name: 
   }
 }
 

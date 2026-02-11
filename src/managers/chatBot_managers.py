@@ -1,3 +1,4 @@
+import logging
 from typing import override
 
 from src.managers.interfaces.manager_interface import Manager_I
@@ -53,15 +54,6 @@ class ChatBot_manager(Manager_I):
         return self.chatBot.get_script_as_JSON()
 
 
-    # def clear_chat(self) -> bool:
-    #     """
-    #     Clears the chat history and context. Permitting the start of a new chat.
-    #     Returns:
-    #         bool: True if the chat has been deleted. False cache was already empty.
-    #     """
-    #     self.chatBot.clear_chat()
-
-
     def get_chatBot_model_name(self) -> str:
         """
         Gets the name of the chatBot model used by the chatBot_manager.
@@ -77,8 +69,11 @@ class ChatBot_manager(Manager_I):
         Connects the manager to outer providers or other kind of sources using the given configurations.
             NOTE: There's not actually a connection being opened, but just a class state set for API requests.
         """
-        self.chatBot = self._chatbot_operator_factory(connection_config)
-        self.chatBot_model_name = connection_config.chatbot_model_name.value
+        try:
+            self.chatBot = self._chatbot_operator_factory(connection_config)
+            self.chatBot_model_name = connection_config.chatbot_model_name.value
+        except Exception as e:
+            logging.info(f"[ERROR]: Failed to connect with the chatbot service: {e}")
 
         #TODO(refinement): implement a connection check by performing a get (this operator's API doesn't work)
         return True

@@ -89,7 +89,7 @@ class Application_controller:
         return operating_DB_manager.connect(db_config)
 
 
-    def static_disconnect_from_DB(operating_DB_manager: Abstract_DB_manager):
+    def static_disconnect_from_DB(operating_DB_manager: Abstract_DB_manager) -> None:
         return operating_DB_manager.disconnect()
 
     #endregion Abstract_DB_manager methods

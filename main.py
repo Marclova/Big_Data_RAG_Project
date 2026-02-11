@@ -1,4 +1,4 @@
-import os
+import logging
 import tkinter as tk
 import yaml
 
@@ -32,8 +32,8 @@ if __name__=="__main__":
     used_embedder_APIkey: str = "Pinecone_APIkey"
     used_chatbot: Chatbot_enums = Chatbot_enums.BOTLIBRE
 
-    default_RAG_DB_index_name: str = application_config["storage_collection_name"]
-    default_Storage_DB_collection_name: str = application_config["rag_index_name"]
+    default_Storage_DB_collection_name: str = application_config["storage_collection_name"]
+    default_RAG_DB_index_name: str = application_config["rag_index_name"]
 
     # initialize storage DB configuration object
     append_config = application_config[used_storage_DB.value]
@@ -72,4 +72,8 @@ if __name__=="__main__":
                                         default_RAG_DB_index_name = default_RAG_DB_index_name, 
                                         default_Storage_DB_collection_name = default_Storage_DB_collection_name)
     AppGUI(root, controller)
-    root.mainloop()
+
+    try:
+        root.mainloop()
+    except Exception as e:
+        logging.info(f"[ERROR]: {e}")

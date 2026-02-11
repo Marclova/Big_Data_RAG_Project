@@ -33,6 +33,7 @@ class Storage_DB_config(DB_config_I):
 
 
 
+
 class RAG_DB_config(DB_config_I):
     """
     Set of configurations for a featured RAG database connection.
@@ -54,6 +55,8 @@ class RAG_DB_config(DB_config_I):
         self.batch_size = batch_size
 
 
+
+
 class Embedder_config(Configuration_model_I):
     """
     Set of configurations for an embedder model.
@@ -68,6 +71,7 @@ class Embedder_config(Configuration_model_I):
         
         self.embedder_model_name = embedder_model_name
         self.embedder_api_key = embedder_api_key
+
 
 
 

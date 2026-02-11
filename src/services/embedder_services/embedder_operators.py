@@ -1,3 +1,4 @@
+import logging
 from typing import override
 import numpy
 
@@ -110,7 +111,7 @@ class OpenAI_embedder(Embedder_I):
         norm = numpy.linalg.norm(np_raw_vector_array)
 
         if(norm == 0): # null vector
-            print(f"ERROR: the text starting with '{text[:30]}...' results having no information. The resulting vector has been discarded.") #TODO(polishing) Consider another logging method
+            logging.info(f"[INFO]: the text starting with '{text[:30]}...' results having no information. The resulting vector has been discarded.")
             return None
         elif(norm == 1): # not normalizable or already normalized vector
             np_normalized_vector_array = np_raw_vector_array

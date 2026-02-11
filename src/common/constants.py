@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import override
 from llama_index.embeddings.openai import OpenAIEmbeddingModelType
 
 

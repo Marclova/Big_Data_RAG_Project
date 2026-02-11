@@ -1,3 +1,4 @@
+import logging
 from typing import override
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -9,15 +10,15 @@ from src.services.db_services.interfaces.DB_operator_interfaces import Storage_D
 
 from src.models.data_models import Storage_DTModel
 
-
 """
 Service module to manage the connection and operations on a database meant to store raw data before embedding.
 Embedding and storage of vectors are handled elsewhere.
 Selected DBs are MongoDB and PostgreSQL
 """
 
-#TODO(improvement): consider adding exception handling for DB connections and operations
 
+
+#TODO(improvement): consider adding exception handling for DB connections and operations
 class Storage_MongoDB_operator(Storage_DB_operator_I):
     """
     Class to manage the MongoDB connection and operations for storage.
@@ -66,9 +67,9 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
                     "author": data_model.authors
                 }) is not None)
             except Exception as e:
-                print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO(polishing): consider another logging method}
+                logging.info(f"[ERROR]: Failed to insert the paper '{data_model.title[:15]}' into '{target_collection_name}': {e}")
         else:
-            print(f"Error while inserting the paper '{data_model.title}' into '{target_collection_name}': record already exists.") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]; Failed to insert the paper '{data_model.title[:15]}' into '{target_collection_name}': record already exists.")
         return None
     
 
@@ -88,9 +89,9 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
                     "author": data_model.authors
                 }) is not None)
             except Exception as e:
-                print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': {e}") #TODO(polishing): consider another logging method}
+                logging.info(f"[ERROR]: Failed to update the paper '{data_model.title[:15]}' into '{target_collection_name}': {e}")
         else:
-            print(f"Error while updating the paper '{data_model.title}' into '{target_collection_name}': record does not exist.") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: while updating the paper '{data_model.title[:15]}' into '{target_collection_name}': record does not exist.")
         return None
         
         
@@ -101,7 +102,6 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
         if(self.check_collection_existence(target_collection_name) is False):
             raise ValueError(f"The target collection '{target_collection_name}' does not exist in the database.")
 
-        # return (self.remove_records_using_manualFilter(target_collection_name, {"title": title}) is not None)
         return (self.database[target_collection_name].delete_one({"title": title}).deleted_count > 0)
     
 
@@ -120,7 +120,7 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
             self.connection = MongoClient(DB_connection_url)
             self.database = self.connection[DB_name]
         except Exception as e:
-            print(f"Error while connecting to storage DB: {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to connect with storage DB '{DB_name}': {e}")
             return False
         return True
 
@@ -239,7 +239,7 @@ class storage_PyGreSQL_operator(Storage_DB_operator_I):
         try:
             self.database = PyGreSQLClient(dbname, host, port, user, passwd)
         except Exception as e:
-            print(f"Error while connecting to storage DB: {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to connect with storage DB: {e}")
             return False
         return True
 

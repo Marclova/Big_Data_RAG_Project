@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 from tempfile import NamedTemporaryFile
@@ -97,9 +98,9 @@ def delete_file(file_path: str) -> int:
             os.remove(file_path)
             return 1
         else:
-            print(f"Warning: The file at path '{file_path}' does not exist and cannot be deleted.") #TODO(polishing) Consider another logging method
+            logging.info(f"[WARNING]: The file at path '{file_path}' does not exist or cannot be deleted.")
             return 0
 
     except Exception as e:
-        print(f"ERROR: Error occurred while trying to delete file: {e}") #TODO(polishing) Consider another logging method
+        logging.info(f"[ERROR]: {e}")
         return -1

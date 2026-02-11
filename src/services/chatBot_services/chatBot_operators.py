@@ -91,8 +91,12 @@ class BotLibre_chatBot_operator(ChatBot_I):
         response = requests.post(api_url, data=data, files=files)
         f.close()
         storage_service.delete_file(file_url)
+
+        #region debugging console print (for developing)
         print("Response header 'Content-Type':")
         print(response.request.headers["Content-Type"])
+        #endregion debugging console print (for developing)
+        
         response.raise_for_status()
         return (200 <= response.status_code < 300)
 

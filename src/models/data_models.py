@@ -1,9 +1,9 @@
-import requests
 from typing import override
 
 from src.common.constants import Featured_embedding_models_enum as embed_models
 
 from src.models.interfaces.data_model_interface import DTModel_I
+
 
 
 class Storage_DTModel(DTModel_I):
@@ -25,6 +25,7 @@ class Storage_DTModel(DTModel_I):
         self.title = title
         self.pages = pages
         self.authors = authors
+
 
     @classmethod
     def create_from_JSONData(cls, JSON_data: dict[str, any]):
@@ -54,6 +55,7 @@ class Storage_DTModel(DTModel_I):
             "pages": self.pages,
             "author": self.authors
         }
+
 
 
 
@@ -148,8 +150,8 @@ class RAG_DTModel(Storage_DTModel):
     @override
     def __repr__(self):
         return "<- "+self.text+" ->\n"
+      
         
-
 
 
 def _init_params_normalization(url: str, title: str = None, pages: str = None, authors: list[str] = None) -> tuple:
