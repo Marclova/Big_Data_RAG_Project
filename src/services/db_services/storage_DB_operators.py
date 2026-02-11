@@ -18,7 +18,6 @@ Selected DBs are MongoDB and PostgreSQL
 
 
 
-#TODO(improvement): consider adding exception handling for DB connections and operations
 class Storage_MongoDB_operator(Storage_DB_operator_I):
     """
     Class to manage the MongoDB connection and operations for storage.

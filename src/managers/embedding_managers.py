@@ -98,7 +98,7 @@ class Embedding_manager(Manager_I):
         try:
             self.embedder: Embedder_I = self._embedder_operator_factory(connection_config.embedder_model_name, connection_config.embedder_api_key)
         except Exception as e:
-            logging.info(f"[ERROR]: Failed to connect with the embedder service: {e}") #TODO(polishing): consider another logging method
+            logging.info(f"[ERROR]: Failed to connect with the embedder service: {e}")
             return False
         return True
         

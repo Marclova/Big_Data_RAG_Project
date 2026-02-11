@@ -75,7 +75,7 @@ class ChatBot_manager(Manager_I):
         except Exception as e:
             logging.info(f"[ERROR]: Failed to connect with the chatbot service: {e}")
 
-        #TODO(refinement): implement a connection check by performing a get (this operator's API doesn't work)
+        #TODO(UPDATE): implement a connection check by performing a get (this operator's API doesn't work)
         return True
     
 

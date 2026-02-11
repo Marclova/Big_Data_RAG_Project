@@ -185,7 +185,7 @@ def _init_params_normalization(url: str, title: str = None, pages: str = None, a
         return url, title, pages, authors
 
 
-#TODO(improvement): Correct bug where 'false' is returned mistakenly (It's not caused by flow control)
+#TODO(FIX): Correct bug where 'false' is returned mistakenly (It's not caused by flow control)
 # def _verify_url(url: str) -> bool:
 #     """
 #     Verifies if a given URL is reachable.
@@ -200,14 +200,14 @@ def _init_params_normalization(url: str, title: str = None, pages: str = None, a
 #         if r.status_code == 200:
 #             return True
 #         elif r.status_code == 206:
-#             print(f"Warning: URL '{url}' returned status code 206 (Partial Content).") #TODO(polishing): consider another logging method
+#             print(f"Warning: URL '{url}' returned status code 206 (Partial Content).")
 #             return True
 #         elif r.status_code in (301, 302, 303, 307, 308):
-#             print(f"ERROR: URL '{url}' is a redirect (status code: {r.status_code}).") #TODO(polishing): consider another logging method
+#             print(f"ERROR: URL '{url}' is a redirect (status code: {r.status_code}).")
 #         else:
-#             print(f"ERROR: URL '{url}' returned unexpected status code {r.status_code}.") #TODO(polishing): consider another logging method
+#             print(f"ERROR: URL '{url}' returned unexpected status code {r.status_code}.")
 #     except requests.RequestException as e:
-#         print(f"ERROR: URL '{url}' is not reachable or invalid. Retured the following exception: {e}") #TODO(polishing): consider another logging method
+#         print(f"ERROR: URL '{url}' is not reachable or invalid. Retured the following exception: {e}")
 #     return False
 
 

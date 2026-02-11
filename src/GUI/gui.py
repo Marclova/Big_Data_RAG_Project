@@ -25,6 +25,101 @@ class AppGUI:
         self._build_controls()
         self._setup_logging()
 
+
+
+    def _build_log_panel(self):
+        frame = ttk.Frame(self.root)
+        frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
+
+        self.log_text = tk.Text(
+            frame,
+            state="disabled",
+            wrap="word"
+        )
+        self.log_text.grid(row=0, column=0, sticky="nsew")
+
+        scrollbar = ttk.Scrollbar(frame, command=self.log_text.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        self.log_text["yscrollcommand"] = scrollbar.set
+
+
+
+    def _build_controls(self):
+        frame = ttk.Frame(self.root)
+        frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+
+        ttk.Button(
+            frame,
+            text="display configurations",
+            command=self._display_configurations
+        ).pack(fill="x", pady=5)
+
+        ttk.Label(frame).pack(anchor="w")
+        ttk.Label(frame).pack(anchor="w")
+
+        ttk.Label(frame, text="Insert vector index to use (leave empty for default):").pack(anchor="w")
+        self.manually_selected_index_entry = ttk.Entry(frame)
+        self.manually_selected_index_entry.pack(fill="x", pady=5)
+
+        ttk.Label(frame, text="Insert storage collection to use (leave empty for default):").pack(anchor="w")
+        self.manually_selected_collection_entry = ttk.Entry(frame)
+        self.manually_selected_collection_entry.pack(fill="x", pady=5)
+
+        ttk.Label(frame, text="Insert PDF file local path or web URL").pack(anchor="w")
+        self.file_entry = ttk.Entry(frame)
+        self.file_entry.pack(fill="x", pady=5)
+        self.file_entry.config(state="disabled")
+
+        self.is_source_a_file = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            frame,
+            text="Insert PDF document instead",
+            variable=self.is_source_a_file,
+            command=self._switch_file_db_entry
+        ).pack(anchor="w", pady=5)
+
+        ttk.Label(frame).pack(anchor="w")
+        ttk.Label(frame).pack(anchor="w")
+
+        ttk.Label(frame, text="Write a question:").pack(anchor="w")
+        self.message_input_entry = ttk.Entry(frame)
+        self.message_input_entry.pack(fill="x", pady=5)
+
+        ttk.Button(
+            frame,
+            text="get RAW response",
+            command=self._send_question_for_RAG_response
+        ).pack(fill="x", pady=5)
+
+        ttk.Button(
+            frame,
+            text="get chatbot response",
+            command=self._send_question_for_chatbot_response
+        ).pack(fill="x", pady=5)
+        
+        ttk.Button(
+            frame,
+            text="ingest documents into vector DB",
+            command=self._ingest_documents
+        ).pack(fill="x", pady=5)
+
+
+
+    def _setup_logging(self):
+        handler = TkinterLogHandler(self.log_text)
+        handler.setFormatter(
+            logging.Formatter(
+                "> %(message)s", 
+                "%S"
+            )
+        )
+        logging.getLogger().addHandler(handler)
+
+
+
     #region controller -> coordinator methods
 
     def _display_configurations(self):
@@ -111,88 +206,3 @@ class AppGUI:
         return confirmed
 
     #endregion gui logic methods
-
-    def _build_log_panel(self):
-        frame = ttk.Frame(self.root)
-        frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-
-        frame.rowconfigure(0, weight=1)
-        frame.columnconfigure(0, weight=1)
-
-        self.log_text = tk.Text(
-            frame,
-            state="disabled",
-            wrap="word"
-        )
-        self.log_text.grid(row=0, column=0, sticky="nsew")
-
-        scrollbar = ttk.Scrollbar(frame, command=self.log_text.yview)
-        scrollbar.grid(row=0, column=1, sticky="ns")
-        self.log_text["yscrollcommand"] = scrollbar.set
-
-
-
-    def _build_controls(self):
-        frame = ttk.Frame(self.root)
-        frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
-
-        ttk.Button(
-            frame,
-            text="display configurations",
-            command=self._display_configurations
-        ).pack(fill="x", pady=5)
-
-        ttk.Label(frame, text="Insert vector index to use (leave empty for default):").pack(anchor="w")
-        self.manually_selected_index_entry = ttk.Entry(frame)
-        self.manually_selected_index_entry.pack(fill="x", pady=5)
-
-        self.is_source_a_file = tk.BooleanVar(value=False)
-        ttk.Checkbutton(
-            frame,
-            text="Insert PDF document instead",
-            variable=self.is_source_a_file,
-            command=self._switch_file_db_entry
-        ).pack(anchor="w", pady=5)
-
-        ttk.Label(frame, text="Insert PDF file local path or web URL").pack(anchor="w")
-        self.file_entry = ttk.Entry(frame)
-        self.file_entry.pack(fill="x", pady=5)
-        self.file_entry.config(state="disabled")
-
-        ttk.Label(frame, text="Insert storage collection to use (leave empty for default):").pack(anchor="w")
-        self.manually_selected_collection_entry = ttk.Entry(frame)
-        self.manually_selected_collection_entry.pack(fill="x", pady=5)
-
-        ttk.Label(frame, text="Write a question:").pack(anchor="w")
-        self.message_input_entry = ttk.Entry(frame)
-        self.message_input_entry.pack(fill="x", pady=5)
-
-        ttk.Button(
-            frame,
-            text="get RAW response",
-            command=self._send_question_for_RAG_response
-        ).pack(fill="x", pady=5)
-
-        ttk.Button(
-            frame,
-            text="get chatbot response",
-            command=self._send_question_for_chatbot_response
-        ).pack(fill="x", pady=5)
-        
-        ttk.Button(
-            frame,
-            text="ingest documents into vector DB",
-            command=self._ingest_documents
-        ).pack(fill="x", pady=5)
-
-
-
-    def _setup_logging(self):
-        handler = TkinterLogHandler(self.log_text)
-        handler.setFormatter(
-            logging.Formatter(
-                "> %(message)s", 
-                "%S"
-            )
-        )
-        logging.getLogger().addHandler(handler)

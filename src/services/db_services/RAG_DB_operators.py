@@ -273,7 +273,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
         return self._insert_update_record(target_collection_name, data_model)
 
 
-    #TODO(improvement): Implement normalized vector checking and eventual normalization (using 'raw_data_operator.py')
+    #TODO(UPDATE): Implement normalized vector checking and eventual normalization (using 'raw_data_operator.py')
     @override
     def retrieve_embeddings_from_vector(self, target_collection_name: str, normalized_query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
         if( (target_collection_name is None) or (normalized_query_vector is None) or (top_k is None) ):

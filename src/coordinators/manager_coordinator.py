@@ -146,7 +146,7 @@ class Manager_coordinator:
                                                                       top_k = top_k)
     
 
-    #TODO(refinement): consider to make this method returning a 'dict[str, bool]' in order to represent the outcome on display
+    #TODO(UPDATE): consider to make this method returning a 'dict[str, bool]' in order to represent the outcome on display
     def reconnect_all_managers(self) -> None:
         """
         Retry every connection/set-up of all managed operators, delegating the operation to all the managers.
