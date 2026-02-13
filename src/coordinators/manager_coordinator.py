@@ -71,10 +71,10 @@ class Manager_coordinator:
         storage_DTModel_list: list[Storage_DTModel] = self.storage_DB_manager.get_all_records(target_storage_collection_name)
         urls_list: list[str] = [ model.url for model in storage_DTModel_list]
 
-        return self.ingest_documents_from_urls(urls_list, target_RAG_index_name)
+        return self.ingest_documents_from_urls_or_paths(urls_list, target_RAG_index_name)
 
 
-    def ingest_documents_from_urls(self, file_URLs: list[str], 
+    def ingest_documents_from_urls_or_paths(self, file_URLs: list[str], 
                                    target_RAG_index_name: str = None) -> tuple[bool, list[str]]:
         """
         Generates embeddings from a list of file URLs and stores them in the RAG database.
@@ -93,7 +93,7 @@ class Manager_coordinator:
         failed_URLs: list[str] = []
         for file_URL in file_URLs:
             try:
-                embeddings: list[RAG_DTModel] = self.embedding_manager.generate_embeddings_from_URL(file_URL)
+                embeddings: list[RAG_DTModel] = self.embedding_manager.generate_embeddings_from_URL_or_path(file_URL)
                 self.rag_DB_manager.insert_records(target_collection_name=target_RAG_index_name, data_models=embeddings)
             except Exception as e:
                 logging.info(f"[ERROR]: Failed to process URL {file_URL}: {str(e)}")

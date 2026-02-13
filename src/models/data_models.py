@@ -111,9 +111,9 @@ class RAG_DTModel(Storage_DTModel):
         """
         return {
             "id": self.id,
-            "text": self.text,
-            "vector": self.vector,
+            "values": self.vector,
             "metadata": {
+                "text": self.text,
                 "url": self.url,
                 "title": self.title,
                 "pages": self.pages,

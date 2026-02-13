@@ -1,9 +1,12 @@
+#TODO(before commit): remove sensible data
+
 #region DB configs
 
 storage_db_name : "testDB"
 storage_collection_name : "records"
 rag_db_name : "testDB"
-rag_index_name : "unitTestEmbeddingsPinecone"
+rag_index_name : "unitTestEmbeddingsPinecone" #For RAGMongDB
+# rag_index_name : "testindex" #For RAGPineconeDB
 
 #Both for storage and RAG operations
 MongoDB: {
@@ -11,9 +14,21 @@ MongoDB: {
   db_name : "testDB"
 }
 
-#TODO(CREATE): Pinecone
+#for RAG operations
+Pinecone: {
+  api_key: "", 
+  db_connection_url: ""
+}
 
+#for storage operations
 #TODO(CREATE): PyGreSQL
+PyGreSQL: {
+  db_connection_url: "", 
+  port: "", 
+  db_name: "", 
+  username: "", 
+  password: ""
+}
 
 #endregion DB configs
 
@@ -30,11 +45,13 @@ embedder_api_keys: {
 
 BotLibre: {
   api_key: "", #also known as 'user ID' or'application ID'
-  username: "Marclova",
-  password: "",
-  bot_id: "", #also known as 'instance ID'
-  script_id: "",
-  script_name: ""
+  other_params: {
+    username: "Marclova",
+    password: "",
+    bot_id: "", #also known as 'instance ID'
+    script_id: "",
+    script_name: ""
+  }
 }
 
 stepfun/step-3.5-flash:free: {

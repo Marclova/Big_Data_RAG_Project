@@ -16,7 +16,7 @@ class AppGUI:
         self.root.title("Project GUI")
         self.root.geometry("900x500")
 
-        # layout principale
+        # main layout
         self.root.columnconfigure(0, weight=3)
         self.root.columnconfigure(1, weight=1)
         self.root.rowconfigure(0, weight=1)
@@ -169,7 +169,7 @@ class AppGUI:
             failedChunks: list[str]
             if(self.is_source_a_file.get()):
                 logging.info(f"Embedding file '{used_source}' into index '{used_index}'...")
-                (_, failedChunks) = self.controller.ingest_documents_from_urls([used_source], used_index)
+                (_, failedChunks) = self.controller.ingest_documents_from_urls_or_paths([used_source], used_index)
             else:
                 logging.info(f"Embedding all files in collection '{used_source}' into index '{used_index}'...")
                 (_, failedChunks) = self.controller.ingest_all_documents_from_storage(used_source, used_index)

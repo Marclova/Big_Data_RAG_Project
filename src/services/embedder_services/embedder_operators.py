@@ -28,7 +28,7 @@ class Pinecone_embedder(Embedder_I):
             raise ValueError(f"Embedding model '{embedder_model_name}' not featured")
         
         self.embedder: Inference = Pinecone(api_key=embedder_api_key).inference
-        self.embedder_name: str = embedder_model_name
+        self.embedder_name: str = embedder_model_name.value
 
 
     @override
@@ -68,7 +68,7 @@ class Pinecone_embedder(Embedder_I):
 
     @override
     def get_embedder_name(self) -> str:
-        return self.embedder_name    
+        return self.embedder_name
 
 
     @override

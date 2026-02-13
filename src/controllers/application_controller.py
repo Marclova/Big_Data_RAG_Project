@@ -27,8 +27,8 @@ class Application_controller:
 
         self.storage_DB_name: str = self.storage_DB_manager.get_selected_DB_name()
         self.rag_DB_name: str = self.rag_DB_manager.get_selected_DB_name()
-        self.default_RAG_DB_index_name = default_RAG_DB_index_name
-        self.default_Storage_DB_collection_name = default_Storage_DB_collection_name
+        self.default_RAG_DB_index_name: str = default_RAG_DB_index_name
+        self.default_Storage_DB_collection_name: str = default_Storage_DB_collection_name
 
         self.manager_coordinator = Manager_coordinator(self.storage_DB_manager, self.rag_DB_manager,
                                                        self.embedding_manager, self.chatbot_manager, 
@@ -48,9 +48,9 @@ class Application_controller:
                                                                           target_RAG_index_name)
 
 
-    def ingest_documents_from_urls(self, file_URLs: list[str], 
+    def ingest_documents_from_urls_or_paths(self, file_URLs: list[str], 
                                    target_RAG_index_name: str = None) -> tuple[bool, list[str]]:
-        return self.ingest_documents_from_urls(file_URLs, target_RAG_index_name)
+        return self.manager_coordinator.ingest_documents_from_urls_or_paths(file_URLs, target_RAG_index_name)
 
 
     def reply_to_question(self, question: str, source_vector_index_name: str = "", top_k: int = 12) -> str:

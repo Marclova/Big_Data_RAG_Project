@@ -32,7 +32,7 @@ class Embedding_manager(Manager_I):
         
 
     #TODO(UPDATE): If possible, find a way so that the webScraper can gather authors from the file
-    def generate_embeddings_from_URL(self, file_URL: str, file_authors = None) -> list[RAG_DTModel]:
+    def generate_embeddings_from_URL_or_path(self, file_URL: str, file_authors = None) -> list[RAG_DTModel]:
         """
         Generates a vector from a file by using the embedder.
         Parameters:
@@ -44,8 +44,13 @@ class Embedding_manager(Manager_I):
         """
         if((file_URL is None) or (file_URL.strip() == "") ):
             raise ValueError("The file URL cannot be None or empty.")
+        
+        file_path: str
+        if(os.path.exists(file_URL)):
+            file_path = file_URL
+        else:
+            file_path = webScraper.download_file(file_URL)
 
-        file_path: str = webScraper.download_file(file_URL)
         file_name = os.path.basename(file_path)
         logging.info(f"[INFO]: Embedding file '{file_name} from {file_URL}...'")
 

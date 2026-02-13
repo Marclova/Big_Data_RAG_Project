@@ -6,7 +6,7 @@ from typing import Any, override
 from urllib.parse import urlparse
 
 from pinecone import (Pinecone as PineconeClient, SearchQuery, UpsertResponse)
-from pinecone.db_data import IndexAsyncio
+from pinecone.db_data import Index
 from pinecone.core.openapi.db_data.model.search_records_response import SearchRecordsResponse
 from pinecone.core.openapi.db_data.model.search_records_response_result import SearchRecordsResponseResult
 from pinecone.core.openapi.db_data.model.hit import Hit
@@ -68,7 +68,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
             raise ValueError("One or more required parameters for Pinecone RAG DB operator initialization are missing or invalid.")
 
         self.connection: PineconeClient
-        self.database: IndexAsyncio
+        self.database: Index
 
         self.open_connection(api_key, host)
 
@@ -77,29 +77,38 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
     def get_configuration_info(self) -> str:
         return ("RAG_DB: {"
                 f"   DB_engine: '{self.get_engine_name()}',\n"
-                f"   database_name: {self.get_index_name()},\n"
+                f"   index_name: {self.get_index_name()},\n"
                 f"   access_type: 'apy key',\n"
                 f"   DB_url: '{self.database.config.host}',\n"
                 f"   API_key: '{self.database.config.api_key}'\n"
                 "}")
-
+    
 
     @override
-    async def insert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
+    def get_DB_name(self):
+        """
+        Returns the index name instead of the DB name. 
+        Because that's not a reachable information through documented methods.
+        """
+        return self.get_index_name()
+    
+
+    @override
+    def insert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (data_model is None)):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
         if(self.check_collection_existence(target_index_name) is False):
             raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         #There must be no match
-        if self._is_ID_already_in_use(target_index_name, data_model.id):
-            return False
+        # if self._is_ID_already_in_use(target_index_name, data_model.id):
+        #     return False
         
         return self._upsert_record(target_index_name, data_model)
 
 
     @override
-    async def update_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
+    def update_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (data_model is None)):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
@@ -113,7 +122,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
 
 
     @override
-    async def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: list[floatVector], 
+    def retrieve_embeddings_from_vector(self, target_index_name: str, query_vector: list[floatVector], 
                                               top_k: int) -> list[RAG_DTModel]:
         if((target_index_name is None) or (target_index_name.strip() == "") or 
            (query_vector is None) or (top_k is None)):
@@ -121,7 +130,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         if(self.check_collection_existence(target_index_name) is False):
             raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
         
-        response: SearchRecordsResponse = await self.database.query(namespace=target_index_name, 
+        response: SearchRecordsResponse = self.database.query(namespace=target_index_name, 
                                                                     vector=query_vector, top_k=top_k)
         return self._from_SearchRecordsResponse_to_RAGDTModelList(response)
     
@@ -161,7 +170,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
     
 
 
-    async def _upsert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
+    def _upsert_record(self, target_index_name: str, data_model: RAG_DTModel) -> bool:
         """
         Private method actually performing the insert/update operation through the 'upsert' Pinecone method.
         Parameters:
@@ -171,7 +180,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
             bool: True if the a new record has been inserted or if an old one has been updated. 
                     False if the DB has not been changed.
         """
-        response: UpsertResponse = await self.database.upsert(namespace=target_index_name, vectors=[data_model.generate_JSON_data()])
+        response: UpsertResponse = self.database.upsert(namespace=target_index_name, vectors=[data_model.generate_JSON_data()])
         
         insertion_count: int = getattr(response, "upserted_count", -1)
 
@@ -180,7 +189,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         return (insertion_count > 0)
 
 
-    async def _is_ID_already_in_use(self, target_index_name: str, id_to_check: str) -> bool:
+    def _is_ID_already_in_use(self, target_index_name: str, id_to_check: str) -> bool:
         """
         Private method doing a search query in order to check if the given string is assigned to an existing record.
         Parameters:
@@ -190,7 +199,7 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
         """
         retrieved_data: list[RAG_DTModel] = (
                 self._from_SearchRecordsResponse_to_RAGDTModelList(
-                        await self.database.search(
+                        self.database.search(
                                 namespace=target_index_name, query = SearchQuery(inputs={"id": id_to_check}, top_k=1)
                         )
                 )
