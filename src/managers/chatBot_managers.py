@@ -1,14 +1,17 @@
 import logging
-from typing import override
+from typing import cast, override
+
+from src.common.constants import Featured_chatBot_models_enum as chatBot_models
 
 from src.managers.interfaces.manager_interface import Manager_I
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
-from src.common.constants import Featured_chatBot_models_enum as chatBot_models
+from src.models.interfaces.config_interfaces import Chatbot_config_I
+from src.models.config_models import (BotLibre_chatbot_config as BotLibre_conf, 
+                                      StepFun_chatbot_config as StepFun_conf)
 
-from src.models.config_models import Chatbot_config
 
-from src.services.chatBot_services.chatBot_operators import (BotLibre_chatBot_operator, OpenAI_chatBot_operator)
+from src.services.chatBot_services.chatBot_operators import (BotLibre_chatBot_operator, StepFun_chatBot_operator)
 
 
 
@@ -16,7 +19,7 @@ class ChatBot_manager(Manager_I):
     """
     Generalized chatBot manager to handle chatbot interactions.
     """    
-    def __init__(self, bot_config: Chatbot_config):
+    def __init__(self, bot_config: Chatbot_config_I):
         self.chatBot: ChatBot_I
         self.chatBot_model_name: str
 
@@ -28,21 +31,42 @@ class ChatBot_manager(Manager_I):
         return self.chatBot.get_configuration_info()
 
 
-    def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
+    def send_message(self, message: str) -> str:
         """
         Sends a message to the chatBot and returns the response from the chat.
         Parameters:
             message (str): The message to send.
-            responseInfo (set[str]): The information that the chatBot can use to formulate its response.
         Returns:
             str: The reply from the chatBot
         """
         if( (message is None) or (message.strip() == "") ):
             raise ValueError("The message cannot be empty or None.")
-        if((responseInfo is None) or (len(responseInfo) == 0) ):
-            raise ValueError("The responseInfo cannot be empty or None.")
         
-        return self.chatBot.send_message(message, responseInfo)
+        return self.chatBot.send_message(message)
+    
+
+    def clear_chat(self) -> bool:
+        """
+        Delete the chat history, permitting to have a new chat with the same script, if present.
+        """
+        return self.chatBot.clear_chat_history()
+    
+
+    def set_script(self, context_info: list[str]) -> bool:
+        """
+        Sets the chatbot operator's context to reply the next question, 
+        which is supposed to be the list of resulting text chunks from the RAG retrieval.
+        Returns:
+            bool: True if the script has been modified correctly. False otherwise.
+        """
+        return self.chatBot.set_chatbot_script(context_info)
+
+
+    def clear_script(self) -> bool:
+        """
+        Empties the chatbot operator's script. So it will no longer have info about how to reply to the topic.
+        """
+        return self.chatBot.clear_script()
 
 
     def get_chat_context_as_JSON(self) -> dict[str,any]:
@@ -64,7 +88,7 @@ class ChatBot_manager(Manager_I):
     
 
     @override
-    def connect(self, connection_config: Chatbot_config) -> bool:
+    def connect(self, connection_config: Chatbot_config_I) -> bool:
         """
         Connects the manager to outer providers or other kind of sources using the given configurations.
             NOTE: There's not actually a connection being opened, but just a class state set for API requests.
@@ -75,7 +99,7 @@ class ChatBot_manager(Manager_I):
         except Exception as e:
             logging.info(f"[ERROR]: Failed to connect with the chatbot service: {e}")
 
-        #TODO(UPDATE): implement a connection check by performing a get (this operator's API doesn't work)
+        #TODO(UPDATE): implement a connection check by performing a get
         return True
     
 
@@ -88,7 +112,7 @@ class ChatBot_manager(Manager_I):
     
 
 
-    def _chatbot_operator_factory(self, bot_config: Chatbot_config) -> ChatBot_I:
+    def _chatbot_operator_factory(self, bot_config: Chatbot_config_I) -> ChatBot_I:
         """
         Factory method to create the chatBot operator based on the provided configuration.
         Parameters:
@@ -99,9 +123,9 @@ class ChatBot_manager(Manager_I):
         if(bot_config is None):
             raise ValueError("The chatBot configuration cannot be None.")
         elif(bot_config.chatbot_model_name == chatBot_models.BOTLIBRE):
-            return BotLibre_chatBot_operator(bot_config)
-        elif(bot_config.chatbot_model_name == chatBot_models.OPENAI):
-            return OpenAI_chatBot_operator(bot_config)
+            return BotLibre_chatBot_operator(cast(BotLibre_conf, bot_config))
+        elif(bot_config.chatbot_model_name == chatBot_models.STEPFUN):
+            return StepFun_chatBot_operator(cast(StepFun_conf, bot_config))
         
         raise NotImplementedError(
             f"Dead code activation: No factory case for chatBot model named '{bot_config.chatbot_model_name}'. "

@@ -7,7 +7,11 @@ from src.common.constants import Featured_RAG_DB_engines_enum as RAG_DB_enums
 from src.common.constants import Featured_embedding_models_enum as Embedder_enums
 from src.common.constants import Featured_chatBot_models_enum as Chatbot_enums
 
-from src.models.config_models import Chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config
+from src.models.config_models import (BotLibre_chatbot_config, 
+                                      StepFun_chatbot_config, 
+                                      Embedder_config, 
+                                      RAG_DB_config, 
+                                      Storage_DB_config)
 
 from src.GUI.gui import AppGUI
 
@@ -19,7 +23,6 @@ if __name__=="__main__":
 
     #region yaml parameters initialization
 
-    # stream = open(os.path.join("src", "app_config_input.yaml"), 'r', encoding="utf-8")
     stream = open("app_config_input.yaml", 'r', encoding="utf-8")
     application_config = yaml.safe_load(stream)
     stream.close()
@@ -30,7 +33,7 @@ if __name__=="__main__":
     used_RAG_DB: RAG_DB_enums = RAG_DB_enums.MONGODB
     used_embedder_model_name: Embedder_enums = Embedder_enums.PINECONE_LLAMA_TEXT_EMBED_V2
     used_embedder_APIkey: str = "Pinecone_APIkey"
-    used_chatbot: Chatbot_enums = Chatbot_enums.BOTLIBRE
+    used_chatbot: Chatbot_enums = Chatbot_enums.STEPFUN
 
     default_Storage_DB_collection_name: str = application_config["storage_collection_name"]
     default_RAG_DB_index_name: str = application_config["rag_index_name"]
@@ -58,9 +61,14 @@ if __name__=="__main__":
 
 
     append_config = application_config[used_chatbot.value]
-    chatbot_config = Chatbot_config(chatbot_model_name= used_chatbot, 
-                                    api_key = append_config.get("api_key"), 
-                                    other_params = append_config.get("other_params"))
+    # chatbot_config = BotLibre_chatbot_config(chatbot_model_name= used_chatbot, 
+    #                                 api_key = append_config.get("api_key"), #also known as 'instance ID'
+    #                                 username = append_config.get("username"),
+    #                                 password = append_config.get("password"),
+    #                                 bot_id = append_config.get("bot_id"), #also known as 'instance ID'
+    #                                 script_id = append_config.get("script_id"),
+    #                                 script_name = append_config.get("script_name"))
+    chatbot_config = StepFun_chatbot_config(chatbot_model_name=used_chatbot, api_key=append_config.get("api_key"))
 
     #endregion yaml parameters initialization
 

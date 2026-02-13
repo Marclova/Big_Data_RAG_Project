@@ -20,19 +20,21 @@ class Manager_coordinator:
                  embedding_manger: Embedding_manager, chatbot_manager: ChatBot_manager,
                  default_RAG_DB_index_name: str, default_Storage_DB_collection_name: str):
             
-            if(storage_db_manager == None or rag_db_manager == None or 
-               embedding_manger == None or chatbot_manager == None or 
-               default_Storage_DB_collection_name == None or default_RAG_DB_index_name == None):
-                logging.info("[ERROR]: At least one of the required configuration parameters were not provided")
-                return
-            
-            self.storage_DB_manager: Storage_DB_manager = storage_db_manager
-            self.rag_DB_manager: RAG_DB_manager = rag_db_manager
-            self.embedding_manager: Embedding_manager = embedding_manger
-            self.chatbot_manager: ChatBot_manager = chatbot_manager
+        if(storage_db_manager == None or rag_db_manager == None or 
+            embedding_manger == None or chatbot_manager == None or 
+            default_Storage_DB_collection_name == None or default_RAG_DB_index_name == None):
+            logging.info("[ERROR]: At least one of the required configuration parameters were not provided")
+            return
+        
+        self.storage_DB_manager: Storage_DB_manager = storage_db_manager
+        self.rag_DB_manager: RAG_DB_manager = rag_db_manager
+        self.embedding_manager: Embedding_manager = embedding_manger
+        self.chatbot_manager: ChatBot_manager = chatbot_manager
 
-            self.default_Storage_DB_collection_name: str = default_Storage_DB_collection_name
-            self.default_RAG_DB_index_name: str = default_RAG_DB_index_name
+        self.default_Storage_DB_collection_name: str = default_Storage_DB_collection_name
+        self.default_RAG_DB_index_name: str = default_RAG_DB_index_name
+        
+        self.is_first_message: bool = True
 
 
 
@@ -118,8 +120,12 @@ class Manager_coordinator:
         if(source_vector_index_name == ""):
             source_vector_index_name = self.default_RAG_DB_index_name
 
-        retrieved_texts: list[str] = [ dataModel.text for dataModel in self.reply_to_question_raw_response(question) ]
-        return self.chatbot_manager.send_message_with_responseInfo(question, retrieved_texts)
+        if(self.is_first_message): # performs embedding and sets the script only once
+            retrieved_texts: list[str] = [ dataModel.text for dataModel in self.reply_to_question_raw_response(question) ]
+            self.chatbot_manager.set_script(retrieved_texts)
+            self.is_first_message = False
+
+        return self.chatbot_manager.send_message(question)
     
 
     def reply_to_question_raw_response(self, question: str, 
@@ -144,6 +150,12 @@ class Manager_coordinator:
         return self.rag_DB_manager.retrieve_vectors_using_vectorQuery(target_collection_name = source_vector_index_name, 
                                                                       vector_query = vector_query, 
                                                                       top_k = top_k)
+    
+    
+    def clear_chat_and_script(self) -> None:
+        self.chatbot_manager.clear_script()
+        self.chatbot_manager.clear_chat()
+        self.is_first_message = True
     
 
     #TODO(UPDATE): consider to make this method returning a 'dict[str, bool]' in order to represent the outcome on display

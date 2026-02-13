@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.models.interfaces.config_interfaces import ChatBot_config_I
+from src.models.interfaces.config_interfaces import Chatbot_config_I
 
 
 class ChatBot_I(ABC):
@@ -10,7 +10,7 @@ class ChatBot_I(ABC):
     Chat history is saved inside the RAM and only one chat at time can be saved.
     """
     @abstractmethod
-    def __init__(self, bot_config: ChatBot_config_I):
+    def __init__(self, bot_config: Chatbot_config_I):
         """
         Parameters:
             bot_config (ChatBot_config_I): Configuration object for the chatBot service.
@@ -38,15 +38,18 @@ class ChatBot_I(ABC):
         pass
 
     @abstractmethod
-    def send_message(self, message: str, responseInfo: set[str]) -> str:
+    def clear_chat_history(self) -> None:
+        """
+        Erases the sequence of messages between the user and the chatbot.
+        """
+
+    @abstractmethod
+    def send_message(self, message: str) -> str:
         """
         Method to send a message to the chatBot and receive a response.
-        The bot's script is supposed to be already set up by the 'set_chatbot_script' method.
         Parameters:
             message (str): The message to send to the bot. 
                             Presumably a question regarding the content of the papers stored in the storage DB.
-            responseInfo (set[str]): A list of text chunk to use as information for the chatBot to use as base. 
-                                        Presumably retrieved with a RAG search.
         Returns:
             str: The raw string of the content of the bot's response.
         """

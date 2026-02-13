@@ -30,15 +30,15 @@ embedder_api_keys: {
 
 BotLibre: {
   api_key: "", #also known as 'user ID' or'application ID'
-  other_params : {
-    username: "Marclova",
-    password: "",
-    main_bot_id: "", #also known as 'instance ID'
-    main_script_id: 
-    main_script_name: 
-  }
+  username: "Marclova",
+  password: "",
+  bot_id: "", #also known as 'instance ID'
+  script_id: "",
+  script_name: ""
 }
 
-#TODO(CREATE): openAI chatbot
+stepfun/step-3.5-flash:free: {
+  api_key: ""
+}
 
 ##endregion chatbot region

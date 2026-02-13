@@ -43,4 +43,4 @@ class Featured_embedding_models_enum(_Checks_enum_values_Mixin):
 
 class Featured_chatBot_models_enum(_Checks_enum_values_Mixin):
     BOTLIBRE = "BotLibre" #no specific model names required
-    OPENAI = "OpenAI" #TODO(FIX): specify a specific model name
+    STEPFUN = "stepfun/step-3.5-flash:free"

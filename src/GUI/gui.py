@@ -84,9 +84,24 @@ class AppGUI:
         ttk.Label(frame).pack(anchor="w")
         ttk.Label(frame).pack(anchor="w")
 
+        ttk.Button(
+            frame,
+            text="ingest documents into vector DB",
+            command=self._ingest_documents
+        ).pack(fill="x", pady=5)
+
+        ttk.Label(frame).pack(anchor="w")
+        ttk.Label(frame).pack(anchor="w")
+
         ttk.Label(frame, text="Write a question:").pack(anchor="w")
         self.message_input_entry = ttk.Entry(frame)
         self.message_input_entry.pack(fill="x", pady=5)
+
+        ttk.Button(
+            frame,
+            text="get chatbot response",
+            command=self._send_question_for_chatbot_response
+        ).pack(fill="x", pady=5)
 
         ttk.Button(
             frame,
@@ -96,14 +111,8 @@ class AppGUI:
 
         ttk.Button(
             frame,
-            text="get chatbot response",
-            command=self._send_question_for_chatbot_response
-        ).pack(fill="x", pady=5)
-        
-        ttk.Button(
-            frame,
-            text="ingest documents into vector DB",
-            command=self._ingest_documents
+            text="New chat",
+            command=self._initiate_new_chat
         ).pack(fill="x", pady=5)
 
 
@@ -123,25 +132,33 @@ class AppGUI:
     #region controller -> coordinator methods
 
     def _display_configurations(self):
-        logging.info(self.controller.get_configuration_info())
+        logging.info(self.controller.get_configuration_info() + "\n\n")
 
 
     def _send_question_for_RAG_response(self):
         question = self.message_input_entry.get()
         if(question == ""):
             return
-        logging.info("User: " + question)
+        logging.info("> User: " + question + "\n")
         result = self.controller.reply_to_question_raw_response(question, self._get_RAG_index_to_use())
-        logging.info("System:\n" + str(result))
+        logging.info("> RAG System response:\n" + str(result) + "\n\n")
+        self.message_input_entry = ""
 
     
     def _send_question_for_chatbot_response(self):
         question = self.message_input_entry.get()
         if(question == ""):
             return
-        logging.info("User: " + question)
+        logging.info("> User: " + question + "\n")
         result = self.controller.reply_to_question(question, self._get_RAG_index_to_use())
-        logging.info("System:" + str(result))
+        logging.info(f"> {self.controller.chatbot_manager.get_chatBot_model_name()}:" 
+                     + str(result) + "\n\n")
+        self.message_input_entry = ""
+
+
+    def _initiate_new_chat(self):
+        self.controller.new_chat()
+        logging.info("Chat cleared!" + "\n\n")
 
         
     def _ingest_documents(self):

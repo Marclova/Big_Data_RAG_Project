@@ -1,5 +1,5 @@
 from src.models.interfaces.config_interfaces import DB_config_I
-from src.models.config_models import (Chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config)
+from src.models.config_models import (BotLibre_chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config)
 
 from src.models.interfaces.data_model_interface import DTModel_I
 from src.models.data_models import RAG_DTModel, Storage_DTModel
@@ -16,7 +16,7 @@ from src.coordinators.manager_coordinator import Manager_coordinator
 class Application_controller:
 
     def __init__(self, storage_config: Storage_DB_config, rag_config: RAG_DB_config, 
-                 embedder_config: Embedder_config, chatbot_config: Chatbot_config, 
+                 embedder_config: Embedder_config, chatbot_config: BotLibre_chatbot_config, 
                  default_RAG_DB_index_name: str, default_Storage_DB_collection_name: str):
         
         #parameters checks are performed in classes constructors
@@ -32,8 +32,8 @@ class Application_controller:
 
         self.manager_coordinator = Manager_coordinator(self.storage_DB_manager, self.rag_DB_manager,
                                                        self.embedding_manager, self.chatbot_manager, 
-                                                       self.default_Storage_DB_collection_name, 
-                                                       self.default_RAG_DB_index_name)
+                                                       default_Storage_DB_collection_name=self.default_Storage_DB_collection_name, 
+                                                       default_RAG_DB_index_name=self.default_RAG_DB_index_name)
 
 
     #region Manager_coordinator methods
@@ -59,6 +59,10 @@ class Application_controller:
 
     def reply_to_question_raw_response(self, question: str, source_vector_index_name: str = "", top_k: int = 12) -> list[RAG_DTModel]:
         return  self.manager_coordinator.reply_to_question_raw_response(question, source_vector_index_name, top_k)
+    
+
+    def new_chat(self) -> None:
+        self.manager_coordinator.clear_chat_and_script()
 
 
     #TODO(FIX): consider to make this method returning a 'dict[str, bool]' in order to represent the outcome on display
@@ -74,23 +78,23 @@ class Application_controller:
 
     #region Abstract_DB_manager methods
 
-    def static_insert_record(operating_DB_manager: Abstract_DB_manager, 
-                             target_collection_name: str, data_model: DTModel_I) -> bool:
-        return operating_DB_manager.insert_record(target_collection_name, data_model)
+    # def static_insert_record(operating_DB_manager: Abstract_DB_manager, 
+    #                          target_collection_name: str, data_model: DTModel_I) -> bool:
+    #     return operating_DB_manager.insert_record(target_collection_name, data_model)
 
 
-    def static_update_record(operating_DB_manager: Abstract_DB_manager, 
-                             target_collection_name: str, data_model: DTModel_I) -> bool:
-        return operating_DB_manager.update_record(target_collection_name, data_model)
+    # def static_update_record(operating_DB_manager: Abstract_DB_manager, 
+    #                          target_collection_name: str, data_model: DTModel_I) -> bool:
+    #     return operating_DB_manager.update_record(target_collection_name, data_model)
     
 
-    def static_reconnect_to_DB(operating_DB_manager: Abstract_DB_manager, 
-                               db_config: DB_config_I) -> bool:
-        return operating_DB_manager.connect(db_config)
+    # def static_reconnect_to_DB(operating_DB_manager: Abstract_DB_manager, 
+    #                            db_config: DB_config_I) -> bool:
+    #     return operating_DB_manager.connect(db_config)
 
 
-    def static_disconnect_from_DB(operating_DB_manager: Abstract_DB_manager) -> None:
-        return operating_DB_manager.disconnect()
+    # def static_disconnect_from_DB(operating_DB_manager: Abstract_DB_manager) -> None:
+    #     return operating_DB_manager.disconnect()
 
     #endregion Abstract_DB_manager methods
 
@@ -147,23 +151,28 @@ class Application_controller:
 
     #region Chatbot_manager methods
 
-    def send_message_with_responseInfo(self, message: str, responseInfo: set[str]) -> str:
-        return self.chatbot_manager.send_message_with_responseInfo(message, responseInfo)
+    # def send_message(self, message: str) -> str:
+    #     return self.chatbot_manager.send_message(message)
 
 
-    def reset_chatbot_API_setup(self, connection_config: Chatbot_config) -> bool:
-        return self.chatbot_manager.connect(connection_config)
+    # def reset_chatbot_API_setup(self, connection_config: BotLibre_chatbot_config) -> bool:
+    #     return self.chatbot_manager.connect(connection_config)
 
 
-    def delete_chatbot_API_info(self) -> None:
-        return self.chatbot_manager.disconnect()
+    # def delete_chatbot_API_info(self) -> None:
+    #     return self.chatbot_manager.disconnect()
     
 
-    def get_configured_storage_DB_name(self) -> str:
-        return self.storage_DB_name
+    # def get_configured_storage_DB_name(self) -> str:
+    #     return self.storage_DB_name
     
 
-    def get_configured_RAG_DB_name(self) -> str:
-        return self.rag_DB_name
+    # def get_configured_RAG_DB_name(self) -> str:
+    #     return self.rag_DB_name
+    
+
+    # def clear_chat(self) -> bool:
+    #     return (self.chatbot_manager.clear_script() and
+    #             self.chatbot_manager.clear_chat())
     
     #endregion Chatbot_manager methods
