@@ -7,8 +7,7 @@ from src.common.constants import Featured_RAG_DB_engines_enum as RAG_DB_enums
 from src.common.constants import Featured_embedding_models_enum as Embedder_enums
 from src.common.constants import Featured_chatBot_models_enum as Chatbot_enums
 
-from src.models.config_models import (BotLibre_chatbot_config, 
-                                      StepFun_chatbot_config, 
+from src.models.config_models import (Chatbot_config,  
                                       Embedder_config, 
                                       RAG_DB_config, 
                                       Storage_DB_config)
@@ -61,6 +60,9 @@ if __name__=="__main__":
 
 
     append_config = application_config[used_chatbot.value]
+    chatbot_config = Chatbot_config(chatbot_model_name=used_chatbot,
+                                    api_key=append_config.get("api_key"),
+                                    other_params=append_config.get("other_params"))
     # chatbot_config = BotLibre_chatbot_config(chatbot_model_name= used_chatbot, 
     #                                 api_key = append_config.get("api_key"), #also known as 'instance ID'
     #                                 username = append_config.get("username"),
@@ -68,7 +70,7 @@ if __name__=="__main__":
     #                                 bot_id = append_config.get("bot_id"), #also known as 'instance ID'
     #                                 script_id = append_config.get("script_id"),
     #                                 script_name = append_config.get("script_name"))
-    chatbot_config = StepFun_chatbot_config(chatbot_model_name=used_chatbot, api_key=append_config.get("api_key"))
+    # chatbot_config = StepFun_chatbot_config(chatbot_model_name=used_chatbot, api_key=append_config.get("api_key"))
 
     #endregion yaml parameters initialization
 

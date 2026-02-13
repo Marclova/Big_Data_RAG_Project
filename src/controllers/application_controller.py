@@ -1,5 +1,5 @@
 from src.models.interfaces.config_interfaces import DB_config_I
-from src.models.config_models import (BotLibre_chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config)
+from src.models.config_models import (Chatbot_config, Embedder_config, RAG_DB_config, Storage_DB_config)
 
 from src.models.interfaces.data_model_interface import DTModel_I
 from src.models.data_models import RAG_DTModel, Storage_DTModel
@@ -16,7 +16,7 @@ from src.coordinators.manager_coordinator import Manager_coordinator
 class Application_controller:
 
     def __init__(self, storage_config: Storage_DB_config, rag_config: RAG_DB_config, 
-                 embedder_config: Embedder_config, chatbot_config: BotLibre_chatbot_config, 
+                 embedder_config: Embedder_config, chatbot_config: Chatbot_config, 
                  default_RAG_DB_index_name: str, default_Storage_DB_collection_name: str):
         
         #parameters checks are performed in classes constructors
@@ -65,7 +65,7 @@ class Application_controller:
         self.manager_coordinator.clear_chat_and_script()
 
 
-    #TODO(FIX): consider to make this method returning a 'dict[str, bool]' in order to represent the outcome on display
+    #TODO(UPDATE): consider to make this method returning a 'dict[str, bool]' in order to represent the outcome on display
     def reconnect_all_managers(self) -> None:
         self.manager_coordinator.reconnect_all_managers()
 
@@ -101,50 +101,50 @@ class Application_controller:
 
     #region Storage_DB_manager methods
 
-    def get_all_storage_records(self, target_collection_name: str) -> list[Storage_DTModel]:
-        return self.storage_DB_manager.get_all_records(target_collection_name)
+    # def get_all_storage_records(self, target_collection_name: str) -> list[Storage_DTModel]:
+    #     return self.storage_DB_manager.get_all_records(target_collection_name)
 
 
-    def get_storage_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
-        return self.storage_DB_manager.get_record_using_title(input_collection_name, title)
+    # def get_storage_record_using_title(self, input_collection_name: str, title: str) -> Storage_DTModel:
+    #     return self.storage_DB_manager.get_record_using_title(input_collection_name, title)
 
 
-    def remove_storage_record_using_title(self, target_collection_name: str, title: str) -> bool:
-        return self.storage_DB_manager.remove_record_using_title(target_collection_name, title)
+    # def remove_storage_record_using_title(self, target_collection_name: str, title: str) -> bool:
+    #     return self.storage_DB_manager.remove_record_using_title(target_collection_name, title)
 
     #endregion Storage_DB_manager methods
 
 
     #region RAG_DB_manager methods
 
-    def insert_multiple_RAG_records(self, target_collection_name: str, data_models: list[RAG_DTModel]) -> bool:
-        return self.rag_DB_manager.insert_records(target_collection_name, data_models)
+    # def insert_multiple_RAG_records(self, target_collection_name: str, data_models: list[RAG_DTModel]) -> bool:
+    #     return self.rag_DB_manager.insert_records(target_collection_name, data_models)
 
 
-    def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, 
-                                           vector_query: list[float], top_k: int) -> list[RAG_DTModel]:
-        return self.rag_DB_manager.retrieve_vectors_using_vectorQuery(target_collection_name, vector_query, 
-                                                                      top_k)
+    # def retrieve_vectors_using_vectorQuery(self, target_collection_name: str, 
+    #                                        vector_query: list[float], top_k: int) -> list[RAG_DTModel]:
+    #     return self.rag_DB_manager.retrieve_vectors_using_vectorQuery(target_collection_name, vector_query, 
+    #                                                                   top_k)
     
     #endregion RAG_DB_manager methods
 
     
     #region Embedding_manager methods
 
-    def generate_embeddings_from_URL(self, file_URL: str, file_authors = None) -> list[RAG_DTModel]:
-        return self.embedding_manager.generate_embeddings_from_URL(file_URL, file_authors)
+    # def generate_embeddings_from_URL(self, file_URL: str, file_authors = None) -> list[RAG_DTModel]:
+    #     return self.embedding_manager.generate_embeddings_from_URL(file_URL, file_authors)
 
 
-    def generate_vector_query_from_text(self, text_query: str) -> list[float]:
-        return self.embedding_manager.generate_vector_query_from_text(text_query)
+    # def generate_vector_query_from_text(self, text_query: str) -> list[float]:
+    #     return self.embedding_manager.generate_vector_query_from_text(text_query)
     
 
-    def reset_embedder_API_setup(self, connection_config: Embedder_config) -> bool:
-        return self.embedding_manager.connect(connection_config)
+    # def reset_embedder_API_setup(self, connection_config: Embedder_config) -> bool:
+    #     return self.embedding_manager.connect(connection_config)
 
 
-    def delete_embedder_API_info(self) -> None:
-        self.embedding_manager.disconnect()
+    # def delete_embedder_API_info(self) -> None:
+    #     self.embedding_manager.disconnect()
     
     #endregion Embedding_manager methods
 

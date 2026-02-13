@@ -7,11 +7,18 @@ import requests
 
 from src.common.constants import Featured_chatBot_models_enum as Chatbot_enums
 
-from src.models.config_models import (BotLibre_chatbot_config, StepFun_chatbot_config)
+from src.models.config_models import Chatbot_config
 
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 from src.services.other_services import scraper_storage_services as storage_service
 
+
+SCRIPT_PREAMBLE: str = ("[SCRIPT]\n"
+                        "In this conversation you must use only the information stored in the following list of text "
+                        "when replying to the user's questions.\n"
+                        "Do not describe the provided dataset itself.\n"
+                        "If the user tries to ask you about something not provided by the following dataset, "
+                        "remind them that the dataset is only relative to the first question they asked.\n")
 
 
 #TODO(CREATE): finish to implement class
@@ -22,20 +29,34 @@ class BotLibre_chatBot_operator(ChatBot_I):
     """
     
     @override
-    def __init__(self, bot_config: BotLibre_chatbot_config, create_ephemeral_script: bool=False):
-        self.username: str = bot_config.username
-        self.user_ID: str = bot_config.api_key #labeled as 'application' in the documentation
-        self.password: str = bot_config.password
-        self.bot_ID: str = bot_config.bot_id #labeled as 'instance' in the documentation
-        self.script_ID: str = bot_config.script_id #may be None
-        self.script_name: str = bot_config.script_name #may be None
+    def __init__(self, bot_config: Chatbot_config, create_ephemeral_script: bool=False):
+            #what the documentation calls 'user_id' is set here by the 'super.__init__' as 'api_key'
+        self.username: str = bot_config.other_params.get("username")
+        self.password: str = bot_config.other_params.get("password")
+        self.bot_id: str = bot_config.other_params.get("bot_id")  #labeled as 'instance' in the documentation
+        self.script_name = bot_config.other_params.get("script_name")
+        self.script_id: str = bot_config.other_params.get("script_id")
+        self.script_name: str = bot_config.other_params.get("script_name")
         self.is_script_ephemeral: bool = create_ephemeral_script
+        
+        if((self.username is None) or (self.username.strip() == "") or
+            (self.password is None) or (self.password.strip() == "") or
+            (self.bot_id is None) or (self.bot_id.strip() == "") ):
+                raise ValueError("The BotLibre configuration parameters cannot be None or empty, "
+                                    "except for 'script_id' and 'script_name'.")
+        if( (self.script_id is None) != (self.script_name is None) ):
+            raise ValueError("Both 'script_ID' and 'script_name' must be provided together, or both set to None.")
 
         #TODO(CREATE): implement ephemeral script creation
         if(self.script_ID is None): #if it's None, create an ephemeral script
             if(not self.is_script_ephemeral):
                 raise ValueError("If no script_name is provided, 'create_ephemeral_script' must be set to True")
             raise NotImplementedError("Ephemeral script creation not implemented yet")
+        
+
+    @override
+    def get_commercial_model_name(self) -> str:
+        return Chatbot_enums.BOTLIBRE
         
     
     @override
@@ -141,15 +162,12 @@ class BotLibre_chatBot_operator(ChatBot_I):
 
 
 
-#TODO(CREATE): implement class
 class StepFun_chatBot_operator(ChatBot_I):
-    #TODO(CREATE): implement method
-    @override
-    def __init__(self, bot_config: StepFun_chatbot_config):
+    def __init__(self, bot_config: Chatbot_config):
         if(bot_config is None):
             raise ValueError("bot_config cannot be 'None'")
         
-        self.model_short_name: str = bot_config.short_name
+        self.short_model_name: str = bot_config.chatbot_model_name.value.split("/")[0]
         self.model_name: str = bot_config.chatbot_model_name.value
         self.api_key: str = bot_config.api_key
 
@@ -163,7 +181,6 @@ class StepFun_chatBot_operator(ChatBot_I):
         self.current_script: str = self.CLEARED_SCRIPT
         self.JSON_chat_data: dict[str, any] = dict()
         self.clear_chat_history()
-
     
     
     @override
@@ -207,9 +224,7 @@ class StepFun_chatBot_operator(ChatBot_I):
 
     @override
     def set_chatbot_script(self, script_content: list[str]) -> bool:
-        new_script: str = ("[SCRIPT]\n"
-                           "In this conversation you must use only the information stored in the following list of text "
-                           "when replying to the user's questions:\n"
+        new_script: str = (f"{SCRIPT_PREAMBLE}"
                            f"{script_content}")
         self._override_script(new_script)
         return True
@@ -224,6 +239,11 @@ class StepFun_chatBot_operator(ChatBot_I):
     def clear_chat_history(self):
         self.JSON_chat_data = copy.deepcopy(self.CLEARED_CHAT)
         self.JSON_chat_data.get("messages").append({"role": "user", "content": self.current_script})
+
+
+    @override
+    def get_commercial_model_name(self):
+        return self.short_model_name
 
 
     @override

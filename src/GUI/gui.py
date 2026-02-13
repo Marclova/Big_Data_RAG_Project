@@ -140,9 +140,9 @@ class AppGUI:
         if(question == ""):
             return
         logging.info("> User: " + question + "\n")
+        self.message_input_entry.delete(0, tk.END)
         result = self.controller.reply_to_question_raw_response(question, self._get_RAG_index_to_use())
         logging.info("> RAG System response:\n" + str(result) + "\n\n")
-        self.message_input_entry = ""
 
     
     def _send_question_for_chatbot_response(self):
@@ -150,15 +150,15 @@ class AppGUI:
         if(question == ""):
             return
         logging.info("> User: " + question + "\n")
+        self.message_input_entry.delete(0, tk.END)
         result = self.controller.reply_to_question(question, self._get_RAG_index_to_use())
         logging.info(f"> {self.controller.chatbot_manager.get_chatBot_model_name()}:" 
                      + str(result) + "\n\n")
-        self.message_input_entry = ""
 
 
     def _initiate_new_chat(self):
         self.controller.new_chat()
-        logging.info("Chat cleared!" + "\n\n")
+        logging.info("Chat cleared!" + "\n\n\n\n\n\n\n")
 
         
     def _ingest_documents(self):

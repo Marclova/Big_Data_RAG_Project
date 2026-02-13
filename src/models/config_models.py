@@ -6,7 +6,7 @@ from src.common.constants import (Featured_storage_DB_engines_enum as storage_en
                                   Featured_embedding_models_enum as embed_models, 
                                   Featured_chatBot_models_enum as chatBot_models)
 
-from src.models.interfaces.config_interfaces import (Configuration_model_I, DB_config_I, Chatbot_config_I)
+from src.models.interfaces.config_interfaces import (Configuration_model_I, DB_config_I)
 
 
 
@@ -75,41 +75,51 @@ class Embedder_config(Configuration_model_I):
         
 
 
-class BotLibre_chatbot_config(Chatbot_config_I):
-    def __init__(self, chatbot_model_name: chatBot_models, api_key: str, 
-                 username: str, password: str, 
-                 bot_id: str, script_id: str = None, script_name: str = None):
-        super().__init__(chatbot_model_name, api_key)
-
-        if(chatbot_model_name != chatBot_models.BOTLIBRE):
-            raise ValueError(f"Tried to initiate a '{chatBot_models.BOTLIBRE.value}' operator "
-                                f"with a '{chatbot_model_name.value}' config.")
+class Chatbot_config:
+    def __init__(self, chatbot_model_name: chatBot_models, api_key: str, other_params: dict[str, any] = None):
+        if(chatbot_model_name is None or api_key is None or api_key.strip() == ""):
+            raise ValueError("The chatBot model name and API key cannot be None or empty.")
         
-        if((username is None) or (username.strip() == "") or
-            (password is None) or (password.strip() == "") or
-            (bot_id is None) or (bot_id.strip() == "") ):
-                raise ValueError("The BotLibre configuration parameters cannot be None or empty, "
-                                    "except for 'script_id' and 'script_name'.")
-        if( (script_id is None) != (script_name is None) ):
-            raise ValueError("Both 'script_ID' and 'script_name' must be provided together, or both set to None.")
-
-        #what the documentation calls 'user_id' is set here by the 'super.__init__' as 'api_key'
-        self.username: str = username
-        self.password: str = password
-        self.bot_id: str = bot_id  #labeled as 'instance' in the documentation
-        self.script_name = script_name
-        self.script_id: str = script_id
-        self.script_name: str = script_name
+        self.chatbot_model_name: chatBot_models = chatbot_model_name
+        self.api_key: str = api_key
+        self.other_params: dict[str, any] = other_params
 
 
+# class BotLibre_chatbot_config(Chatbot_config_I):
+#     def __init__(self, chatbot_model_name: chatBot_models, api_key: str, other_params: dict[str, any]):
+#         super().__init__(chatbot_model_name, api_key)
+
+#         if(chatbot_model_name != chatBot_models.BOTLIBRE):
+#             raise ValueError(f"Tried to initiate a '{chatBot_models.BOTLIBRE.value}' operator "
+#                                 f"with a '{chatbot_model_name.value}' config.")
+#         if(other_params is None):
+#             raise ValueError("Botlibre config model requires 'other_params', but it was non provided.")
+        
+        # #what the documentation calls 'user_id' is set here by the 'super.__init__' as 'api_key'
+        # self.username: str = other_params.get("username")
+        # self.password: str = other_params.get("password")
+        # self.bot_id: str = other_params.get("bot_id")  #labeled as 'instance' in the documentation
+        # self.script_name = other_params.get("script_name")
+        # self.script_id: str = other_params.get("script_id")
+        # self.script_name: str = other_params.get("script_name")
+        
+        # if((self.username is None) or (self.username.strip() == "") or
+        #     (self.password is None) or (self.password.strip() == "") or
+        #     (self.bot_id is None) or (self.bot_id.strip() == "") ):
+        #         raise ValueError("The BotLibre configuration parameters cannot be None or empty, "
+        #                             "except for 'script_id' and 'script_name'.")
+        # if( (self.script_id is None) != (self.script_name is None) ):
+        #     raise ValueError("Both 'script_ID' and 'script_name' must be provided together, or both set to None.")
 
 
-class StepFun_chatbot_config(Chatbot_config_I):
-    def __init__(self, chatbot_model_name: chatBot_models, api_key: str):
-        super().__init__(chatbot_model_name, api_key)
 
-        if(chatbot_model_name != chatBot_models.STEPFUN):
-                raise ValueError(f"Tried to initiate a '{chatBot_models.STEPFUN.value}' operator "
-                                 f"with a '{chatbot_model_name.value}' config.")
 
-        self.short_name: str = chatbot_model_name.value.split("/")[0]
+# class StepFun_chatbot_config(Chatbot_config_I):
+#     def __init__(self, chatbot_model_name: chatBot_models, api_key: str):
+#         super().__init__(chatbot_model_name, api_key)
+
+#         if(chatbot_model_name != chatBot_models.STEPFUN):
+#                 raise ValueError(f"Tried to initiate a '{chatBot_models.STEPFUN.value}' operator "
+#                                  f"with a '{chatbot_model_name.value}' config.")
+
+#         self.short_name: str = chatbot_model_name.value.split("/")[0]

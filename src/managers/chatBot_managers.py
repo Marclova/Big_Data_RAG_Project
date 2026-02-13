@@ -6,9 +6,7 @@ from src.common.constants import Featured_chatBot_models_enum as chatBot_models
 from src.managers.interfaces.manager_interface import Manager_I
 from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
 
-from src.models.interfaces.config_interfaces import Chatbot_config_I
-from src.models.config_models import (BotLibre_chatbot_config as BotLibre_conf, 
-                                      StepFun_chatbot_config as StepFun_conf)
+from src.models.config_models import Chatbot_config
 
 
 from src.services.chatBot_services.chatBot_operators import (BotLibre_chatBot_operator, StepFun_chatBot_operator)
@@ -19,7 +17,7 @@ class ChatBot_manager(Manager_I):
     """
     Generalized chatBot manager to handle chatbot interactions.
     """    
-    def __init__(self, bot_config: Chatbot_config_I):
+    def __init__(self, bot_config: Chatbot_config):
         self.chatBot: ChatBot_I
         self.chatBot_model_name: str
 
@@ -84,18 +82,17 @@ class ChatBot_manager(Manager_I):
         Returns:
             str: The name of the chatBot model.
         """
-        return self.chatBot_model_name
+        return self.chatBot.get_commercial_model_name()
     
 
     @override
-    def connect(self, connection_config: Chatbot_config_I) -> bool:
+    def connect(self, connection_config: Chatbot_config) -> bool:
         """
         Connects the manager to outer providers or other kind of sources using the given configurations.
             NOTE: There's not actually a connection being opened, but just a class state set for API requests.
         """
         try:
             self.chatBot = self._chatbot_operator_factory(connection_config)
-            self.chatBot_model_name = connection_config.chatbot_model_name.value
         except Exception as e:
             logging.info(f"[ERROR]: Failed to connect with the chatbot service: {e}")
 
@@ -112,7 +109,7 @@ class ChatBot_manager(Manager_I):
     
 
 
-    def _chatbot_operator_factory(self, bot_config: Chatbot_config_I) -> ChatBot_I:
+    def _chatbot_operator_factory(self, bot_config: Chatbot_config) -> ChatBot_I:
         """
         Factory method to create the chatBot operator based on the provided configuration.
         Parameters:
@@ -123,9 +120,9 @@ class ChatBot_manager(Manager_I):
         if(bot_config is None):
             raise ValueError("The chatBot configuration cannot be None.")
         elif(bot_config.chatbot_model_name == chatBot_models.BOTLIBRE):
-            return BotLibre_chatBot_operator(cast(BotLibre_conf, bot_config))
+            return BotLibre_chatBot_operator(bot_config)
         elif(bot_config.chatbot_model_name == chatBot_models.STEPFUN):
-            return StepFun_chatBot_operator(cast(StepFun_conf, bot_config))
+            return StepFun_chatBot_operator(bot_config)
         
         raise NotImplementedError(
             f"Dead code activation: No factory case for chatBot model named '{bot_config.chatbot_model_name}'. "

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.models.interfaces.config_interfaces import Chatbot_config_I
+from src.models.config_models import Chatbot_config
 
 
 class ChatBot_I(ABC):
@@ -10,10 +10,18 @@ class ChatBot_I(ABC):
     Chat history is saved inside the RAM and only one chat at time can be saved.
     """
     @abstractmethod
-    def __init__(self, bot_config: Chatbot_config_I):
+    def __init__(self, bot_config: Chatbot_config):
         """
         Parameters:
-            bot_config (ChatBot_config_I): Configuration object for the chatBot service.
+            bot_config (ChatBot_config): Configuration object for the chatBot service.
+        """
+        pass
+
+    @abstractmethod
+    def get_commercial_model_name(self) -> str:
+        """
+        Returns the commercial name of the model. 
+        May not coincide with the name used by the API.
         """
         pass
 
