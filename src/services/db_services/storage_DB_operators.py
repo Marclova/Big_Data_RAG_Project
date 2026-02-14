@@ -43,11 +43,17 @@ class Storage_MongoDB_operator(Storage_DB_operator_I):
 
 
     @override
-    def get_all_records(self, input_collection_name: str) -> list[dict[any]]:
+    def get_all_records(self, input_collection_name: str) -> list[Storage_DTModel]:
         if((input_collection_name is None) or (self.check_collection_existence(input_collection_name) is False)):
             raise ValueError("Input collection name must be provided and must exist in the database.")
 
-        return list(self.database[input_collection_name].find())
+        records = list(self.database[input_collection_name].find())
+
+        list_to_return: list[Storage_DTModel] = list()
+        for record in records:
+            list_to_return.append(Storage_DTModel(record["url"], record["title"],
+                                                  record["pages"], record["author"]))
+        return list_to_return
 
 
     @override

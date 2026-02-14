@@ -54,7 +54,7 @@ class Embedding_manager(Manager_I):
         file_name = os.path.basename(file_path)
         logging.info(f"[INFO]: Embedding file '{file_name} from {file_URL}...'")
 
-        partition_result: dict[str,any] = rawOperator.extract_partition_text_and_metadata_from_file(file_path, pop_file=True)
+        partition_result: dict[str,any] = rawOperator.extract_partition_text_and_metadata_from_file(file_path, pop_file=False)
         textChunkList: list[str] = partition_result["text_chunks"]
 
         minimal_embeddings: dict[str, list[float]] = self.embedder.generate_vectors_from_textChunks(textChunkList)

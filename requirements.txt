@@ -1,26 +1,18 @@
-# tf_keras
-# sentence-transformers
-# langchain_together
-# sentence_transformers
-
-
 #DBs
 pymongo
 PyGreSQL
+pinecone #also used for embedding
 
 #file extraction
-pymupdf # maybe is ' llama-index-readers-file pymupdf '
+fitz
+tools
+pymupdf
+llama_index
 
 # web interactions and protocols
 requests
-fitz
 frontend
 
-#embedders and transformers
-torch
-transformers
-llama-index-embeddings-openai
-
 #project setup and management
-pyyaml
+yaml
 unittest

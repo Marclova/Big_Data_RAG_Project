@@ -168,12 +168,12 @@ class AppGUI:
                                        concerned_index=used_index)):
             failedChunks: list[str]
             if(self.is_source_a_file.get()):
-                logging.info(f"Embedding file '{used_source}' into index '{used_index}'...")
+                logging.info(f"[INFO] Embedding file '{used_source}' into index '{used_index}'...")
                 (_, failedChunks) = self.controller.ingest_documents_from_urls_or_paths([used_source], used_index)
             else:
-                logging.info(f"Embedding all files in collection '{used_source}' into index '{used_index}'...")
+                logging.info(f"[INFO] Embedding all files in collection '{used_source}' into index '{used_index}'...")
                 (_, failedChunks) = self.controller.ingest_all_documents_from_storage(used_source, used_index)
-            logging.info(f"Embedding terminated with {len(failedChunks)} errors.")
+            logging.info(f"[INFO] Embedding terminated with {len(failedChunks)} errors.")
 
     #endregion controller -> coordinator methods
 

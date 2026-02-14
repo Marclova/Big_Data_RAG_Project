@@ -109,7 +109,7 @@ def increase_09az_id_with_carry(id: str) -> str:
     return id
 
 
-def extract_partition_text_and_metadata_from_file(file_path: str, pop_file: bool=True) -> dict[list[str], any]:
+def extract_partition_text_and_metadata_from_file(file_path: str, pop_file: bool=False) -> dict[list[str], any]:
     """
     Method to extract and partition text for any textual file (ex. TXT, PDF).
     Parameters:
