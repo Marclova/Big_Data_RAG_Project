@@ -4,7 +4,7 @@ from typing import cast, override
 from src.common.constants import Featured_chatBot_models_enum as chatBot_models
 
 from src.managers.interfaces.manager_interface import Manager_I
-from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
+from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_operator_I
 
 from src.models.config_models import Chatbot_config
 
@@ -18,7 +18,7 @@ class ChatBot_manager(Manager_I):
     Generalized chatBot manager to handle chatbot interactions.
     """    
     def __init__(self, bot_config: Chatbot_config):
-        self.chatBot: ChatBot_I
+        self.chatBot: ChatBot_operator_I
         self.chatBot_model_name: str
 
         self.connect(bot_config)
@@ -109,7 +109,7 @@ class ChatBot_manager(Manager_I):
     
 
 
-    def _chatbot_operator_factory(self, bot_config: Chatbot_config) -> ChatBot_I:
+    def _chatbot_operator_factory(self, bot_config: Chatbot_config) -> ChatBot_operator_I:
         """
         Factory method to create the chatBot operator based on the provided configuration.
         Parameters:

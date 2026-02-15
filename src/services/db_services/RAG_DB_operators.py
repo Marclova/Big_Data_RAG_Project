@@ -26,29 +26,16 @@ from src.models.data_models import RAG_DTModel
 TOLERANCE = 0.85
 json = dict[str, Any]
 floatVector = list[float]
-# vectorNode = tuple[
-#                         float, 
-#                         int, 
-#                         dict[str, json], 
-#                         floatVector
-#                     ]
-# """
-# Types:
-#     float: similarity (primary evaluation parameter)
-#     int: unique ID (tie-breaker parameter)
-#     dict[str, json]: dict of text chunks and RAG_DTModel (transmitted data)
-#     floatVector: vector (used for intra-top_k similarity avoidance)
-# """
 class _VectorModel:
     """
     Container class for vector nodes used in the retrieval process.
-    More precisely, it is used to assign similarity scores to text chunks and ease access raw vector data for intra-top_k similarity checks.
+    More precisely, it is used to assign similarity scores to text chunks 
+    without worsening access to raw data vectors for intra-top_k similarity checks.
     """
-    def __init__(self, similarity_to_query: float, json_RAGDTModel: json, vector: list[floatVector]): #, ID: int = None):
-        # self.ID = ID if ID is not None else 0
-        self.similarity_to_query = similarity_to_query
-        self.json_RAGDTModel = json_RAGDTModel
-        self.vector = vector
+    def __init__(self, similarity_to_query: float, json_RAGDTModel: json, vectorList: list[floatVector]):
+        self.similarity_to_query: float = similarity_to_query
+        self.json_RAGDTModel: json = json_RAGDTModel
+        self.vectorList: list[floatVector] = vectorList
 #endregion custom types
 
 """
@@ -100,9 +87,6 @@ class RAG_PineconeDB_operator(RAG_DB_operator_I):
             raise ValueError("One or more required parameters for 'insert_record' method are missing or invalid.")
         if(self.check_collection_existence(target_index_name) is False):
             raise ValueError(f"The target index '{target_index_name}' does not exist in Pinecone DB.")
-        #There must be no match
-        # if self._is_ID_already_in_use(target_index_name, data_model.id):
-        #     return False
         
         return self._upsert_record(target_index_name, data_model)
 
@@ -284,7 +268,8 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
 
     #TODO(UPDATE): Implement normalized vector checking and eventual normalization (using 'raw_data_operator.py')
     @override
-    def retrieve_embeddings_from_vector(self, target_collection_name: str, normalized_query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
+    def retrieve_embeddings_from_vector(self, target_collection_name: str, 
+                                        normalized_query_vector: list[floatVector], top_k: int) -> list[RAG_DTModel]:
         if( (target_collection_name is None) or (normalized_query_vector is None) or (top_k is None) ):
             raise ValueError("The method 'retrieve_embeddings_from_vector' has been called with one or more required parameters as 'None'")
         if(not self.check_collection_existence(target_collection_name)):
@@ -314,7 +299,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
                 local_results: list[_VectorModel] = [
                     _VectorModel(similarity_to_query=cosine_similarity_array[i], 
                                  json_RAGDTModel=json_RAGDTModel_list[i], 
-                                 vector=normalized_document_vectors[i]) 
+                                 vectorList=normalized_document_vectors[i]) 
                             for i in range(len(cosine_similarity_array))
                     ]
                     
@@ -403,7 +388,7 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
         return RAG_engines_enum.MONGODB
 
     
-
+    #TODO(MINOR REFACTOR): use the data_model's function to generate the json (it will cause a cascade problem because the structure is different now)
     def _insert_update_record(self, target_collection_name: str, data_model: RAG_DTModel) -> bool:
         """
         Private method actually implementing the insertion/update of records.
@@ -487,6 +472,6 @@ class RAG_MongoDB_operator(RAG_DB_operator_I):
                             None if no redundancy is found.
         """
         for existing_vector in vector_list:
-            if(numpy.dot(existing_vector.vector, vector.vector) >= TOLERANCE):
+            if(numpy.dot(existing_vector.vectorList, vector.vectorList) >= TOLERANCE):
                 return existing_vector
         return None

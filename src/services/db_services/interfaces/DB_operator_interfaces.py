@@ -15,6 +15,7 @@ class DB_operator_I(ABC):
     def insert_record(self, target_collection_name: str, data_model: DTModel_I) -> bool:
         """
         Insert a new record into the given collection/table/index.
+        An eventual collision will result with the old data being substituted.
 
         Parameters:
             output_collection_name (str): The name of the existing DB collection/table/index where to insert the record into.
@@ -156,6 +157,6 @@ class RAG_DB_operator_I(DB_operator_I):
                                     This value is supposed to be obtained by embedding a natural language question or text to retrieve.
             top_k (int): The number of top similar vectors to retrieve.
         Returns:
-            list[DTModel]: A list of the top_k most similar vectors as data models.
+            list[RAG_DTModel]: A list of the top_k most similar vectors as data models.
         """
         pass

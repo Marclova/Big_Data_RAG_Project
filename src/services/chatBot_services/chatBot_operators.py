@@ -1,15 +1,13 @@
 import copy
 import json
 from typing import override
-# from urllib import response
-# from aiohttp import FormData
 import requests
 
 from src.common.constants import Featured_chatBot_models_enum as Chatbot_enums
 
 from src.models.config_models import Chatbot_config
 
-from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_I
+from src.services.chatBot_services.interfaces.chatBot_service_interfaces import ChatBot_operator_I
 from src.services.other_services import scraper_storage_services as storage_service
 
 
@@ -22,7 +20,7 @@ SCRIPT_PREAMBLE: str = ("[SCRIPT]\n"
 
 
 #TODO(CREATE): finish to implement class
-class BotLibre_chatBot_operator(ChatBot_I):
+class BotLibre_chatBot_operator(ChatBot_operator_I):
     """
     Simple and free chatbot service providing minimal configuration to provide information to the user.
     The provider requires no subscription nor API Key.
@@ -30,7 +28,7 @@ class BotLibre_chatBot_operator(ChatBot_I):
     
     @override
     def __init__(self, bot_config: Chatbot_config, create_ephemeral_script: bool=False):
-            #what the documentation calls 'user_id' is set here by the 'super.__init__' as 'api_key'
+        #what the documentation calls 'user_id' is set here by the 'super.__init__' as 'api_key'
         self.username: str = bot_config.other_params.get("username")
         self.password: str = bot_config.other_params.get("password")
         self.bot_id: str = bot_config.other_params.get("bot_id")  #labeled as 'instance' in the documentation
@@ -71,22 +69,6 @@ class BotLibre_chatBot_operator(ChatBot_I):
                 f"   username: '{self.username}',\n"
                 f"   user_ID: '{self.user_ID}',\n"
                 )
-
-    # def get_all_botLibre_bots(self) -> any:
-    #     var request = new XMLHttpRequest();
-    #     request.open('POST', 'https://www.botlibre.biz/rest/api/get-bots', true);
-    #     request.setRequestHeader('Content-Type', 'application/xml');
-    #     var xml = "<browse application='3855908076414615606' ></browse>";
-    #     request.onreadystatechange = function() {
-    #         exampleResult.setValue(request.responseText, -1);
-    #     };
-    #     request.send(xml);
-
-    # code to set bot script (probably the url is incorrect)
-    # xml = f"<script-source application='7860132618576389205' instance='instance-id' id='{self.script_id}' user='{self.username}' password='{self.password}'></script-source>"
-    # headers = {'Content-Type': 'application/xml'}
-    # response = requests.post('https://www.botlibre.biz/rest/api/up-bot-script', data=xml, headers=headers)
-    # return response.text
 
 
     #TODO(FIX): Solve error 415 'Unsupported Media Type' from the API (but there's no documentation about it)
@@ -162,7 +144,7 @@ class BotLibre_chatBot_operator(ChatBot_I):
 
 
 
-class StepFun_chatBot_operator(ChatBot_I):
+class StepFun_chatBot_operator(ChatBot_operator_I):
     def __init__(self, bot_config: Chatbot_config):
         if(bot_config is None):
             raise ValueError("bot_config cannot be 'None'")
@@ -204,13 +186,9 @@ class StepFun_chatBot_operator(ChatBot_I):
         response_content: str = response.get('content')
 
         #add chatbot response into data
-        not self._add_new_message_to_history(sender="assistant", 
-                                             message=response_content, 
-                                             reasoning=response.get('reasoning_details'))
-        # if(not self._add_new_message_to_history(sender=self.model_name, 
-        #                                         message=response.get('content'), 
-        #                                         reasoning=response.get('reasoning_details'))):
-        #     return "<Chatbot's message has been deleted by the local system due to an unexpected issue>"
+        self._add_new_message_to_history(sender="assistant", 
+                                         message=response_content, 
+                                         reasoning=response.get('reasoning_details'))
         
         return response_content
     
@@ -276,12 +254,6 @@ class StepFun_chatBot_operator(ChatBot_I):
             bool: True if the new message has been inserted correctly. False otherwise.
         """
         message_list: list[dict[str, str]] = self.JSON_chat_data.get("messages")
-        
-        # #Make sure that no one talks twice in a raw
-        # if(message_list[-1].get("role") == sender):
-        #     if(sender == self.model_name):
-        #         raise BufferError("The chatbot replied twice")
-        #     return False
         
         if(reasoning is None):
             message_list.append({"role": sender, "content": message})

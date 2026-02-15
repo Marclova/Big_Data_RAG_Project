@@ -75,6 +75,7 @@ class Application_controller:
     
     #endregion Manager_coordinator methods
 
+# the following commended code is a possible implementation in case you may want extend the GUI's functionalities
 
     #region Abstract_DB_manager methods
 

@@ -85,6 +85,7 @@ class RAG_DTModel(Storage_DTModel):
                    storage_model.url, storage_model.title, storage_model.pages, storage_model.authors, id)
         
     
+    #TODO(MINOR REFACTOR): adapt model creation to the new format (defined by 'generate_JSON_data')
     @classmethod
     def create_from_JSONData(cls, JSON_data: dict[str, any]):
         # Can't call super().__init__ because of different JSON structure        

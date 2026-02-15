@@ -1,9 +1,6 @@
 import logging
 import os
 import requests
-from tempfile import NamedTemporaryFile
-# from unstructured.partition.auto import partition
-# from pathlib import Path
 
 
 # from llama_index.core import Document

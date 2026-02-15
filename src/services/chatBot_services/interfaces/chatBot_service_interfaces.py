@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from src.models.config_models import Chatbot_config
 
 
-class ChatBot_I(ABC):
+class ChatBot_operator_I(ABC):
     """
     Interface for chatbots API services, sending requests and exchanging information with the provider.
     It is also included the functionality of momentary storage of the chat history until the program is running.

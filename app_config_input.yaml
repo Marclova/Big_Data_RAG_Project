@@ -1,12 +1,9 @@
-#TODO(before commit): remove sensible data
-
 #region DB configs
 
 storage_db_name : "testDB"
 storage_collection_name : "records"
 rag_db_name : "testDB"
-rag_index_name : "unitTestEmbeddingsPinecone" #For RAGMongDB
-# rag_index_name : "testindex" #For RAGPineconeDB
+rag_index_name : "unitTestEmbeddingsPinecone"
 
 #Both for storage and RAG operations
 MongoDB: {
@@ -21,7 +18,6 @@ Pinecone: {
 }
 
 #for storage operations
-#TODO(CREATE): PyGreSQL
 PyGreSQL: {
   db_connection_url: "", 
   port: "", 
