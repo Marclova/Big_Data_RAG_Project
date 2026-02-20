@@ -168,6 +168,8 @@ def refine_embedding_textList(text_chunk_list: list[str]) -> list[str]:
             split_tuple = _pop_last_sentence(candidate)
             candidate = split_tuple[0]
             append_text = split_tuple[1] + " "
+        else: #It's useful and round (no operations)
+            pass
         
         candidate = _delete_or_fix_anomalous_lines(candidate) #This function works on single lines
         new_text_chunks.append(candidate)
